@@ -1,5 +1,6 @@
 package com.team.updevic001.dao.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.team.updevic001.model.enums.Role;
 import com.team.updevic001.model.enums.Status;
 import jakarta.persistence.*;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -39,12 +41,16 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Column(name = "enabled")
+    @Column(nullable = false, columnDefinition = "VARCHAR(255) DEFAULT 'PENDING'")
     @Enumerated(EnumType.STRING)
     private Status status = Status.PENDING;
 
     @Column(name = "created_at")
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Comment> comments;
 
 }

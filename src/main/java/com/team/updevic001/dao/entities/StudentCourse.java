@@ -11,18 +11,18 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "course_teacher")
-public class CourseTeacher {
+@Table(name = "student_course")
+public class StudentCourse {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID uuid;
 
     @ManyToOne
-    @JoinColumn(name = "teacher_id", nullable = false)
-    private Teacher teacher;
+    @JoinColumn(name = "student_id", nullable = false)
+    private Student student;
 
     @ManyToOne
-    @JoinColumn(name = "course_id", nullable = false)
+    @JoinColumn(name = "course",nullable = false)
     private Course course;
 }

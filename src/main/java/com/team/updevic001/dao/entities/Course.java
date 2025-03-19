@@ -1,5 +1,6 @@
 package com.team.updevic001.dao.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.team.updevic001.model.enums.CourseLevel;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -19,7 +20,7 @@ import java.util.UUID;
 public class Course {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID uuid;
 
     @Column(name = "title",nullable = false)
@@ -30,12 +31,24 @@ public class Course {
 
     @Column(name = "course_level")
     @Enumerated(EnumType.STRING)
-    private CourseLevel courseLevel;
-
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
-    private List<Lesson> lessons;
+    private CourseLevel level;
 
     @Column(name = "created_at")
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.EAGER)
+    @JsonManagedReference
+    private List<Lesson> lessons;
+
+    @OneToMany(mappedBy = "course",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.EAGER)
+    @JsonManagedReference
+    private List<Comment> comments;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "certificate_id", referencedColumnName = "uuid")
+    private Certificate certificate;
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<CourseTeacher> courseTeachers;
 }

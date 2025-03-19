@@ -7,10 +7,12 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResponseUserDto {
+public class ResponseLessonCommentDto {
+    private String title;
 
-    private String firstName;
-    private String lastName;
-    private String email;
+    private String description;
 
+    private String videoUrl;
+
+    private String userName;
 }

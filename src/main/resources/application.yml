@@ -3,8 +3,8 @@ spring:
     name: UpDevic_001
   datasource:
     url: jdbc:mysql://localhost:3306/start-up
-    username: Aladdin
-    password: 2605Aa..
+    username: ${USERNAME}
+    password: ${PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update

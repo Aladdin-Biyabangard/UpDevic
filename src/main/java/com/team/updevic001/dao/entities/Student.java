@@ -1,11 +1,11 @@
 package com.team.updevic001.dao.entities;
+
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-                                                        /**  Hazirdir.
-                                                         * */
+
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,5 +24,8 @@ public class Student extends User {
     @CreationTimestamp
     private LocalDateTime enrolledDate;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "certificate_id", referencedColumnName = "uuid")
+    private Certificate certificate;
 
 }

@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -32,8 +33,7 @@ public class Teacher extends User {
     @CreationTimestamp
     private LocalDateTime hireDate;
 
-//  Eger muellimin oldugu kurslari gormek kimi bir funksiya lazim olsa commentden cixarariq
-//    @OneToMany(mappedBy = "teacher")
-//    private List<CourseTeacher> courseTeachers;
+    @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<CourseTeacher> courseTeachers;
 
 }
