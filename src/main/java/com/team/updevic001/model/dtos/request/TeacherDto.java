@@ -1,5 +1,6 @@
 package com.team.updevic001.model.dtos.request;
 
+import com.team.updevic001.model.dtos.request.user.UserDto;
 import com.team.updevic001.model.enums.Specialty;
 import lombok.AllArgsConstructor;
 import lombok.Data;

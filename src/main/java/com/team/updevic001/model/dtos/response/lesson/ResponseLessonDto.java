@@ -1,5 +1,6 @@
-package com.team.updevic001.model.dtos.response;
+package com.team.updevic001.model.dtos.response.lesson;
 
+import com.team.updevic001.model.dtos.response.comment.ResponseCommentDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,5 +17,5 @@ public class ResponseLessonDto {
 
     private String videoUrl;
 
-    private List<ResponseLessonCommentDto> comments;
+    private List<ResponseCommentDto> comments;
 }

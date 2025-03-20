@@ -1,4 +1,4 @@
-package com.team.updevic001.model.dtos.response;
+package com.team.updevic001.model.dtos.response.comment;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,14 +9,12 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResponseCourseCommentDto {
+public class ResponseCommentDto {
+
     private String content;
 
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
-
-    private ResponseCourseDto userName;
-
 
 }

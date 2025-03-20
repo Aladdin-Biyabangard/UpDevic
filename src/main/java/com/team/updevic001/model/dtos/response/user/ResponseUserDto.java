@@ -1,4 +1,4 @@
-package com.team.updevic001.model.dtos.response;
+package com.team.updevic001.model.dtos.response.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
