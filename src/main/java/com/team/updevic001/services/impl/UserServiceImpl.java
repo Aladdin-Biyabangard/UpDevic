@@ -44,6 +44,11 @@ public class UserServiceImpl implements UserService {
 
         User user = userMapper.toEntity(userDto, User.class);
         userRepository.save(user);
+
+        UserProfile userProfile = UserProfile.builder()
+                .user(user)
+                .build();
+        userProfileRepository.save(userProfile);
         log.info("User created successfully with ID: {}", user.getUuid());
         return userMapper.toResponse(user, ResponseUserDto.class);
     }
