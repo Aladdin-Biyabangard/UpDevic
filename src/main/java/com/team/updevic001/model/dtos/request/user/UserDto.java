@@ -2,7 +2,6 @@ package com.team.updevic001.model.dtos.request.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
@@ -18,15 +17,4 @@ public class UserDto {
 
     private String email;
 
-    @EqualsAndHashCode(callSuper = true)
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class StudentDto extends UserDto {
-
-        private UserDto userDto;
-
-        private String studentNumber;
-
-    }
 }
