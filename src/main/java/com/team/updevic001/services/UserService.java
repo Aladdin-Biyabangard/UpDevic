@@ -1,8 +1,9 @@
 package com.team.updevic001.services;
 
 import com.team.updevic001.dao.entities.UserRole;
-import com.team.updevic001.model.dtos.request.user.UserDto;
-import com.team.updevic001.model.dtos.request.user.UserProfileDto;
+import com.team.updevic001.model.dtos.request.TeacherDto;
+import com.team.updevic001.model.dtos.request.UserDto;
+import com.team.updevic001.model.dtos.request.UserProfileDto;
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 import com.team.updevic001.model.enums.Role;
 
@@ -10,7 +11,7 @@ import java.util.List;
 
 public interface UserService {
 
-    ResponseUserDto newUser(UserDto userDto);
+    ResponseUserDto newUser(TeacherDto teacherDto);
 
     void updateUserProfileInfo(String uuid, UserProfileDto userProfileDto);
 

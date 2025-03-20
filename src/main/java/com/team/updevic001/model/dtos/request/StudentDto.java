@@ -1,6 +1,5 @@
-package com.team.updevic001.model.dtos.request.student;
+package com.team.updevic001.model.dtos.request;
 
-import com.team.updevic001.model.dtos.request.user.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

@@ -1,10 +1,8 @@
 package com.team.updevic001.controllers;
 
-import com.team.updevic001.dao.entities.TestClass;
 import com.team.updevic001.dao.entities.UserRole;
-import com.team.updevic001.dao.repositories.TestRepo;
-import com.team.updevic001.model.dtos.request.user.UserDto;
-import com.team.updevic001.model.dtos.request.user.UserProfileDto;
+import com.team.updevic001.model.dtos.request.TeacherDto;
+import com.team.updevic001.model.dtos.request.UserProfileDto;
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 import com.team.updevic001.model.enums.Role;
 import com.team.updevic001.services.UserService;
@@ -23,17 +21,11 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private final TestRepo testRepo;
-
-    @PostMapping(path = "test-/")
-    public void testCl(@RequestBody TestClass testClass) {
-        testRepo.save(testClass);
-    }
 
 
     @PostMapping
-    public ResponseEntity<ResponseUserDto> newUser(@RequestBody UserDto userDto) {
-        ResponseUserDto responseUserDto = userService.newUser(userDto);
+    public ResponseEntity<ResponseUserDto> newUser(@RequestBody TeacherDto teacherDto) {
+        ResponseUserDto responseUserDto = userService.newUser(teacherDto);
         return new ResponseEntity<>(responseUserDto, HttpStatus.CREATED);
 
     }
