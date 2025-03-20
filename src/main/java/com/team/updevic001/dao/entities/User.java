@@ -22,8 +22,8 @@ import java.util.UUID;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID uuid;
+    @Column(unique = true, nullable = false, length = 36)
+    private String uuid;
 
     @Column(name = "first_name", nullable = false)
     private String firstName;
@@ -46,11 +46,11 @@ public class User {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Comment> comments;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -61,4 +61,11 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserProfile userProfile;
 
+
+    @PrePersist
+    public void generateUuid() {
+        if (this.uuid == null) {
+            this.uuid = UUID.randomUUID().toString().substring(0, 35);
+        }
+    }
 }

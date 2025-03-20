@@ -7,23 +7,22 @@ import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 import com.team.updevic001.model.enums.Role;
 
 import java.util.List;
-import java.util.UUID;
 
 public interface UserService {
 
     ResponseUserDto newUser(UserDto userDto);
 
-    void updateUserProfileInfo(UUID uuid, UserProfileDto userProfileDto);
+    void updateUserProfileInfo(String uuid, UserProfileDto userProfileDto);
 
-    void updateUserPassword(UUID uuid, String oldPassword, String newPassword);
+    void updateUserPassword(String uuid, String oldPassword, String newPassword);
 
-    void activateUser(UUID uuid);
+    void activateUser(String uuid);
 
-    void deactivateUser(UUID uuid);
+    void deactivateUser(String uuid);
 
-    void addRole(UUID uuid, UserRole role);
+    void addRole(String uuid, UserRole role);
 
-    ResponseUserDto getUserById(UUID uuid);
+    ResponseUserDto getUserById(String uuid);
 
     List<ResponseUserDto> getUser(String query);
 
@@ -33,9 +32,9 @@ public interface UserService {
 
     Long countUsers();
 
-    void sendPasswordResetEmail(UUID uuid);
+    void sendPasswordResetEmail(String uuid);
 
-    void deleteUser(UUID uuid);
+    void deleteUser(String uuid);
 
     void deleteUsers();
 

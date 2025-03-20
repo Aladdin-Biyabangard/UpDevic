@@ -19,8 +19,8 @@ import java.util.UUID;
 public class Certificate {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID uuid;
+    @Column(unique = true, nullable = false, length = 36)
+    private String uuid;
 
     @Column(name = "certificate_content")
     private String certificateContent;
@@ -36,4 +36,11 @@ public class Certificate {
     @Column(name = "issue_date")
     @CreationTimestamp
     private LocalDateTime issueDate;
+
+    @PrePersist
+    public void generateUuid() {
+        if (this.uuid == null) {
+            this.uuid = UUID.randomUUID().toString().substring(0, 35);
+        }
+    }
 }

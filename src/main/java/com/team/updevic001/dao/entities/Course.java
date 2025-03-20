@@ -20,10 +20,10 @@ import java.util.UUID;
 public class Course {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID uuid;
+    @Column(unique = true, nullable = false, length = 36)
+    private String uuid;
 
-    @Column(name = "title",nullable = false)
+    @Column(name = "title", nullable = false)
     private String title;
 
     @Column(name = "description")
@@ -37,11 +37,11 @@ public class Course {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Lesson> lessons;
 
-    @OneToMany(mappedBy = "course",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Comment> comments;
 
@@ -55,4 +55,11 @@ public class Course {
     @ManyToOne
     @JoinColumn(name = "course_category_uuid")
     private CourseCategory category;
+
+    @PrePersist
+    public void generateUuid() {
+        if (this.uuid == null) {
+            this.uuid = UUID.randomUUID().toString().substring(0, 35);
+        }
+    }
 }

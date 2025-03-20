@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
-public interface UserRepository extends JpaRepository<User, UUID> {
+public interface UserRepository extends JpaRepository<User, String> {
     boolean existsByEmail(String email);
 
     List<User> findByFirstNameContainingIgnoreCase(String query);

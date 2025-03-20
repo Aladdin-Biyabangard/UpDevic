@@ -16,8 +16,8 @@ import java.util.UUID;
 public class CourseCategory {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID uuid;
+    @Column(unique = true, nullable = false, length = 36)
+    private String uuid;
 
     @Enumerated(EnumType.STRING)
     @OneToOne
@@ -25,4 +25,11 @@ public class CourseCategory {
 
     @OneToMany(mappedBy = "category")
     private List<Course> courses;
+
+    @PrePersist
+    public void generateUuid() {
+        if (this.uuid == null) {
+            this.uuid = UUID.randomUUID().toString().substring(0, 35);
+        }
+    }
 }

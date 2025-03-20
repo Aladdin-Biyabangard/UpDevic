@@ -15,8 +15,8 @@ import java.util.UUID;
 public class StudentCourse {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID uuid;
+    @Column(unique = true, nullable = false, length = 36)
+    private String uuid;
 
     @ManyToOne
     @JoinColumn(name = "student_id", nullable = false)
@@ -25,4 +25,11 @@ public class StudentCourse {
     @ManyToOne
     @JoinColumn(name = "course",nullable = false)
     private Course course;
+
+    @PrePersist
+    public void generateUuid() {
+        if (this.uuid == null) {
+            this.uuid = UUID.randomUUID().toString().substring(0, 35);
+        }
+    }
 }

@@ -20,8 +20,8 @@ import java.util.UUID;
 public class Lesson {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID uuid;
+    @Column(unique = true, nullable = false, length = 36)
+    private String uuid;
 
     @Column(name = "title", nullable = false)
     private String title;
@@ -40,5 +40,12 @@ public class Lesson {
     @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Comment> comments;
+
+    @PrePersist
+    public void generateUuid() {
+        if (this.uuid == null) {
+            this.uuid = UUID.randomUUID().toString().substring(0, 35);
+        }
+    }
 
 }

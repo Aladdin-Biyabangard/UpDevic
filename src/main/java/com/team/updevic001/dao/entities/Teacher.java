@@ -36,4 +36,6 @@ public class Teacher extends User {
     @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<CourseTeacher> courseTeachers;
 
+
+
 }

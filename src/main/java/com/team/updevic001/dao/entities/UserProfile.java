@@ -18,8 +18,8 @@ import java.util.UUID;
 public class UserProfile {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID uuid;
+    @Column(unique = true, nullable = false, length = 36)
+    private String uuid;
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
@@ -42,4 +42,10 @@ public class UserProfile {
     private List<String> skills;
 
 
+    @PrePersist
+    public void generateUuid() {
+        if (this.uuid == null) {
+            this.uuid = UUID.randomUUID().toString().substring(0, 35);
+        }
+    }
 }

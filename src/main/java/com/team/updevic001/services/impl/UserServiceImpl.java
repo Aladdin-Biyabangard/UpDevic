@@ -6,6 +6,7 @@ import com.team.updevic001.dao.entities.UserProfile;
 import com.team.updevic001.dao.entities.UserRole;
 import com.team.updevic001.dao.repositories.UserProfileRepository;
 import com.team.updevic001.dao.repositories.UserRepository;
+import com.team.updevic001.dao.repositories.UserRoleRepository;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.request.user.UserDto;
 import com.team.updevic001.model.dtos.request.user.UserProfileDto;
@@ -17,10 +18,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -31,8 +32,9 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final UserProfileRepository userProfileRepository;
+    private final UserRoleRepository userRoleRepository;
 
-
+    @Transactional
     public ResponseUserDto newUser(UserDto userDto) {
         log.info("Creating a new user with email: {}", userDto.getEmail());
 
@@ -43,17 +45,27 @@ public class UserServiceImpl implements UserService {
 
 
         User user = userMapper.toEntity(userDto, User.class);
-        userRepository.save(user);
 
         UserProfile userProfile = UserProfile.builder()
                 .user(user)
                 .build();
+
+
+        UserRole role = UserRole.builder()
+                .name(Role.STUDENT)
+                .build();
+        user.getRoles().add(role);
+
+        userRepository.save(user);
+
         userProfileRepository.save(userProfile);
+
+
         log.info("User created successfully with ID: {}", user.getUuid());
         return userMapper.toResponse(user, ResponseUserDto.class);
     }
 
-    public void updateUserProfileInfo(UUID uuid, UserProfileDto userProfileDto) {
+    public void updateUserProfileInfo(String uuid, UserProfileDto userProfileDto) {
         log.info("Updating user profile for ID: {}", uuid);
 
         User user = findUserById(uuid);
@@ -72,12 +84,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUserPassword(UUID uuid, String oldPassword, String newPassword) {
+    public void updateUserPassword(String uuid, String oldPassword, String newPassword) {
 
         User user = findUserById(uuid);
 
         if (Objects.equals(user.getPassword(), oldPassword)) {
             user.setPassword(newPassword);
+            userRepository.save(user);
         } else {
             log.info("Old password incorrect!");
             throw new IllegalArgumentException("Password incorrect!");
@@ -85,27 +98,32 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void activateUser(UUID uuid) {
+    public void activateUser(String uuid) {
         User user = findUserById(uuid);
         user.setStatus(Status.ACTIVE);
+        userRepository.save(user);
         log.info("User with ID:{} status activated!", uuid);
     }
 
     @Override
-    public void deactivateUser(UUID uuid) {
+    public void deactivateUser(String uuid) {
         User user = findUserById(uuid);
         user.setStatus(Status.INACTIVE);
+        userRepository.save(user);
         log.info("User with ID:{} status deactivated!", uuid);
     }
 
     @Override
-    public void addRole(UUID uuid, UserRole role) {
+    public void addRole(String uuid, UserRole role) {
         User user = findUserById(uuid);
         user.getRoles().add(role);
+        userRepository.save(user);
+        userRoleRepository.saveAll(user.getRoles());
+        log.info("New rol successfully added!");
     }
 
     @Override
-    public ResponseUserDto getUserById(UUID uuid) {
+    public ResponseUserDto getUserById(String uuid) {
         log.info("Searching for a user with this ID: {}", uuid);
 
         User user = userRepository.findById(uuid).orElseThrow(() -> {
@@ -155,13 +173,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void sendPasswordResetEmail(UUID uuid) {
+    public void sendPasswordResetEmail(String uuid) {
         User user = findUserById(uuid);
         String email = user.getEmail();
         //Email service yazacam  ve sender metodu emaile password deyisme linki gedecek ve ordan deyisecek!
     }
 
-    public void deleteUser(UUID uuid) {
+    public void deleteUser(String uuid) {
         log.info("Deleting user with ID: {}", uuid);
         if (userRepository.existsById(uuid)) {
             userRepository.deleteById(uuid);
@@ -181,7 +199,7 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    private User findUserById(UUID uuid) {
+    private User findUserById(String uuid) {
         return userRepository.findById(uuid).orElseThrow(() -> {
             log.error("User not found with ID: {}", uuid);
             return new ResourceNotFoundException("User not found");

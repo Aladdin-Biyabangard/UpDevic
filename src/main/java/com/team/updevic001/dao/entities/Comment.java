@@ -21,10 +21,10 @@ import java.util.UUID;
 public class Comment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID uuid;
+    @Column(unique = true, nullable = false, length = 36)
+    private String uuid;
 
-    @Column(name = "content",nullable = false)
+    @Column(name = "content", nullable = false)
     private String content;
 
     @CreationTimestamp
@@ -46,5 +46,12 @@ public class Comment {
     @JoinColumn(name = "lesson_id")
     @JsonBackReference
     private Lesson lesson;
+
+    @PrePersist
+    public void generateUuid() {
+        if (this.uuid == null) {
+            this.uuid = UUID.randomUUID().toString().substring(0, 35);
+        }
+    }
 
 }

@@ -15,9 +15,10 @@ import java.util.UUID;
 @Entity
 @Table(name = "course_student")
 public class CourseStudent {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID uuid;
+    @Column(unique = true, nullable = false, length = 36)
+    private String uuid;
 
     @ManyToOne
     @JoinColumn(name = "student_id")
@@ -27,8 +28,15 @@ public class CourseStudent {
     @JoinColumn(name = "course_id")
     private Course course;
 
-    @Column(name ="enrolled_at" )
+    @Column(name = "enrolled_at")
     @CreationTimestamp
     private LocalDateTime enrolledAt;
+
+    @PrePersist
+    public void generateUuid() {
+        if (this.uuid == null) {
+            this.uuid = UUID.randomUUID().toString().substring(0, 35);
+        }
+    }
 
 }
