@@ -146,7 +146,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Long countUsers() {
-        return userRepository.countUsers();
+        return userRepository.count();
     }
 
     @Override

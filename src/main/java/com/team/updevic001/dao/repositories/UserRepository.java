@@ -16,7 +16,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     List<User> findByFirstNameContainingIgnoreCase(String query);
 
-    Long countUsers();
+    long count();
 
     @Query("SELECT u FROM User u JOIN u.roles r WHERE r = :role")
     List<User> findUsersByRole(@Param("role") Role role);
