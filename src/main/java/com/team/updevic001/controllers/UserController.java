@@ -20,7 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
-public class UserControllerImpl {
+public class UserController {
 
     private final UserService userService;
     private final TestRepo testRepo;
