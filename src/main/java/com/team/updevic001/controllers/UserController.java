@@ -1,8 +1,6 @@
 package com.team.updevic001.controllers;
 
-import com.team.updevic001.dao.entities.Student;
 import com.team.updevic001.model.dtos.request.StudentDto;
-import com.team.updevic001.model.dtos.request.TeacherDto;
 import com.team.updevic001.model.dtos.request.UserProfileDto;
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 import com.team.updevic001.services.AdminService;
