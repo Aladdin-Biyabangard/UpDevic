@@ -34,7 +34,9 @@ public class AdminServiceImpl implements AdminService {
         List<User> users = userRepository.findAll();
 
         if (users.isEmpty()) {
-            log.info("Not user found!");
+            log.info("No user found!");
+        } else {
+            log.info("Found {} users.", users.size());
         }
 
         return userMapper.toResponseList(users, ResponseUserDto.class);
@@ -42,34 +44,38 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public void activateUser(String uuid) {
+        log.info("Activating user with ID: {}", uuid);
         User user = findUserById(uuid);
         user.setStatus(Status.ACTIVE);
-        userRepository.save(user);
+        saveUser(user);
         log.info("User with ID:{} status activated!", uuid);
     }
 
     @Override
     public void deactivateUser(String uuid) {
+        log.info("Deactivating user with ID: {}", uuid);
         User user = findUserById(uuid);
         user.setStatus(Status.INACTIVE);
-        userRepository.save(user);
+        saveUser(user);
         log.info("User with ID:{} status deactivated!", uuid);
     }
 
     @Override
     public void assignRoleToUser(String uuid, Role role) {
+        log.info("Assigning role {} to user with ID: {}", role, uuid);
         User user = findUserById(uuid);
         UserRole userRole = UserRole.builder()
                 .name(role).build();
-        userRoleRepository.save(userRole);
+        saveUserRole(userRole);
         user.getRoles().add(userRole);
-        userRepository.save(user);
-        log.info("New rol successfully added!");
+        saveUser(user);
+        log.info("Role {} successfully added to user with ID: {}", role, uuid);
     }
 
     @Override
     @Transactional
     public void removeRoleFromUser(String userId, Role role) {
+        log.info("Removing role {} from user with ID: {}", role, userId);
         User user = userServiceImpl.findUserById(userId);
 
         UserRole findRole = user.getRoles()
@@ -81,19 +87,21 @@ public class AdminServiceImpl implements AdminService {
         user.getRoles().remove(findRole);
         userRoleRepository.delete(findRole);
 
-        log.info("User role : {} successfully deleted!", role);
+        log.info("Role {} successfully removed from user with ID: {}", role, userId);
     }
 
     @Override
     public List<ResponseUserDto> getUsersByRole(Role role) {
-
+        log.info("Fetching users with role: {}", role);
         List<User> users = userRepository.findUsersByRole(role);
-        if (!users.isEmpty()) {
-            log.info("There are no users matching this ROLE: {}.", role);
-            return userMapper.toResponseList(users, ResponseUserDto.class);
+        if (users.isEmpty()) {
+            log.info("No users found with role: {}", role);
+            throw new ResourceNotFoundException("User not found");
+        } else {
+            log.info("Found {} users with role: {}", users.size(), role);
         }
-        log.info("There is no user with this ROLE: {}", role);
-        throw new ResourceNotFoundException("User not found");
+
+        return userMapper.toResponseList(users, ResponseUserDto.class);
     }
 
 
@@ -108,13 +116,27 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public Long countUsers() {
-        return userRepository.count();
+        log.info("Counting all users.");
+        Long userCount = userRepository.count();
+        log.info("Total number of users: {}", userCount);
+        return userCount;
     }
 
     private User findUserById(String uuid) {
+        log.info("Finding user with ID: {}", uuid);
         return userRepository.findById(uuid).orElseThrow(() -> {
             log.error("User not found with ID: {}", uuid);
             return new ResourceNotFoundException("User not found");
         });
+    }
+
+    private void saveUser(User user) {
+        log.info("Saving user with ID: {}", user.getUuid());
+        userRepository.save(user);
+    }
+
+    private void saveUserRole(UserRole userRole) {
+        log.info("Saving user role: {}", userRole.getName());
+        userRoleRepository.save(userRole);
     }
 }

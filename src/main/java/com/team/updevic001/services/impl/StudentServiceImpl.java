@@ -12,11 +12,13 @@ import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto
 import com.team.updevic001.model.enums.Status;
 import com.team.updevic001.services.StudentService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class StudentServiceImpl implements StudentService {
@@ -32,118 +34,149 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public void enrollInCourse(String courseId, String userId) {
-        User user = userServiceImpl.findUserById(userId);
+        log.info("Attempting to enroll user with ID: {} in course with ID: {}", userId, courseId);
+
+        User user = findUserById(userId);
         Student student = castToStudent(user);
 
-        Course course = courseServiceImpl.findCourseById(courseId);
+        Course course = findCourseById(courseId);
 
         if (isAlreadyEnrolledInCourse(student, course)) {
+            log.error("Student with ID: {} is already enrolled in course with ID: {}", userId, courseId);
             throw new IllegalStateException("Student is already enrolled in this course!");
         }
 
         enrollStudentInCourse(student, course);
+        log.info("Student with ID: {} successfully enrolled in course with ID: {}", userId, courseId);
     }
 
     @Override
     public void unenrollUserFromCourse(String userId, String courseId) {
-        User user = userServiceImpl.findUserById(userId);
+        log.info("Attempting to unenroll user with ID: {} from course with ID: {}", userId, courseId);
+
+        User user = findUserById(userId);
         Student student = castToStudent(user);
 
-        Course course = courseServiceImpl.findCourseById(courseId);
+        Course course = findCourseById(courseId);
 
-        if (isAlreadyEnrolledInCourse(student, course)) {
+        if (!isAlreadyEnrolledInCourse(student, course)) {
+            log.error("Student with ID: {} is not enrolled in course with ID: {}", userId, courseId);
             throw new IllegalStateException("Only students can unenroll from courses!");
         }
 
         StudentCourse studentCourse = studentCourseRepository.findByStudentAndCourse(student, course)
                 .orElseThrow(() -> new IllegalStateException("User is not enrolled in this course!"));
-        studentCourseRepository.delete(studentCourse);
-    }
 
-    @Override
-    public String getCourseProgress(String userId, String courseId) {
-        return "";
+        studentCourseRepository.delete(studentCourse);
+        log.info("Student with ID: {} successfully unenrolled from course with ID: {}", userId, courseId);
     }
 
     @Override
     public List<ResponseCourseShortInfoDto> getStudentCourse(String userId) {
-        User user = userServiceImpl.findUserById(userId);
+        log.info("Fetching courses for student with ID: {}", userId);
+
+        User user = findUserById(userId);
         Student student = castToStudent(user);
         List<Course> courseByStudent = studentCourseRepository.findCourseByStudent(student);
-        return courseByStudent.stream().map(course -> modelMapper.map(course, ResponseCourseShortInfoDto.class)).toList();
+
+        log.info("Found {} courses for student with ID: {}", courseByStudent.size(), userId);
+        return courseByStudent.stream()
+                .map(course -> modelMapper.map(course, ResponseCourseShortInfoDto.class))
+                .toList();
     }
 
     @Override
     public List<ResponseCourseLessonDto> getStudentLesson(String userId) {
-        User user = userServiceImpl.findUserById(userId);
+        log.info("Fetching lessons for student with ID: {}", userId);
+
+        User user = findUserById(userId);
         Student student = castToStudent(user);
         List<Course> courses = studentCourseRepository.findCourseByStudent(student);
+
         return courseMapper.toDto(courses);
     }
 
     @Override
     public void deleteStudentCourse(String userId, String courseId) {
-        User user = userServiceImpl.findUserById(userId);
+        log.info("Attempting to delete course enrollment for student with ID: {} in course with ID: {}", userId, courseId);
+
+        User user = findUserById(userId);
         Student student = castToStudent(user);
-        Course course = courseServiceImpl.findCourseById(courseId);
+        Course course = findCourseById(courseId);
+
         StudentCourse studentCourse = studentCourseRepository.findByStudentAndCourse(student, course)
                 .orElseThrow(() -> new ResourceNotFoundException("This user is not registered for any courses."));
 
         studentCourseRepository.delete(studentCourse);
+        log.info("Successfully deleted course enrollment for student with ID: {} in course with ID: {}", userId, courseId);
     }
-
 
     @Override
     public void deleteStudentCourseComment(String userId, String courseId, String commentId) {
-        User user = userServiceImpl.findUserById(userId);
+        log.info("Attempting to delete comment with ID: {} from course with ID: {} for student with ID: {}", commentId, courseId, userId);
 
-        Course courseById = courseServiceImpl.findCourseById(courseId);
+        User user = findUserById(userId);
+        Course courseById = findCourseById(courseId);
 
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Comment with ID " + commentId + " not found"));
-
-        List<Comment> comments = user.getComments();
-
-        Comment findComment = comments.stream()
+        Comment comment = findCommentById(commentId);
+        Comment findComment = user.getComments().stream()
                 .filter(comm -> comm.getCourse().equals(courseById) && comm.getUuid().equals(comment.getUuid()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("User has no comment for this course"));
 
         user.getComments().remove(findComment);
-
         userRepository.save(user);
-
         commentRepository.delete(comment);
-    }
 
+        log.info("Successfully deleted comment with ID: {} from course with ID: {}", commentId, courseId);
+    }
 
     @Override
     public void deleteStudentLessonComment(String userId, String lessonId, String commentId) {
-        User user = userServiceImpl.findUserById(userId);
+        log.info("Attempting to delete comment with ID: {} from lesson with ID: {} for student with ID: {}", commentId, lessonId, userId);
 
-        Lesson lesson = lessonRepository
-                .findById(lessonId)
-                .orElseThrow(() -> new ResourceNotFoundException("Lesson with ID " + lessonId + " not found!"));
+        User user = findUserById(userId);
+        Lesson lesson = findLessonById(lessonId);
+        Comment comment = findCommentById(commentId);
 
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Comment with ID " + commentId + " not found"));
-        List<Comment> comments = user.getComments();
-
-        Comment findComment = comments.stream()
+        Comment findComment = user.getComments().stream()
                 .filter(comm -> comm.getLesson().equals(lesson) && comm.getUuid().equals(comment.getUuid()))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("User has no comment for this course"));
+                .orElseThrow(() -> new IllegalArgumentException("User has no comment for this lesson"));
 
         user.getComments().remove(findComment);
         userRepository.save(user);
-
         commentRepository.delete(comment);
 
+        log.info("Successfully deleted comment with ID: {} from lesson with ID: {}", commentId, lessonId);
     }
 
+    // Helper methods
+    private User findUserById(String userId) {
+        log.debug("Looking for user with ID: {}", userId);
+        return userServiceImpl.findUserById(userId);
+    }
+
+    private Course findCourseById(String courseId) {
+        log.debug("Looking for course with ID: {}", courseId);
+        return courseServiceImpl.findCourseById(courseId);
+    }
+
+    private Comment findCommentById(String commentId) {
+        log.debug("Looking for comment with ID: {}", commentId);
+        return commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment with ID " + commentId + " not found"));
+    }
+
+    private Lesson findLessonById(String lessonId) {
+        log.debug("Looking for lesson with ID: {}", lessonId);
+        return lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new ResourceNotFoundException("Lesson with ID " + lessonId + " not found!"));
+    }
 
     private Student castToStudent(User user) {
         if (!(user instanceof Student)) {
+            log.error("User with ID: {} is not a student!", user.getUuid());
             throw new IllegalStateException("User is not a student!");
         }
         return (Student) user;

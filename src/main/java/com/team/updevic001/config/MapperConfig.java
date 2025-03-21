@@ -1,4 +1,4 @@
-package com.team.updevic001.config.mappers;
+package com.team.updevic001.config;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;

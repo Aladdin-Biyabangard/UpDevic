@@ -11,8 +11,6 @@ public interface StudentService {
 
     void unenrollUserFromCourse(String userId, String courseId);
 
-    String getCourseProgress(String userId, String courseId);
-
     List<ResponseCourseShortInfoDto> getStudentCourse(String userId);
 
     List<ResponseCourseLessonDto> getStudentLesson(String userId);
