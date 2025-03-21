@@ -10,6 +10,7 @@ import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 import com.team.updevic001.model.enums.Role;
 import com.team.updevic001.model.enums.Status;
 import com.team.updevic001.services.AdminService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -58,29 +59,34 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void assignRoleToUser(String uuid, Role role) {
         User user = findUserById(uuid);
-        user.getRoles().add(UserRole.builder()
-                .name(role).build());
+        UserRole userRole = UserRole.builder()
+                .name(role).build();
+        userRoleRepository.save(userRole);
+        user.getRoles().add(userRole);
         userRepository.save(user);
-        userRoleRepository.saveAll(user.getRoles());
         log.info("New rol successfully added!");
     }
 
     @Override
+    @Transactional
     public void removeRoleFromUser(String userId, Role role) {
         User user = userServiceImpl.findUserById(userId);
+
         UserRole findRole = user.getRoles()
                 .stream()
                 .filter(userRole -> Objects.equals(userRole.getName(), role))
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("This user does not have such a role."));
+
         user.getRoles().remove(findRole);
-        userRepository.save(user);
         userRoleRepository.delete(findRole);
+
         log.info("User role : {} successfully deleted!", role);
     }
 
     @Override
     public List<ResponseUserDto> getUsersByRole(Role role) {
+
         List<User> users = userRepository.findUsersByRole(role);
         if (!users.isEmpty()) {
             log.info("There are no users matching this ROLE: {}.", role);

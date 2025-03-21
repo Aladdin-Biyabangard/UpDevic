@@ -21,7 +21,8 @@ public class UserRole {
     @Column(unique = true, nullable = false, length = 36)
     private String uuid;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
+    @Column(unique = true, nullable = false)
     private Role name;
 
     @PrePersist

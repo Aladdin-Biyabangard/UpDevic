@@ -1,5 +1,7 @@
 package com.team.updevic001.controllers;
 
+import com.team.updevic001.dao.entities.Student;
+import com.team.updevic001.model.dtos.request.StudentDto;
 import com.team.updevic001.model.dtos.request.TeacherDto;
 import com.team.updevic001.model.dtos.request.UserProfileDto;
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
@@ -25,8 +27,8 @@ public class UserController {
     // BU METODALRDA PRINCIPAL dan istifade edeciyik. Security qosulandan sonra
 
     @PostMapping
-    public ResponseEntity<ResponseUserDto> newUser(@RequestBody TeacherDto teacherDto) {
-        ResponseUserDto responseUserDto = userService.newUser(teacherDto);
+    public ResponseEntity<ResponseUserDto> newUser(@RequestBody StudentDto user) {
+        ResponseUserDto responseUserDto = userService.newUser(user);
         return new ResponseEntity<>(responseUserDto, HttpStatus.CREATED);
 
     }

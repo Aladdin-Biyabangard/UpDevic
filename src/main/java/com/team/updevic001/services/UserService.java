@@ -1,6 +1,6 @@
 package com.team.updevic001.services;
 
-import com.team.updevic001.model.dtos.request.TeacherDto;
+import com.team.updevic001.model.dtos.request.StudentDto;
 import com.team.updevic001.model.dtos.request.UserProfileDto;
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 
@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface UserService {
 
-    ResponseUserDto newUser(TeacherDto teacherDto);
+    ResponseUserDto newUser(StudentDto user);
 
     ResponseUserDto getUserById(String uuid);
 

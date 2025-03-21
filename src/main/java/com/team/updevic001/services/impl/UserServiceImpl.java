@@ -1,16 +1,14 @@
 package com.team.updevic001.services.impl;
 
 import com.team.updevic001.config.mappers.UserMapper;
-import com.team.updevic001.dao.entities.Teacher;
+import com.team.updevic001.dao.entities.Student;
 import com.team.updevic001.dao.entities.User;
 import com.team.updevic001.dao.entities.UserProfile;
 import com.team.updevic001.dao.entities.UserRole;
-import com.team.updevic001.dao.repositories.TeacherRepository;
-import com.team.updevic001.dao.repositories.UserProfileRepository;
-import com.team.updevic001.dao.repositories.UserRepository;
+import com.team.updevic001.dao.repositories.*;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.mail.ConfirmationEmailServiceImpl;
-import com.team.updevic001.model.dtos.request.TeacherDto;
+import com.team.updevic001.model.dtos.request.StudentDto;
 import com.team.updevic001.model.dtos.request.UserProfileDto;
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 import com.team.updevic001.model.enums.Role;
@@ -36,41 +34,47 @@ public class UserServiceImpl implements UserService {
     private final UserProfileRepository userProfileRepository;
     private final TeacherRepository teacherRepository;
     private final ConfirmationEmailServiceImpl confirmationEmailServiceImpl;
+    private final StudentRepository studentRepository;
+    private final UserRoleRepository userRoleRepository;
 
 
     @Transactional
-    public ResponseUserDto newUser(TeacherDto teacherDto) {
-        log.info("Creating a new user with email: {}", teacherDto.getEmail());
+    public ResponseUserDto newUser(StudentDto user) {
+        log.info("Creating a new user with email: {}", user.getEmail());
 
-        if (userRepository.existsByEmail(teacherDto.getEmail())) {
-            log.warn("Email {} already exists!", teacherDto.getEmail());
+        if (userRepository.existsByEmail(user.getEmail())) {
+            log.warn("Email {} already exists!", user.getEmail());
             throw new IllegalArgumentException("Email already exists!");
         }
         //PASSWORD ENCODED will be used here
 
-        Teacher teacher = modelMapper.map(teacherDto, Teacher.class);
+        Student student = modelMapper.map(user, Student.class);
 
-        teacherRepository.save(teacher);
+        studentRepository.save(student);
 
 
         UserProfile userProfile = UserProfile.builder()
-                .user(teacher)
+                .user(student)
                 .build();
 
 
-        UserRole role = UserRole.builder()
-                .name(Role.STUDENT)
-                .build();
-        teacher.getRoles().add(role);
+        UserRole userRole = userRoleRepository.findByName(Role.STUDENT).orElseGet(() -> {
+            UserRole role = UserRole.builder()
+                    .name(Role.STUDENT)
+                    .build();
+            return userRoleRepository.save(role);
 
+        });
 
-        userRepository.save(teacher);
+        student.getRoles().add(userRole);
+
+        userRepository.save(student);
         userProfileRepository.save(userProfile);
 
 
-        log.info("User created successfully with ID: {}", teacher.getUuid());
-        confirmationEmailServiceImpl.sendEmail(teacherDto.getEmail(), "Thank you for registering", "Your token");
-        return userMapper.toResponse(teacher, ResponseUserDto.class);
+        log.info("User created successfully with ID: {}", student.getUuid());
+        //  confirmationEmailServiceImpl.sendEmail(user.getEmail(), "Thank you for registering", "Your token");
+        return userMapper.toResponse(student, ResponseUserDto.class);
     }
 
 
