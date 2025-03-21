@@ -1,15 +1,19 @@
 package com.team.updevic001.model.dtos.request;
 
-import com.team.updevic001.dao.entities.Course;
-import com.team.updevic001.dao.entities.User;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class CreateCommentForCourseDto {
 
     private String content;
 
-    private User user;
+    private String userId;
 
-    private Course course;
+    private String courseId;
 
 }
 

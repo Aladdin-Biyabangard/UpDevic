@@ -8,13 +8,12 @@ import com.team.updevic001.dao.entities.UserRole;
 import com.team.updevic001.dao.repositories.TeacherRepository;
 import com.team.updevic001.dao.repositories.UserProfileRepository;
 import com.team.updevic001.dao.repositories.UserRepository;
-import com.team.updevic001.dao.repositories.UserRoleRepository;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
+import com.team.updevic001.mail.ConfirmationEmailServiceImpl;
 import com.team.updevic001.model.dtos.request.TeacherDto;
 import com.team.updevic001.model.dtos.request.UserProfileDto;
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 import com.team.updevic001.model.enums.Role;
-import com.team.updevic001.model.enums.Status;
 import com.team.updevic001.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -34,8 +34,9 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final UserProfileRepository userProfileRepository;
-    private final UserRoleRepository userRoleRepository;
     private final TeacherRepository teacherRepository;
+    private final ConfirmationEmailServiceImpl confirmationEmailServiceImpl;
+
 
     @Transactional
     public ResponseUserDto newUser(TeacherDto teacherDto) {
@@ -45,6 +46,7 @@ public class UserServiceImpl implements UserService {
             log.warn("Email {} already exists!", teacherDto.getEmail());
             throw new IllegalArgumentException("Email already exists!");
         }
+        //PASSWORD ENCODED will be used here
 
         Teacher teacher = modelMapper.map(teacherDto, Teacher.class);
 
@@ -67,8 +69,10 @@ public class UserServiceImpl implements UserService {
 
 
         log.info("User created successfully with ID: {}", teacher.getUuid());
+        confirmationEmailServiceImpl.sendEmail(teacherDto.getEmail(), "Thank you for registering", "Your token");
         return userMapper.toResponse(teacher, ResponseUserDto.class);
     }
+
 
     public void updateUserProfileInfo(String uuid, UserProfileDto userProfileDto) {
         log.info("Updating user profile for ID: {}", uuid);
@@ -94,37 +98,13 @@ public class UserServiceImpl implements UserService {
         User user = findUserById(uuid);
 
         if (Objects.equals(user.getPassword(), oldPassword)) {
+            //PASSWORD ENCODED will be used here
             user.setPassword(newPassword);
             userRepository.save(user);
         } else {
             log.info("Old password incorrect!");
             throw new IllegalArgumentException("Password incorrect!");
         }
-    }
-
-    @Override
-    public void activateUser(String uuid) {
-        User user = findUserById(uuid);
-        user.setStatus(Status.ACTIVE);
-        userRepository.save(user);
-        log.info("User with ID:{} status activated!", uuid);
-    }
-
-    @Override
-    public void deactivateUser(String uuid) {
-        User user = findUserById(uuid);
-        user.setStatus(Status.INACTIVE);
-        userRepository.save(user);
-        log.info("User with ID:{} status deactivated!", uuid);
-    }
-
-    @Override
-    public void addRole(String uuid, UserRole role) {
-        User user = findUserById(uuid);
-        user.getRoles().add(role);
-        userRepository.save(user);
-        userRoleRepository.saveAll(user.getRoles());
-        log.info("New rol successfully added!");
     }
 
     @Override
@@ -150,41 +130,37 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+
+    // BU adi bildiyimiz restPassword emaili olacaq
+
     @Override
-    public List<ResponseUserDto> getUserByRole(Role role) {
-        List<User> users = userRepository.findUsersByRole(role);
-        if (!users.isEmpty()) {
-            log.info("There are no users matching this ROLE: {}.", role);
-            return userMapper.toResponseList(users, ResponseUserDto.class);
+    public void sendPasswordResetEmail(String email) {
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        if (optionalUser.isPresent()) {
+            confirmationEmailServiceImpl.sendEmail(optionalUser.get().getEmail(), "Click to change password", "Your token and RESTApi for change password");
+            log.info("Email successfully send!");
+        } else {
+            throw new ResourceNotFoundException("User not found");
         }
-        log.info("There is no user with this ROLE: {}", role);
-        throw new ResourceNotFoundException("User not found");
     }
 
-    @Override
-    public List<ResponseUserDto> getAllUsers() {
-        log.info("Finding all users!");
-        List<User> users = userRepository.findAll();
+    /* Token generatorda uniq olan email oldugu ucun subject emaille olacaq.
+       Ona gorede extract token ve validate token email uzerine olacaq
+       Controllerde token qebul eden metod ise request paramla gelen tokeni
+       extract token ve validate token metodlari ile yoxladiqdan sonra bu metodu cagiracaq
+    */
 
-        if (users.isEmpty()) {
-            log.info("Not user found!");
+    public void resetPassword(String email, String newPassword) {
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        if (optionalUser.isPresent()) {
+            //PASSWORD ENCODED will be used here
+
+            optionalUser.get().setPassword(newPassword);
+            log.info("Password changed correctly!");
         }
-
-        return userMapper.toResponseList(users, ResponseUserDto.class);
     }
 
     @Override
-    public Long countUsers() {
-        return userRepository.count();
-    }
-
-    @Override
-    public void sendPasswordResetEmail(String uuid) {
-        User user = findUserById(uuid);
-        String email = user.getEmail();
-        //Email service yazacam  ve sender metodu emaile password deyisme linki gedecek ve ordan deyisecek!
-    }
-
     public void deleteUser(String uuid) {
         log.info("Deleting user with ID: {}", uuid);
         if (userRepository.existsById(uuid)) {
@@ -196,16 +172,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    public void deleteUsers() {
-        log.info("Deleting all users!");
-        userRepository.deleteAll();
-        log.info("All users successfully deleted!");
-        userRepository.resetAutoIncrement();
-        log.info("User Id successfully reset!");
-    }
-
-
-    private User findUserById(String uuid) {
+    public User findUserById(String uuid) {
         return userRepository.findById(uuid).orElseThrow(() -> {
             log.error("User not found with ID: {}", uuid);
             return new ResourceNotFoundException("User not found");

@@ -49,8 +49,13 @@ public class Course {
     @JoinColumn(name = "certificate_id", referencedColumnName = "uuid")
     private Certificate certificate;
 
+    // Bir çox StudentCourse ilə əlaqə
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<CourseTeacher> courseTeachers;
+    private List<StudentCourse> studentCourses;
+
+    // Bir çox TeacherCourse ilə əlaqə
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<TeacherCourse> teacherCourses;
 
     @ManyToOne
     @JoinColumn(name = "course_category_uuid")

@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, String> {
     boolean existsByEmail(String email);
@@ -25,4 +25,6 @@ public interface UserRepository extends JpaRepository<User, String> {
     @Transactional
     @Query(value = "ALTER TABLE users AUTO_INCREMENT = 1", nativeQuery = true)
     void resetAutoIncrement();
+
+    Optional<User> findByEmail(String email);
 }

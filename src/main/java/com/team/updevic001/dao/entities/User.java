@@ -37,7 +37,6 @@ public class User {
     @Column(name = "email", unique = true)
     private String email;
 
-
     @Column(nullable = false, columnDefinition = "VARCHAR(255) DEFAULT 'PENDING'")
     @Enumerated(EnumType.STRING)
     private Status status = Status.PENDING;

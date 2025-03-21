@@ -34,7 +34,7 @@ public class Teacher extends User {
     private LocalDateTime hireDate;
 
     @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<CourseTeacher> courseTeachers;
+    private List<UserCourse> userCourses;
 
 
 

@@ -1,10 +1,9 @@
 package com.team.updevic001.controllers;
 
-import com.team.updevic001.dao.entities.UserRole;
 import com.team.updevic001.model.dtos.request.TeacherDto;
 import com.team.updevic001.model.dtos.request.UserProfileDto;
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
-import com.team.updevic001.model.enums.Role;
+import com.team.updevic001.services.AdminService;
 import com.team.updevic001.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +20,9 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final AdminService adminService;
 
+    // BU METODALRDA PRINCIPAL dan istifade edeciyik. Security qosulandan sonra
 
     @PostMapping
     public ResponseEntity<ResponseUserDto> newUser(@RequestBody TeacherDto teacherDto) {
@@ -29,7 +30,6 @@ public class UserController {
         return new ResponseEntity<>(responseUserDto, HttpStatus.CREATED);
 
     }
-
 
     @PutMapping("/{uuid}/profile")
     public ResponseEntity<Void> updateUserProfileInfo(@PathVariable String uuid,
@@ -46,25 +46,6 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PutMapping("/{uuid}/activate")
-    public ResponseEntity<Void> activateUser(@PathVariable String uuid) {
-        userService.activateUser(uuid);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @PutMapping("/{uuid}/deactivate")
-    public ResponseEntity<Void> deactivateUser(@PathVariable String uuid) {
-        userService.deactivateUser(uuid);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @PutMapping("/{uuid}/role")
-    public ResponseEntity<Void> addRole(@PathVariable String uuid,
-                                        @RequestBody UserRole role) {
-        userService.addRole(uuid, role);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
     @GetMapping("/{uuid}")
     public ResponseEntity<ResponseUserDto> getUserById(@PathVariable String uuid) {
         ResponseUserDto userById = userService.getUserById(uuid);
@@ -77,17 +58,6 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @GetMapping(path = "/role")
-    public ResponseEntity<List<ResponseUserDto>> getUserByRole(@RequestParam Role role) {
-        List<ResponseUserDto> userByRole = userService.getUserByRole(role);
-        return new ResponseEntity<>(userByRole, HttpStatus.OK);
-    }
-
-    @GetMapping("/all")
-    public ResponseEntity<List<ResponseUserDto>> getAllUsers() {
-        List<ResponseUserDto> allUsers = userService.getAllUsers();
-        return new ResponseEntity<>(allUsers, HttpStatus.OK);
-    }
 
     @GetMapping(path = "/{uuid}/reset")
     public ResponseEntity<Void> sendPasswordResetEmail(@PathVariable String uuid) {
@@ -101,10 +71,5 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @DeleteMapping(path = "/all")
-    public ResponseEntity<Void> deleteUsers() {
-        userService.deleteUsers();
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
 
 }
