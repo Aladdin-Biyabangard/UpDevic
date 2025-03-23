@@ -1,7 +1,6 @@
 package com.team.updevic001.config.mappers;
 
 import com.team.updevic001.dao.entities.Course;
-import com.team.updevic001.dao.entities.Teacher;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
 import lombok.RequiredArgsConstructor;
