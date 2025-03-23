@@ -15,6 +15,4 @@ public class LessonDto {
 
     private String videoUrl;
 
-    private Course course;
-
 }

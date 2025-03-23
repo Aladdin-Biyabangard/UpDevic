@@ -10,12 +10,13 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResponseTeacherWithCourses extends ResponseUserDto {
+public class ResponseTeacherWithCourses {
 
+    private String firstName;
+    private String lastName;
     private Specialty speciality;
     private Integer experienceYears;
     private List<ResponseCourseDto> courseDtoS;

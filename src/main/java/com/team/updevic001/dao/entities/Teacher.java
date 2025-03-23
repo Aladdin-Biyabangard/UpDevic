@@ -26,9 +26,6 @@ public class Teacher extends User {
     @Column(name = "experience_years")
     private Integer experienceYears;
 
-    @Column(name = "social_link")
-    private String socialLink;
-
     @Column(name = "hire_date")
     @CreationTimestamp
     private LocalDateTime hireDate;

@@ -2,6 +2,7 @@ package com.team.updevic001.dao.entities;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.team.updevic001.model.enums.CourseLevel;
+import com.team.updevic001.model.enums.Status;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -37,11 +38,11 @@ public class Course {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<Lesson> lessons;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<Comment> comments;
 
@@ -60,6 +61,9 @@ public class Course {
     @ManyToOne
     @JoinColumn(name = "course_category_uuid")
     private CourseCategory category;
+
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     @PrePersist
     public void generateUuid() {
