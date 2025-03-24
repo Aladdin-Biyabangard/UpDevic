@@ -20,7 +20,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StudentServiceImpl implements StudentService {
 
-    private final CourseServiceImpl courseServiceImpl;
     private final UserServiceImpl userServiceImpl;
     private final StudentCourseRepository studentCourseRepository;
     private final ModelMapper modelMapper;

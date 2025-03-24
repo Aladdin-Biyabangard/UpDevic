@@ -1,6 +1,5 @@
 package com.team.updevic001.services;
 
-import com.team.updevic001.model.dtos.request.StudentCheckDto;
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 import com.team.updevic001.model.enums.Role;
 

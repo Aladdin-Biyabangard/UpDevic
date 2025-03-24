@@ -1,10 +1,8 @@
 package com.team.updevic001.controllers;
 
-import com.team.updevic001.dao.entities.Teacher;
 import com.team.updevic001.dao.repositories.TeacherRepository;
 import com.team.updevic001.model.dtos.request.CourseDto;
 import com.team.updevic001.model.dtos.request.LessonDto;
-import com.team.updevic001.model.dtos.request.TeacherDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
 import com.team.updevic001.model.dtos.response.lesson.ResponseLessonDto;
 import com.team.updevic001.model.dtos.response.teacher.ResponseTeacherWithCourses;

@@ -31,7 +31,6 @@ public class AdminServiceImpl implements AdminService {
     private final UserRoleRepository userRoleRepository;
     private final UserServiceImpl userServiceImpl;
     private final TeacherRepository teacherRepository;
-    private final StudentRepository studentRepository;
 
     @Override
     public void assignTeacherProfile(String studentId) {

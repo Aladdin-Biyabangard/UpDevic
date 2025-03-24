@@ -3,8 +3,6 @@ package com.team.updevic001.services;
 import com.team.updevic001.model.dtos.response.comment.ResponseCommentDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCategoryDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseDto;
-import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
-import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
 import com.team.updevic001.model.dtos.response.lesson.ResponseLessonDto;
 import com.team.updevic001.model.enums.CourseCategoryType;
 
