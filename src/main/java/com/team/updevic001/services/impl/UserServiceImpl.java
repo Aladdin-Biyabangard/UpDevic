@@ -137,16 +137,16 @@ public class UserServiceImpl implements UserService {
 
     // BU adi bildiyimiz restPassword emaili olacaq
 
-    @Override
-    public void sendPasswordResetEmail(String email) {
-        Optional<User> optionalUser = userRepository.findByEmail(email);
-        if (optionalUser.isPresent()) {
-            confirmationEmailServiceImpl.sendEmail(optionalUser.get().getEmail(), "Click to change password", "Your token and RESTApi for change password");
-            log.info("Email successfully send!");
-        } else {
-            throw new ResourceNotFoundException("User not found");
-        }
-    }
+//    @Override
+//    public void sendPasswordResetEmail(String email) {
+//        Optional<User> optionalUser = userRepository.findByEmail(email);
+//        if (optionalUser.isPresent()) {
+//            confirmationEmailServiceImpl.sendEmail(optionalUser.get().getEmail(), "Click to change password", "Your token and RESTApi for change password");
+//            log.info("Email successfully send!");
+//        } else {
+//            throw new ResourceNotFoundException("User not found");
+//        }
+//    }
 
     /* Token generatorda uniq olan email oldugu ucun subject emaille olacaq.
        Ona gorede extract token ve validate token email uzerine olacaq
