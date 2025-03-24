@@ -1,8 +1,11 @@
 package com.team.updevic001.services.impl;
 
 import com.team.updevic001.config.mappers.UserMapper;
+import com.team.updevic001.dao.entities.Teacher;
 import com.team.updevic001.dao.entities.User;
 import com.team.updevic001.dao.entities.UserRole;
+import com.team.updevic001.dao.repositories.StudentRepository;
+import com.team.updevic001.dao.repositories.TeacherRepository;
 import com.team.updevic001.dao.repositories.UserRepository;
 import com.team.updevic001.dao.repositories.UserRoleRepository;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
@@ -27,6 +30,28 @@ public class AdminServiceImpl implements AdminService {
     private final UserMapper userMapper;
     private final UserRoleRepository userRoleRepository;
     private final UserServiceImpl userServiceImpl;
+    private final TeacherRepository teacherRepository;
+    private final StudentRepository studentRepository;
+
+    @Override
+    public void assignTeacherProfile(String studentId) {
+
+        User user = userRepository.findById(studentId)
+                .orElseThrow(() -> new IllegalArgumentException("Enter the email you registered with."));
+        UserRole userRole = userRoleRepository.findByName(Role.TEACHER).orElseGet(() -> {
+            UserRole role = UserRole.builder()
+                    .name(Role.TEACHER)
+                    .build();
+            return userRoleRepository.save(role);
+
+        });
+        user.getRoles().add(userRole);
+        Teacher teacher = new Teacher();
+        teacher.setUser(user);
+        userRepository.save(user);
+        teacherRepository.save(teacher);
+    }
+
 
     @Override
     public List<ResponseUserDto> getAllUsers() {

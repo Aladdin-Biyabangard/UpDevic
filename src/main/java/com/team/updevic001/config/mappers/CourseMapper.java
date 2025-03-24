@@ -3,6 +3,7 @@ package com.team.updevic001.config.mappers;
 import com.team.updevic001.dao.entities.Course;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
+import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
@@ -27,6 +28,7 @@ public class CourseMapper {
         );
     }
 
+
     public List<ResponseCourseLessonDto> toDto(List<Course> courses) {
         return courses.stream().map(this::toDto).toList();
     }
@@ -37,5 +39,13 @@ public class CourseMapper {
 
     public List<ResponseCourseDto> courseDto(List<Course> courses) {
         return courses.stream().map(this::courseDto).toList();
+    }
+
+    public ResponseCourseShortInfoDto courseShortInfoDto(Course course) {
+        return modelMapper.map(course, ResponseCourseShortInfoDto.class);
+    }
+
+    public List<ResponseCourseShortInfoDto> courseShortInfoDto(List<Course> courses) {
+        return courses.stream().map(this::courseShortInfoDto).toList();
     }
 }

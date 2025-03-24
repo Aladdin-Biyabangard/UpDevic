@@ -2,10 +2,7 @@ package com.team.updevic001.services.impl;
 
 import com.team.updevic001.config.mappers.LessonMapper;
 import com.team.updevic001.config.mappers.TeacherMapper;
-import com.team.updevic001.dao.entities.Course;
-import com.team.updevic001.dao.entities.Lesson;
-import com.team.updevic001.dao.entities.Teacher;
-import com.team.updevic001.dao.entities.TeacherCourse;
+import com.team.updevic001.dao.entities.*;
 import com.team.updevic001.dao.repositories.CourseRepository;
 import com.team.updevic001.dao.repositories.LessonRepository;
 import com.team.updevic001.dao.repositories.TeacherCourseRepository;
@@ -44,6 +41,9 @@ public class TeacherServiceImpl implements TeacherService {
 
         Teacher teacher = findTeacherById(teacherId);
         Course course = modelMapper.map(courseDto, Course.class);
+        course.setCategory(CourseCategory.builder()
+                .category(courseDto.getCourseCategoryType())
+                .build());
         courseRepository.save(course);
         log.info("Course saved successfully. Course ID: {}", course.getUuid());
 
