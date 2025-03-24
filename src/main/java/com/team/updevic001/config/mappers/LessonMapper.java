@@ -13,9 +13,15 @@ import java.util.List;
 public class LessonMapper {
 
     private final ModelMapper modelMapper;
+    private final CommentMapper commentMapper;
 
     public ResponseLessonDto toDto(Lesson lesson) {
-        return modelMapper.map(lesson, ResponseLessonDto.class);
+        return new ResponseLessonDto(
+                lesson.getTitle(),
+                lesson.getDescription(),
+                lesson.getVideoUrl(),
+                commentMapper.toDto(lesson.getComments())
+        );
     }
 
     public List<ResponseLessonDto> toDto(List<Lesson> lessons) {

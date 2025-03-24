@@ -1,9 +1,8 @@
 package com.team.updevic001.model.dtos.response.course;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.team.updevic001.model.dtos.response.comment.ResponseCommentDto;
-import com.team.updevic001.model.enums.CourseCategory;
 import com.team.updevic001.model.enums.CourseLevel;
+import com.team.updevic001.model.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,13 +25,13 @@ public class ResponseCourseDto {
 
     private List<ResponseCommentDto> commentDtoS;
 
-    private Long lessonCount;
+    private long lessonCount;
 
-    private Long studentCount;
+    private long studentCount;
 
-    private Long teacherCount;
+    private long teacherCount;
 
-    @JsonBackReference
-    private CourseCategory category;
+    private Status status;
+
 
 }

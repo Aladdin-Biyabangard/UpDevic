@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface AdminService {
 
+    void assignTeacherProfile(String studentId);
+
     List<ResponseUserDto> getAllUsers();
 
     void assignRoleToUser(String userId, Role role);  // İstifadəçiyə rol təyin etmək
@@ -23,7 +25,6 @@ public interface AdminService {
     Long countUsers();
 
     void deleteUsers();
-
 
 
 }

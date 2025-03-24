@@ -2,10 +2,7 @@ package com.team.updevic001.services.impl;
 
 import com.team.updevic001.config.mappers.CourseMapper;
 import com.team.updevic001.dao.entities.*;
-import com.team.updevic001.dao.repositories.CommentRepository;
-import com.team.updevic001.dao.repositories.LessonRepository;
-import com.team.updevic001.dao.repositories.StudentCourseRepository;
-import com.team.updevic001.dao.repositories.UserRepository;
+import com.team.updevic001.dao.repositories.*;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
@@ -23,7 +20,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StudentServiceImpl implements StudentService {
 
-    private final CourseServiceImpl courseServiceImpl;
     private final UserServiceImpl userServiceImpl;
     private final StudentCourseRepository studentCourseRepository;
     private final ModelMapper modelMapper;
@@ -31,6 +27,7 @@ public class StudentServiceImpl implements StudentService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final LessonRepository lessonRepository;
+    private final CourseRepository courseRepository;
 
     @Override
     public void enrollInCourse(String courseId, String userId) {
@@ -159,7 +156,7 @@ public class StudentServiceImpl implements StudentService {
 
     private Course findCourseById(String courseId) {
         log.debug("Looking for course with ID: {}", courseId);
-        return courseServiceImpl.findCourseById(courseId);
+        return courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException("Course not found!"));
     }
 
     private Comment findCommentById(String commentId) {

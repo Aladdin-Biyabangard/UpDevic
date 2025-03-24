@@ -1,19 +1,22 @@
 package com.team.updevic001.config.mappers;
 
 import com.team.updevic001.dao.entities.Course;
+import com.team.updevic001.model.dtos.response.course.ResponseCourseDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
+import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class CourseMapper {
 
     private final LessonMapper lessonMapper;
+    private final ModelMapper modelMapper;
 
-    public CourseMapper(LessonMapper lessonMapper) {
-        this.lessonMapper = lessonMapper;
-    }
 
     public ResponseCourseLessonDto toDto(Course course) {
         return new ResponseCourseLessonDto(
@@ -25,7 +28,24 @@ public class CourseMapper {
         );
     }
 
-    public List<ResponseCourseLessonDto> toDto(List<Course> courses){
+
+    public List<ResponseCourseLessonDto> toDto(List<Course> courses) {
         return courses.stream().map(this::toDto).toList();
+    }
+
+    public ResponseCourseDto courseDto(Course course) {
+        return modelMapper.map(course, ResponseCourseDto.class);
+    }
+
+    public List<ResponseCourseDto> courseDto(List<Course> courses) {
+        return courses.stream().map(this::courseDto).toList();
+    }
+
+    public ResponseCourseShortInfoDto courseShortInfoDto(Course course) {
+        return modelMapper.map(course, ResponseCourseShortInfoDto.class);
+    }
+
+    public List<ResponseCourseShortInfoDto> courseShortInfoDto(List<Course> courses) {
+        return courses.stream().map(this::courseShortInfoDto).toList();
     }
 }
