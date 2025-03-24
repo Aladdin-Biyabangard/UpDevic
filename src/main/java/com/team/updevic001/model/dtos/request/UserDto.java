@@ -1,5 +1,7 @@
 package com.team.updevic001.model.dtos.request;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,13 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDto {
-
     private String firstName;
-
     private String lastName;
-
     private String password;
-
     private String email;
-
 }
