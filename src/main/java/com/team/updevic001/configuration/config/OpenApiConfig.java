@@ -1,4 +1,4 @@
-package com.team.updevic001.config;
+package com.team.updevic001.configuration.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;

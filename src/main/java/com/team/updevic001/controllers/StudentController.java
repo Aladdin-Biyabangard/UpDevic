@@ -29,15 +29,21 @@ public class StudentController {
         return ResponseEntity.ok("Student successfully unenrolled from the course.");
     }
 
+    @GetMapping
+    public ResponseEntity<ResponseCourseShortInfoDto> getStudentCourse(@RequestParam String userId, @RequestParam String courseId) {
+        ResponseCourseShortInfoDto studentCourse = studentService.getStudentCourse(userId, courseId);
+        return ResponseEntity.ok(studentCourse);
+    }
+
     @GetMapping("/courses")
     public ResponseEntity<List<ResponseCourseShortInfoDto>> getStudentCourses(@RequestParam String userId) {
-        List<ResponseCourseShortInfoDto> courses = studentService.getStudentCourse(userId);
+        List<ResponseCourseShortInfoDto> courses = studentService.getStudentCourses(userId);
         return ResponseEntity.ok(courses);
     }
 
     @GetMapping("/lessons")
     public ResponseEntity<List<ResponseCourseLessonDto>> getStudentLessons(@RequestParam String userId) {
-        List<ResponseCourseLessonDto> lessons = studentService.getStudentLesson(userId);
+        List<ResponseCourseLessonDto> lessons = studentService.getStudentLessons(userId);
         return ResponseEntity.ok(lessons);
     }
 

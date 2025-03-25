@@ -1,4 +1,4 @@
-package com.team.updevic001.config.mappers;
+package com.team.updevic001.configuration.mappers;
 
 import com.team.updevic001.dao.entities.Course;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseDto;
@@ -16,6 +16,7 @@ public class CourseMapper {
 
     private final LessonMapper lessonMapper;
     private final ModelMapper modelMapper;
+    private final CommentMapper commentMapper;
 
 
     public ResponseCourseLessonDto toDto(Course course) {
@@ -24,6 +25,7 @@ public class CourseMapper {
                 course.getDescription(),
                 course.getLevel(),
                 course.getCreatedAt(),
+                commentMapper.toDto(course.getComments()),
                 lessonMapper.toDto(course.getLessons())
         );
     }

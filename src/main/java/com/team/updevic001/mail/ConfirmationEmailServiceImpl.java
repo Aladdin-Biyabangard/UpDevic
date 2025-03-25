@@ -16,7 +16,7 @@ import java.util.Map;
 @Slf4j
 public class ConfirmationEmailServiceImpl {
 
-    JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
 
     public void sendEmail(String receiver, EmailTemplate template, Map<String, String> placeholders) {
         try {

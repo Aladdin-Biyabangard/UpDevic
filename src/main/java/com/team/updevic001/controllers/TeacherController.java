@@ -1,6 +1,5 @@
 package com.team.updevic001.controllers;
 
-import com.team.updevic001.dao.repositories.TeacherRepository;
 import com.team.updevic001.model.dtos.request.CourseDto;
 import com.team.updevic001.model.dtos.request.LessonDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
@@ -8,7 +7,6 @@ import com.team.updevic001.model.dtos.response.lesson.ResponseLessonDto;
 import com.team.updevic001.model.dtos.response.teacher.ResponseTeacherWithCourses;
 import com.team.updevic001.services.TeacherService;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,16 +19,7 @@ import java.util.List;
 public class TeacherController {
 
     private final TeacherService teacherServiceImpl;
-    private final TeacherRepository teacherRepository;
-    private final ModelMapper modelMapper;
 
-//    // Yeni müəllim əlavə etmək
-//    @PostMapping(path = "create")
-//    public ResponseEntity<Teacher> createTeacher(@RequestBody TeacherDto teacherDto) {
-//        Teacher teacher = modelMapper.map(teacherDto, Teacher.class);
-//        teacherRepository.save(teacher);
-//        return ResponseEntity.ok(teacher);
-//    }
 
     // Müəllimə kurs təyin etmək
     @PostMapping(path = "{teacherId}/course/assign")

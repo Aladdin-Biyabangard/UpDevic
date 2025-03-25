@@ -1,4 +1,4 @@
-package com.team.updevic001.config;
+package com.team.updevic001.configuration.config;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
