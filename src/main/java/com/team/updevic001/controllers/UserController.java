@@ -59,11 +59,11 @@ public class UserController {
     }
 
 
-    @GetMapping(path = "/{uuid}/reset")
-    public ResponseEntity<Void> sendPasswordResetEmail(@PathVariable String uuid) {
-        userService.sendPasswordResetEmail(uuid);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
+//    @GetMapping(path = "/{uuid}/reset")
+//    public ResponseEntity<Void> sendPasswordResetEmail(@PathVariable String uuid) {
+//        userService.sendPasswordResetEmail(uuid);
+//        return new ResponseEntity<>(HttpStatus.OK);
+//    }
 
     @DeleteMapping(path = "/{uuid}")
     public ResponseEntity<Void> deleteUser(@PathVariable String uuid) {

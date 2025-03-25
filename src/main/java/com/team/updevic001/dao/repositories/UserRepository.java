@@ -2,6 +2,7 @@ package com.team.updevic001.dao.repositories;
 
 import com.team.updevic001.dao.entities.User;
 import com.team.updevic001.model.enums.Role;
+import com.team.updevic001.model.enums.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -27,4 +28,6 @@ public interface UserRepository extends JpaRepository<User, String> {
     void resetAutoIncrement();
 
     Optional<User> findByEmail(String email);
+
+    Optional<User> findByEmailAndStatus(String email, Status status);
 }

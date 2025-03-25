@@ -4,30 +4,29 @@ import com.team.updevic001.model.enums.Specialty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "teachers")
-@Inheritance(strategy = InheritanceType.JOINED)
-public class Teacher extends User {
+public class Teacher {
+
+    @Id
+    @Column(unique = true, nullable = false, length = 36)
+    private String uuid;
 
     @Enumerated(EnumType.STRING)
     private Specialty speciality;
 
     @Column(name = "experience_years")
     private Integer experienceYears;
-
-    @Column(name = "social_link")
-    private String socialLink;
 
     @Column(name = "hire_date")
     @CreationTimestamp
@@ -36,5 +35,14 @@ public class Teacher extends User {
     @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<TeacherCourse> teacherCourses;
 
+    @OneToOne
+    @JoinColumn(name = "student_id", referencedColumnName = "uuid")
+    private User user;
 
+    @PrePersist
+    public void generateUuid() {
+        if (this.uuid == null) {
+            this.uuid = UUID.randomUUID().toString();
+        }
+    }
 }

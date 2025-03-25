@@ -44,7 +44,7 @@ public class Lesson {
     @PrePersist
     public void generateUuid() {
         if (this.uuid == null) {
-            this.uuid = UUID.randomUUID().toString().substring(0, 35);
+            this.uuid = UUID.randomUUID().toString();
         }
     }
 

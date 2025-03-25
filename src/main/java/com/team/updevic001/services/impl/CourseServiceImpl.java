@@ -1,11 +1,19 @@
 package com.team.updevic001.services.impl;
 
+import com.team.updevic001.configuration.mappers.CategoryMapper;
+import com.team.updevic001.configuration.mappers.CommentMapper;
+import com.team.updevic001.configuration.mappers.CourseMapper;
+import com.team.updevic001.dao.entities.Comment;
 import com.team.updevic001.dao.entities.Course;
+import com.team.updevic001.dao.entities.CourseCategory;
+import com.team.updevic001.dao.repositories.CourseCategoryRepository;
 import com.team.updevic001.dao.repositories.CourseRepository;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.response.comment.ResponseCommentDto;
+import com.team.updevic001.model.dtos.response.course.ResponseCategoryDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
+import com.team.updevic001.model.enums.CourseCategoryType;
 import com.team.updevic001.services.CourseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,25 +28,56 @@ public class CourseServiceImpl implements CourseService {
 
 
     private final CourseRepository courseRepository;
+    private final CourseMapper courseMapper;
+    private final CommentMapper commentMapper;
+    private final CourseCategoryRepository courseCategoryRepository;
+    private final CategoryMapper categoryMapper;
 
     @Override
-    public ResponseCourseDto getCourse(String courseId) {
-        return null;
+    public List<ResponseCourseDto> searchCourse(String keyword) {
+        List<Course> courses = findCourseBy(keyword);
+        List<ResponseCourseDto> responseCourse = courses.stream().map(
+                course -> {
+                    int lessonCount = course.getLessons().size();
+                    int studentCount = course.getStudentCourses().size();
+                    int teacherCount = course.getTeacherCourses().size();
+
+                    ResponseCourseDto responseCourseDto = courseMapper.courseDto(course);
+                    responseCourseDto.setCommentDtoS(commentMapper.toDto(course.getComments()));
+                    responseCourseDto.setLessonCount(lessonCount);
+                    responseCourseDto.setStudentCount(studentCount);
+                    responseCourseDto.setTeacherCount(teacherCount);
+                    return responseCourseDto;
+                }).toList();
+        return responseCourse;
+    }
+
+    @Override
+    public ResponseCourseLessonDto getCourse(String courseId) {
+        Course course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException("Course not found"));
+        return courseMapper.toDto(course);
     }
 
     @Override
     public List<ResponseCourseDto> getCourses() {
-        return List.of();
+        List<Course> courses = courseRepository.findAll();
+        return !courses.isEmpty() ? courseMapper.courseDto(courses) : List.of();
     }
 
+
     @Override
-    public List<ResponseCourseLessonDto> getCourseLessons(String courseId) {
-        return List.of();
+    public List<ResponseCategoryDto> getCategory(CourseCategoryType categoryType) {
+        String category = categoryType.name();
+        List<CourseCategory> courseCategories = courseCategoryRepository.searchCategoryByKeyword(category);
+        return courseCategories.stream().map(categoryMapper::toDto).toList();
     }
 
     @Override
     public List<ResponseCommentDto> getCourseComment(String courseId) {
-        return List.of();
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("There are no lessons in this course."));
+        List<Comment> comments = course.getComments();
+        return !comments.isEmpty() ? commentMapper.toDto(comments) : List.of();
     }
 
     @Override
@@ -46,9 +85,7 @@ public class CourseServiceImpl implements CourseService {
 
     }
 
-    public Course findCourseById(String courseId) {
-        return courseRepository
-                .findById(courseId)
-                .orElseThrow(() -> new ResourceNotFoundException("Not found these course ID:" + courseId));
+    public List<Course> findCourseBy(String keyword) {
+        return courseRepository.searchCoursesByKeyword(keyword);
     }
 }

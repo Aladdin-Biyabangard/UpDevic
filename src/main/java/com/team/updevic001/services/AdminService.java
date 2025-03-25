@@ -3,10 +3,13 @@ package com.team.updevic001.services;
 
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 import com.team.updevic001.model.enums.Role;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 public interface AdminService {
+
+    void assignTeacherProfile(String studentId);
 
     List<ResponseUserDto> getAllUsers();
 
@@ -23,7 +26,6 @@ public interface AdminService {
     Long countUsers();
 
     void deleteUsers();
-
 
 
 }

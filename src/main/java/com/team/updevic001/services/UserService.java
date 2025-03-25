@@ -18,8 +18,7 @@ public interface UserService {
 
     void updateUserPassword(String uuid, String oldPassword, String newPassword);
 
-    void sendPasswordResetEmail(String uuid);
-
+//    void sendPasswordResetEmail(String uuid);
 
     void deleteUser(String uuid);
 

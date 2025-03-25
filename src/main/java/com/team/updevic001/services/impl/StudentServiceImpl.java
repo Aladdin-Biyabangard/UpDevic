@@ -1,11 +1,8 @@
 package com.team.updevic001.services.impl;
 
-import com.team.updevic001.config.mappers.CourseMapper;
+import com.team.updevic001.configuration.mappers.CourseMapper;
 import com.team.updevic001.dao.entities.*;
-import com.team.updevic001.dao.repositories.CommentRepository;
-import com.team.updevic001.dao.repositories.LessonRepository;
-import com.team.updevic001.dao.repositories.StudentCourseRepository;
-import com.team.updevic001.dao.repositories.UserRepository;
+import com.team.updevic001.dao.repositories.*;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
@@ -23,7 +20,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StudentServiceImpl implements StudentService {
 
-    private final CourseServiceImpl courseServiceImpl;
     private final UserServiceImpl userServiceImpl;
     private final StudentCourseRepository studentCourseRepository;
     private final ModelMapper modelMapper;
@@ -31,6 +27,7 @@ public class StudentServiceImpl implements StudentService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final LessonRepository lessonRepository;
+    private final CourseRepository courseRepository;
 
     @Override
     public void enrollInCourse(String courseId, String userId) {
@@ -72,7 +69,22 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public List<ResponseCourseShortInfoDto> getStudentCourse(String userId) {
+    public ResponseCourseShortInfoDto getStudentCourse(String userId, String courseId) {
+        log.info("Fetching course for student with ID: {}", userId);
+
+        User user = findUserById(userId);
+        Student student = castToStudent(user);
+        Course course = courseRepository
+                .findById(courseId).orElseThrow(() -> new ResourceNotFoundException("Not found course !"));
+        studentCourseRepository
+                .findByStudentAndCourse(student, course)
+                .orElseThrow(() -> new IllegalArgumentException("This student does not have such a course"));
+
+        return courseMapper.courseShortInfoDto(course);
+    }
+
+    @Override
+    public List<ResponseCourseShortInfoDto> getStudentCourses(String userId) {
         log.info("Fetching courses for student with ID: {}", userId);
 
         User user = findUserById(userId);
@@ -85,8 +97,9 @@ public class StudentServiceImpl implements StudentService {
                 .toList();
     }
 
+
     @Override
-    public List<ResponseCourseLessonDto> getStudentLesson(String userId) {
+    public List<ResponseCourseLessonDto> getStudentLessons(String userId) {
         log.info("Fetching lessons for student with ID: {}", userId);
 
         User user = findUserById(userId);
@@ -159,7 +172,7 @@ public class StudentServiceImpl implements StudentService {
 
     private Course findCourseById(String courseId) {
         log.debug("Looking for course with ID: {}", courseId);
-        return courseServiceImpl.findCourseById(courseId);
+        return courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException("Course not found!"));
     }
 
     private Comment findCommentById(String commentId) {

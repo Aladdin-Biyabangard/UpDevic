@@ -1,13 +1,15 @@
 package com.team.updevic001.services.impl;
 
-import com.team.updevic001.config.mappers.UserMapper;
+import com.team.updevic001.configuration.mappers.UserMapper;
 import com.team.updevic001.dao.entities.Student;
 import com.team.updevic001.dao.entities.User;
 import com.team.updevic001.dao.entities.UserProfile;
 import com.team.updevic001.dao.entities.UserRole;
-import com.team.updevic001.dao.repositories.*;
+import com.team.updevic001.dao.repositories.StudentRepository;
+import com.team.updevic001.dao.repositories.UserProfileRepository;
+import com.team.updevic001.dao.repositories.UserRepository;
+import com.team.updevic001.dao.repositories.UserRoleRepository;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
-import com.team.updevic001.mail.ConfirmationEmailServiceImpl;
 import com.team.updevic001.model.dtos.request.StudentDto;
 import com.team.updevic001.model.dtos.request.UserProfileDto;
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
@@ -32,8 +34,6 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final UserProfileRepository userProfileRepository;
-    private final TeacherRepository teacherRepository;
-    private final ConfirmationEmailServiceImpl confirmationEmailServiceImpl;
     private final StudentRepository studentRepository;
     private final UserRoleRepository userRoleRepository;
 
@@ -137,16 +137,16 @@ public class UserServiceImpl implements UserService {
 
     // BU adi bildiyimiz restPassword emaili olacaq
 
-    @Override
-    public void sendPasswordResetEmail(String email) {
-        Optional<User> optionalUser = userRepository.findByEmail(email);
-        if (optionalUser.isPresent()) {
-            confirmationEmailServiceImpl.sendEmail(optionalUser.get().getEmail(), "Click to change password", "Your token and RESTApi for change password");
-            log.info("Email successfully send!");
-        } else {
-            throw new ResourceNotFoundException("User not found");
-        }
-    }
+//    @Override
+//    public void sendPasswordResetEmail(String email) {
+//        Optional<User> optionalUser = userRepository.findByEmail(email);
+//        if (optionalUser.isPresent()) {
+//            confirmationEmailServiceImpl.sendEmail(optionalUser.get().getEmail(), "Click to change password", "Your token and RESTApi for change password");
+//            log.info("Email successfully send!");
+//        } else {
+//            throw new ResourceNotFoundException("User not found");
+//        }
+//    }
 
     /* Token generatorda uniq olan email oldugu ucun subject emaille olacaq.
        Ona gorede extract token ve validate token email uzerine olacaq

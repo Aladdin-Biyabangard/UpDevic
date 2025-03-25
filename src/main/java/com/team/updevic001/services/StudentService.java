@@ -11,9 +11,11 @@ public interface StudentService {
 
     void unenrollUserFromCourse(String userId, String courseId);
 
-    List<ResponseCourseShortInfoDto> getStudentCourse(String userId);
+    ResponseCourseShortInfoDto getStudentCourse(String userId, String courseId);
 
-    List<ResponseCourseLessonDto> getStudentLesson(String userId);
+    List<ResponseCourseShortInfoDto> getStudentCourses(String userId);
+
+    List<ResponseCourseLessonDto> getStudentLessons(String userId);
 
     void deleteStudentCourse(String userId, String courseId);
 
