@@ -3,7 +3,6 @@ package com.team.updevic001.services.impl;
 import com.team.updevic001.configuration.mappers.CategoryMapper;
 import com.team.updevic001.configuration.mappers.CommentMapper;
 import com.team.updevic001.configuration.mappers.CourseMapper;
-import com.team.updevic001.configuration.mappers.LessonMapper;
 import com.team.updevic001.dao.entities.Comment;
 import com.team.updevic001.dao.entities.Course;
 import com.team.updevic001.dao.entities.CourseCategory;
@@ -33,7 +32,6 @@ public class CourseServiceImpl implements CourseService {
     private final CommentMapper commentMapper;
     private final CourseCategoryRepository courseCategoryRepository;
     private final CategoryMapper categoryMapper;
-    private final LessonMapper lessonMapper;
 
     @Override
     public List<ResponseCourseDto> searchCourse(String keyword) {

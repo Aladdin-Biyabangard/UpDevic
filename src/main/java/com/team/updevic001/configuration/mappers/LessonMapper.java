@@ -12,7 +12,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LessonMapper {
 
-    private final ModelMapper modelMapper;
     private final CommentMapper commentMapper;
 
     public ResponseLessonDto toDto(Lesson lesson) {
