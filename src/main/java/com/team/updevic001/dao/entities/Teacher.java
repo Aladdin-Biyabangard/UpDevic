@@ -1,5 +1,6 @@
 package com.team.updevic001.dao.entities;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.team.updevic001.model.enums.Specialty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -19,7 +20,7 @@ import java.util.UUID;
 public class Teacher {
 
     @Id
-    @Column(unique = true, nullable = false, length = 36)
+    @Column(unique = true, nullable = false, length = 12)
     private String uuid;
 
     @Enumerated(EnumType.STRING)
@@ -40,9 +41,8 @@ public class Teacher {
     private User user;
 
     @PrePersist
-    public void generateUuid() {
+    public void generateStudentNumber() {
         if (this.uuid == null) {
-            this.uuid = UUID.randomUUID().toString();
-        }
+            this.uuid = NanoIdUtils.randomNanoId().substring(0,12);        }
     }
 }

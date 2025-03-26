@@ -24,12 +24,12 @@ public class UserController {
 
     // BU METODALRDA PRINCIPAL dan istifade edeciyik. Security qosulandan sonra
 
-    @PostMapping
-    public ResponseEntity<ResponseUserDto> newUser(@RequestBody StudentDto user) {
-        ResponseUserDto responseUserDto = userService.newUser(user);
-        return new ResponseEntity<>(responseUserDto, HttpStatus.CREATED);
-
-    }
+//    @PostMapping
+//    public ResponseEntity<ResponseUserDto> newUser(@RequestBody StudentDto user) {
+//        ResponseUserDto responseUserDto = userService.newUser(user);
+//        return new ResponseEntity<>(responseUserDto, HttpStatus.CREATED);
+//
+//    }
 
     @PutMapping("/{uuid}/profile")
     public ResponseEntity<Void> updateUserProfileInfo(@PathVariable String uuid,

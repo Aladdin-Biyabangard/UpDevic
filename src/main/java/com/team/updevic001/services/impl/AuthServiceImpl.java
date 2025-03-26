@@ -1,8 +1,10 @@
 package com.team.updevic001.services.impl;
 
+import com.team.updevic001.dao.entities.Student;
 import com.team.updevic001.dao.entities.User;
 import com.team.updevic001.dao.entities.UserProfile;
 import com.team.updevic001.dao.entities.UserRole;
+import com.team.updevic001.dao.repositories.StudentRepository;
 import com.team.updevic001.dao.repositories.UserProfileRepository;
 import com.team.updevic001.dao.repositories.UserRepository;
 import com.team.updevic001.dao.repositories.UserRoleRepository;
@@ -43,12 +45,13 @@ public class AuthServiceImpl implements AuthService {
     UserRoleRepository userRoleRepository;
     UserProfileRepository userProfileRepository;
     OtpService otpService;
+    StudentRepository studentRepository;
 
     @Override
     public AuthResponseDto login(AuthRequestDto authRequest) {
         log.info("Attempting to authenticate user with email: {}", authRequest.getEmail());
 
-        User user = userRepository.findByEmail(authRequest.getEmail()).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        User user = authenticateUser(authRequest);
 
         try {
             authenticationManager.authenticate(
@@ -59,7 +62,6 @@ public class AuthServiceImpl implements AuthService {
             );
 
             String jwtToken = jwtUtil.createToken(user);
-
             log.info("Authentication successful for user with email: {}", authRequest.getEmail());
 
             return AuthResponseDto.builder()
@@ -76,6 +78,37 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void register(RegisterRequest request) {
         log.info("Registration process for user is started.");
+        validateUserRequest(request);
+        UserRole userRole = assignDefaultRole();
+
+        Student student = createUser(request, userRole);
+        UserProfile userProfile = UserProfile.builder()
+                .user(student)
+                .build();
+
+        studentRepository.save(student);
+        userProfileRepository.save(userProfile);
+        log.info("New user with email {} saved with status {}", student.getEmail(), student.getStatus());
+        otpService.sendOtp(student);
+    }
+
+    @Override
+    public AuthResponseDto verifyAndGetToken(OtpRequest request) {
+        log.info("Operation of verifying and generating token started");
+        User user = userRepository.findByEmailAndStatus(request.getEmail(), Status.PENDING)
+                .orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
+        otpService.verifyOtp(request);
+        user.setStatus(Status.ACTIVE);
+        userRepository.save(user);
+
+        var jwtToken = jwtUtil.createToken(user);
+        return AuthResponseDto.builder()
+                .accessToken(jwtToken)
+                .build();
+    }
+
+
+    private void validateUserRequest(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             log.error("User with email {} already exist.", request.getEmail());
             throw new ResourceAlreadyExistException("USER_ALREADY_EXISTS");
@@ -85,41 +118,31 @@ public class AuthServiceImpl implements AuthService {
             log.error("Password and confirm password mismatches");
             throw new IllegalArgumentException("PASSWORD_MISMATCHING");
         }
+    }
 
-        User user = User.builder()
+    private Student createUser(RegisterRequest request, UserRole userRole) {
+        return Student.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .email(request.getEmail())
                 .status(Status.PENDING)
                 .password(passwordEncoder.encode(request.getPassword()))
+                .roles(List.of(userRole))
                 .build();
-        UserRole defaultRole = userRoleRepository.findByName(Role.STUDENT).orElseGet(() -> {
+
+    }
+
+    private UserRole assignDefaultRole() {
+        return userRoleRepository.findByName(Role.STUDENT).orElseGet(() -> {
             UserRole userRole = new UserRole(null, Role.STUDENT);
             return userRoleRepository.save(userRole);
         });
-
-        user.setRoles(List.of(defaultRole));
-        userRepository.save(user);
-
-        UserProfile userProfile = UserProfile.builder()
-                .user(user)
-                .build();
-
-        userProfileRepository.save(userProfile);
-        log.info("New user with email {} saved with status {}", user.getEmail(), user.getStatus());
-        otpService.sendOtp(user);
     }
 
-    @Override
-    public AuthResponseDto verifyAndGetToken(OtpRequest request) {
-        log.info("Operation of verifying and generating token started");
-        User user = userRepository.findByEmailAndStatus(request.getEmail(), Status.PENDING).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
-        otpService.verifyOtp(request);
-        user.setStatus(Status.ACTIVE);
-        userRepository.save(user);
-        var jwtToken = jwtUtil.createToken(user);
-        return AuthResponseDto.builder()
-                .accessToken(jwtToken)
-                .build();
+
+    private User authenticateUser(AuthRequestDto authRequest) {
+        return userRepository.findByEmail(authRequest.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
+
 }

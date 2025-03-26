@@ -16,7 +16,11 @@ public class CommentMapper {
 
 
     public ResponseCommentDto toDto(Comment comment) {
-        return modelMapper.map(comment, ResponseCommentDto.class);
+        return new ResponseCommentDto(
+                comment.getUser().getFirstName(),
+                comment.getContent(),
+                comment.getUpdatedAt()
+        );
     }
 
     public List<ResponseCommentDto> toDto(List<Comment> comments) {
