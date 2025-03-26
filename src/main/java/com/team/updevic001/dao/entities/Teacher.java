@@ -10,7 +10,6 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -43,6 +42,7 @@ public class Teacher {
     @PrePersist
     public void generateStudentNumber() {
         if (this.uuid == null) {
-            this.uuid = NanoIdUtils.randomNanoId().substring(0,12);        }
+            this.uuid = NanoIdUtils.randomNanoId().substring(0, 12);
+        }
     }
 }

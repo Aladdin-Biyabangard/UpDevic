@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -45,7 +44,8 @@ public class Lesson {
     @PrePersist
     public void generateStudentNumber() {
         if (this.uuid == null) {
-            this.uuid = NanoIdUtils.randomNanoId().substring(0,12);        }
+            this.uuid = NanoIdUtils.randomNanoId().substring(0, 12);
+        }
     }
 
 }

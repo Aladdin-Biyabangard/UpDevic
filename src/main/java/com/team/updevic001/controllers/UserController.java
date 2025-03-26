@@ -1,6 +1,5 @@
 package com.team.updevic001.controllers;
 
-import com.team.updevic001.model.dtos.request.StudentDto;
 import com.team.updevic001.model.dtos.request.UserProfileDto;
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 import com.team.updevic001.services.AdminService;
@@ -20,9 +19,6 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private final AdminService adminService;
-
-    // BU METODALRDA PRINCIPAL dan istifade edeciyik. Security qosulandan sonra
 
 //    @PostMapping
 //    public ResponseEntity<ResponseUserDto> newUser(@RequestBody StudentDto user) {

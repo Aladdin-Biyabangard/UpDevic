@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -18,7 +17,8 @@ import java.util.UUID;
 public class TeacherCourse {
 
     @Id
-    @Column(unique = true, nullable = false, length = 12)    private String uuid;
+    @Column(unique = true, nullable = false, length = 12)
+    private String uuid;
 
     @ManyToOne
     @JoinColumn(name = "teacher_id", nullable = false)
@@ -34,7 +34,8 @@ public class TeacherCourse {
     @PrePersist
     public void generateStudentNumber() {
         if (this.uuid == null) {
-            this.uuid = NanoIdUtils.randomNanoId().substring(0,12);        }
+            this.uuid = NanoIdUtils.randomNanoId().substring(0, 12);
+        }
     }
 
 }

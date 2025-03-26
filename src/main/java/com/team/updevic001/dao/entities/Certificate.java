@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -41,6 +40,7 @@ public class Certificate {
     @PrePersist
     public void generateStudentNumber() {
         if (this.uuid == null) {
-            this.uuid = NanoIdUtils.randomNanoId().substring(0,12);        }
+            this.uuid = NanoIdUtils.randomNanoId().substring(0, 12);
+        }
     }
 }

@@ -1,7 +1,6 @@
 package com.team.updevic001.services.impl;
 
 import com.team.updevic001.configuration.mappers.CategoryMapper;
-import com.team.updevic001.configuration.mappers.CommentMapper;
 import com.team.updevic001.configuration.mappers.CourseMapper;
 import com.team.updevic001.dao.entities.Course;
 import com.team.updevic001.dao.entities.CourseCategory;

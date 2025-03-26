@@ -1,6 +1,5 @@
 package com.team.updevic001.controllers;
 
-import com.team.updevic001.dao.repositories.CourseRepository;
 import com.team.updevic001.model.dtos.request.CommentDto;
 import com.team.updevic001.model.dtos.response.comment.ResponseCommentDto;
 import com.team.updevic001.services.CommentService;
@@ -19,7 +18,6 @@ import java.util.List;
 public class CommentController {
 
     private final CommentService commentServiceImpl;
-    private final CourseRepository courseRepository;
 
     @PostMapping(path = "{userId}/user/{courseId}/course")
     public ResponseEntity<String> addCommentToCourse(@PathVariable String userId,
