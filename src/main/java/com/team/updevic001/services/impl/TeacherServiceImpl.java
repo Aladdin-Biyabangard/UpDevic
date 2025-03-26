@@ -7,16 +7,13 @@ import com.team.updevic001.dao.repositories.CourseRepository;
 import com.team.updevic001.dao.repositories.LessonRepository;
 import com.team.updevic001.dao.repositories.TeacherCourseRepository;
 import com.team.updevic001.dao.repositories.TeacherRepository;
-import com.team.updevic001.exceptions.ForbiddenException;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.request.CourseDto;
 import com.team.updevic001.model.dtos.request.LessonDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
 import com.team.updevic001.model.dtos.response.lesson.ResponseLessonDto;
 import com.team.updevic001.model.dtos.response.teacher.ResponseTeacherWithCourses;
-import com.team.updevic001.model.enums.Role;
 import com.team.updevic001.services.TeacherService;
-import com.team.updevic001.utility.AuthHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -37,11 +34,26 @@ public class TeacherServiceImpl implements TeacherService {
     private final LessonRepository lessonRepository;
     private final LessonMapper lessonMapper;
     private final TeacherMapper teacherMapper;
+    private final CourseCategoryRepository courseCategoryRepository;
+    private final UserRoleRepository userRoleRepository;
+    private final CourseMapper courseMapper;
     private final AuthHelper authHelper;
 
     @Override
-    public ResponseTeacherWithCourses createTeacherCourse(String teacherId, CourseDto courseDto) {
+    public ResponseCourseDto createTeacherCourse(String teacherId, CourseDto courseDto) {
         log.info("Creating a new teacher course. Teacher ID: {}, Course Title: {}", teacherId, courseDto.getTitle());
+
+        Teacher teacher = findTeacherById(teacherId);
+
+        UserRole userRole = userRoleRepository.findByName(Role.HEAD_TEACHER).orElseGet(() -> {
+            UserRole role = UserRole.builder()
+                    .name(Role.HEAD_TEACHER)
+                    .build();
+            return userRoleRepository.save(role);
+
+        });
+        teacher.getUser().getRoles().add(userRole);
+        teacherRepository.save(teacher);
         Teacher teacher = validateTeacherAndAccess(teacherId, Boolean.FALSE);
         Course course = modelMapper.map(courseDto, Course.class);
         course.setCategory(CourseCategory.builder()
@@ -56,6 +68,26 @@ public class TeacherServiceImpl implements TeacherService {
         teacherCourseRepository.save(teacherCourse);
 
         log.info("TeacherCourse relationship saved successfully. Teacher ID: {}, Course ID: {}", teacherId, course.getUuid());
+        return courseMapper.courseDto(course);
+    }
+
+
+    public ResponseTeacherWithCourses addTeacherToCourse(String teacherId, String courseId) {
+        Teacher teacher = findTeacherById(teacherId);
+        Course course = courseRepository
+                .findById(courseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Not course found!"));
+
+        Optional<TeacherCourse> teacherCourse = teacherCourseRepository.findByCourseAndTeacher(course, teacher);
+
+        if (teacherCourse.isPresent()) {
+            throw new IllegalArgumentException("This teacher" + teacherId + " already exists in this course." + courseId);
+        } else {
+            TeacherCourse newTeacherCourse = new TeacherCourse();
+            newTeacherCourse.setCourse(course);
+            newTeacherCourse.setTeacher(teacher);
+            teacherCourseRepository.save(newTeacherCourse);
+        }
         return teacherMapper.toDto(teacher);
     }
 

@@ -2,6 +2,7 @@ package com.team.updevic001.services;
 
 import com.team.updevic001.model.dtos.request.CourseDto;
 import com.team.updevic001.model.dtos.request.LessonDto;
+import com.team.updevic001.model.dtos.response.course.ResponseCourseDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
 import com.team.updevic001.model.dtos.response.lesson.ResponseLessonDto;
 import com.team.updevic001.model.dtos.response.teacher.ResponseTeacherWithCourses;
@@ -10,7 +11,9 @@ import java.util.List;
 
 public interface TeacherService {
 
-    ResponseTeacherWithCourses createTeacherCourse(String teacherId, CourseDto courseDto);
+    ResponseCourseDto createTeacherCourse(String teacherId, CourseDto courseDto);
+
+    ResponseTeacherWithCourses addTeacherToCourse(String teacherId, String courseId);
 
     ResponseLessonDto assignLessonToCourse(String teacherId, String courseId, LessonDto lessonDto);
 
@@ -28,7 +31,6 @@ public interface TeacherService {
 
     List<ResponseLessonDto> getTeacherLessons(String teacherId);
 
-
     void deleteTeacherCourse(String teacherId, String courseId);
 
     void deleteTeacherLesson(String teacherId, String lessonId);
@@ -40,4 +42,5 @@ public interface TeacherService {
     void deleteTeacher(String teacherId);
 
     void deleteAllTeachers();
+
 }

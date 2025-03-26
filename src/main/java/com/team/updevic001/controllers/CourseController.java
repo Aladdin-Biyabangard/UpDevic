@@ -1,6 +1,5 @@
 package com.team.updevic001.controllers;
 
-import com.team.updevic001.model.dtos.response.comment.ResponseCommentDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCategoryDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
@@ -46,17 +45,5 @@ public class CourseController {
         return ResponseEntity.ok(category);
     }
 
-    @GetMapping(path = "comment/{courseId}")
-    public ResponseEntity<List<ResponseCommentDto>> getCourseComment(@PathVariable String courseId) {
-        List<ResponseCommentDto> courseComment = courseServiceImpl.getCourseComment(courseId);
-        return ResponseEntity.ok(courseComment);
-    }
-
-    @DeleteMapping(path = "/{courseId}/")
-    public ResponseEntity<String> deleteCourseComment(@PathVariable String courseId,
-                                                      @RequestParam String commentId) {
-        courseServiceImpl.deleteCourseComment(courseId, commentId);
-        return ResponseEntity.ok("Comment successfully deleted!");
-    }
 
 }

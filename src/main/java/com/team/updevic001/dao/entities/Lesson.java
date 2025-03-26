@@ -1,5 +1,6 @@
 package com.team.updevic001.dao.entities;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -9,7 +10,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,7 +20,7 @@ import java.util.UUID;
 public class Lesson {
 
     @Id
-    @Column(unique = true, nullable = false, length = 36)
+    @Column(unique = true, nullable = false, length = 12)
     private String uuid;
 
     @Column(name = "title", nullable = false)
@@ -42,9 +42,9 @@ public class Lesson {
     private List<Comment> comments;
 
     @PrePersist
-    public void generateUuid() {
+    public void generateStudentNumber() {
         if (this.uuid == null) {
-            this.uuid = UUID.randomUUID().toString();
+            this.uuid = NanoIdUtils.randomNanoId().substring(0, 12);
         }
     }
 

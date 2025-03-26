@@ -22,11 +22,18 @@ public class TeacherController {
 
 
     // Müəllimə kurs təyin etmək
-    @PostMapping(path = "/{teacherId}/course/assign")
-    public ResponseEntity<ResponseTeacherWithCourses> assignCourseToTeacher(@PathVariable String teacherId,
-                                                                            @RequestBody CourseDto courseDto) {
-        ResponseTeacherWithCourses teacherCourse = teacherServiceImpl.createTeacherCourse(teacherId, courseDto);
+    @PostMapping(path = "{teacherId}/course/create")
+    public ResponseEntity<ResponseCourseDto> assignCourseToTeacher(@PathVariable String teacherId,
+                                                                   @RequestBody CourseDto courseDto) {
+        ResponseCourseDto teacherCourse = teacherServiceImpl.createTeacherCourse(teacherId, courseDto);
         return ResponseEntity.ok(teacherCourse);
+    }
+
+    @PostMapping(path = "add/teacher/course")
+    public ResponseEntity<ResponseTeacherWithCourses> addTeacherToCourse(@RequestParam String teacher,
+                                                                         @RequestParam String course) {
+        ResponseTeacherWithCourses responseTeacherWithCourses = teacherServiceImpl.addTeacherToCourse(teacher, course);
+        return ResponseEntity.ok(responseTeacherWithCourses);
     }
 
     // Müəllimə dərs təyin etmək

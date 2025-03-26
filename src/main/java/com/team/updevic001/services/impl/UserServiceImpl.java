@@ -47,7 +47,6 @@ public class UserServiceImpl implements UserService {
                     .user(authenticatedUser)
                     .build();
         }
-
         modelMapper.map(userProfileDto, userProfile);
         userProfileRepository.save(userProfile);
         log.info("User with ID {} updated successfully.", uuid);
