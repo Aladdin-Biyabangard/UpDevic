@@ -1,6 +1,5 @@
 package com.team.updevic001.controllers;
 
-import com.team.updevic001.dao.repositories.TeacherRepository;
 import com.team.updevic001.model.dtos.request.CourseDto;
 import com.team.updevic001.model.dtos.request.LessonDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
@@ -8,7 +7,6 @@ import com.team.updevic001.model.dtos.response.lesson.ResponseLessonDto;
 import com.team.updevic001.model.dtos.response.teacher.ResponseTeacherWithCourses;
 import com.team.updevic001.services.TeacherService;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,13 +14,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/teacher")
+@RequestMapping("/api/teacher")
 @RequiredArgsConstructor
 public class TeacherController {
 
     private final TeacherService teacherServiceImpl;
-    private final TeacherRepository teacherRepository;
-    private final ModelMapper modelMapper;
 
 //    // Yeni müəllim əlavə etmək
 //    @PostMapping(path = "create")
@@ -33,7 +29,7 @@ public class TeacherController {
 //    }
 
     // Müəllimə kurs təyin etmək
-    @PostMapping(path = "{teacherId}/course/assign")
+    @PostMapping(path = "/{teacherId}/course/assign")
     public ResponseEntity<ResponseTeacherWithCourses> assignCourseToTeacher(@PathVariable String teacherId,
                                                                             @RequestBody CourseDto courseDto) {
         ResponseTeacherWithCourses teacherCourse = teacherServiceImpl.createTeacherCourse(teacherId, courseDto);
@@ -41,7 +37,7 @@ public class TeacherController {
     }
 
     // Müəllimə dərs təyin etmək
-    @PostMapping(path = "{teacherId}/course/{courseId}/lesson/assign")
+    @PostMapping(path = "/{teacherId}/course/{courseId}/lesson/assign")
     public ResponseEntity<ResponseLessonDto> assignLessonToCourse(@PathVariable String teacherId,
                                                                   @PathVariable String courseId,
                                                                   @RequestBody LessonDto lessonDto) {
@@ -52,7 +48,7 @@ public class TeacherController {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Müəllimə aid kurs məlumatlarını yeniləmək
-    @PutMapping(path = "{teacherId}/course/{courseId}/update")
+    @PutMapping(path = "/{teacherId}/course/{courseId}/update")
     public ResponseEntity<Void> updateTeacherCourse(@PathVariable String teacherId,
                                                     @PathVariable String courseId,
                                                     @RequestBody CourseDto courseDto) {
@@ -61,7 +57,7 @@ public class TeacherController {
     }
 
     // Müəllimə aid dərs məlumatlarını yeniləmək
-    @PutMapping(path = "{teacherId}/lesson/{lessonId}/update")
+    @PutMapping(path = "/{teacherId}/lesson/{lessonId}/update")
     public ResponseEntity<Void> updateTeacherLesson(@PathVariable String teacherId,
                                                     @PathVariable String lessonId,
                                                     @RequestBody LessonDto lessonDto) {
@@ -70,7 +66,7 @@ public class TeacherController {
     }
 
     // Müəllimə aid kurs məlumatlarını əldə etmək
-    @GetMapping(path = "{teacherId}/course/{courseId}/info")
+    @GetMapping(path = "/{teacherId}/course/{courseId}/info")
     public ResponseEntity<ResponseCourseShortInfoDto> getTeacherCourse(@PathVariable String teacherId,
                                                                        @PathVariable String courseId) {
         ResponseCourseShortInfoDto teacherCourse = teacherServiceImpl.getTeacherCourse(teacherId, courseId);
@@ -78,14 +74,14 @@ public class TeacherController {
     }
 
     // Müəllimi və onun kurslarını əldə etmək
-    @GetMapping(path = "{teacherId}/courses")
+    @GetMapping(path = "/{teacherId}/courses")
     public ResponseEntity<List<ResponseCourseShortInfoDto>> getTeacherAndCourses(@PathVariable String teacherId) {
         List<ResponseCourseShortInfoDto> teacherAndCourses = teacherServiceImpl.getTeacherAndRelatedCourses(teacherId);
         return ResponseEntity.ok(teacherAndCourses);
     }
 
     // Müəllimin dərs məlumatlarını əldə etmək
-    @GetMapping(path = "{teacherId}/lesson/{lessonId}")
+    @GetMapping(path = "/{teacherId}/lesson/{lessonId}")
     public ResponseEntity<ResponseLessonDto> getTeacherLesson(@PathVariable String teacherId,
                                                               @PathVariable String lessonId) {
         ResponseLessonDto teacherLesson = teacherServiceImpl.getTeacherLesson(teacherId, lessonId);
@@ -93,7 +89,7 @@ public class TeacherController {
     }
 
     // Müəllimə aid kursa olan dərsləri əldə etmək
-    @GetMapping(path = "{teacherId}/course/{courseId}/lessons")
+    @GetMapping(path = "/{teacherId}/course/{courseId}/lessons")
     public ResponseEntity<List<ResponseLessonDto>> getLessonsByCourse(@PathVariable String teacherId,
                                                                       @PathVariable String courseId) {
         List<ResponseLessonDto> teacherLessonsByCourse = teacherServiceImpl.getTeacherLessonsByCourse(teacherId, courseId);
@@ -101,14 +97,14 @@ public class TeacherController {
     }
 
     // Müəllimin bütün dərslərini əldə etmək
-    @GetMapping(path = "{teacherId}/lessons")
+    @GetMapping(path = "/{teacherId}/lessons")
     public ResponseEntity<List<ResponseLessonDto>> getTeacherLessons(@PathVariable String teacherId) {
         List<ResponseLessonDto> teacherLessons = teacherServiceImpl.getTeacherLessons(teacherId);
         return ResponseEntity.ok(teacherLessons);
     }
 
     // Müəllimin kursunu silmək
-    @DeleteMapping(path = "{teacherId}/course/{courseId}/delete")
+    @DeleteMapping(path = "/{teacherId}/course/{courseId}/delete")
     public ResponseEntity<Void> deleteTeacherCourse(@PathVariable String teacherId,
                                                     @PathVariable String courseId) {
         teacherServiceImpl.deleteTeacherCourse(teacherId, courseId);
@@ -116,7 +112,7 @@ public class TeacherController {
     }
 
     // Müəllimin dərsini silmək
-    @DeleteMapping(path = "{teacherId}/lesson/{lessonId}/delete")
+    @DeleteMapping(path = "/{teacherId}/lesson/{lessonId}/delete")
     public ResponseEntity<Void> deleteTeacherLesson(@PathVariable String teacherId,
                                                     @PathVariable String lessonId) {
         teacherServiceImpl.deleteTeacherLesson(teacherId, lessonId);
@@ -124,28 +120,28 @@ public class TeacherController {
     }
 
     // Müəllimin bütün kurslarını silmək
-    @DeleteMapping(path = "{teacherId}/courses/delete")
+    @DeleteMapping(path = "/{teacherId}/courses/delete")
     public ResponseEntity<Void> deleteTeacherCourses(@PathVariable String teacherId) {
         teacherServiceImpl.deleteTeacherCourses(teacherId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     // Müəllimin bütün dərslərini silmək
-    @DeleteMapping(path = "{teacherId}/lessons/delete")
+    @DeleteMapping(path = "/{teacherId}/lessons/delete")
     public ResponseEntity<Void> deleteTeacherLessons(@PathVariable String teacherId) {
         teacherServiceImpl.deleteTeacherLessons(teacherId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     // Müəllimi silmək
-    @DeleteMapping(path = "delete/{teacherId}")
+    @DeleteMapping(path = "/delete/{teacherId}")
     public ResponseEntity<Void> deleteTeacher(@PathVariable String teacherId) {
         teacherServiceImpl.deleteTeacher(teacherId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     // Bütün müəllimləri silmək
-    @DeleteMapping(path = "delete/all")
+    @DeleteMapping(path = "/delete/all")
     public ResponseEntity<Void> deleteAllTeachers() {
         teacherServiceImpl.deleteAllTeachers();
         return new ResponseEntity<>(HttpStatus.OK);

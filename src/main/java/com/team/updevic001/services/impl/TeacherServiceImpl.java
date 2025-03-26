@@ -7,13 +7,16 @@ import com.team.updevic001.dao.repositories.CourseRepository;
 import com.team.updevic001.dao.repositories.LessonRepository;
 import com.team.updevic001.dao.repositories.TeacherCourseRepository;
 import com.team.updevic001.dao.repositories.TeacherRepository;
+import com.team.updevic001.exceptions.ForbiddenException;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.request.CourseDto;
 import com.team.updevic001.model.dtos.request.LessonDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
 import com.team.updevic001.model.dtos.response.lesson.ResponseLessonDto;
 import com.team.updevic001.model.dtos.response.teacher.ResponseTeacherWithCourses;
+import com.team.updevic001.model.enums.Role;
 import com.team.updevic001.services.TeacherService;
+import com.team.updevic001.utility.AuthHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -34,12 +37,12 @@ public class TeacherServiceImpl implements TeacherService {
     private final LessonRepository lessonRepository;
     private final LessonMapper lessonMapper;
     private final TeacherMapper teacherMapper;
+    private final AuthHelper authHelper;
 
     @Override
     public ResponseTeacherWithCourses createTeacherCourse(String teacherId, CourseDto courseDto) {
         log.info("Creating a new teacher course. Teacher ID: {}, Course Title: {}", teacherId, courseDto.getTitle());
-
-        Teacher teacher = findTeacherById(teacherId);
+        Teacher teacher = validateTeacherAndAccess(teacherId, Boolean.FALSE);
         Course course = modelMapper.map(courseDto, Course.class);
         course.setCategory(CourseCategory.builder()
                 .category(courseDto.getCourseCategoryType())
@@ -59,8 +62,7 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public ResponseLessonDto assignLessonToCourse(String teacherId, String courseId, LessonDto lessonDto) {
         log.info("Assigning lesson to course. Teacher ID: {}, Course ID: {}", teacherId, courseId);
-
-        Teacher teacher = findTeacherById(teacherId);
+        Teacher teacher = validateTeacherAndAccess(teacherId, Boolean.FALSE);
 
         Lesson lesson = modelMapper.map(lessonDto, Lesson.class);
 
@@ -81,8 +83,7 @@ public class TeacherServiceImpl implements TeacherService {
     public void updateTeacherCourseInfo(String teacherId, String courseId, CourseDto courseDto) {
         log.info("Updating teacher course info. Teacher ID: {}, Course ID: {}", teacherId, courseId);
 
-        Teacher teacher = findTeacherById(teacherId);
-
+        Teacher teacher = validateTeacherAndAccess(teacherId, Boolean.FALSE);
         Course findCourse = courseRepository
                 .findById(courseId).orElseThrow(() -> new ResourceNotFoundException("Course not found!"));
 
@@ -101,8 +102,7 @@ public class TeacherServiceImpl implements TeacherService {
     public void updateTeacherLessonInfo(String teacherId, String lessonId, LessonDto updatedLessonDto) {
         log.info("Updating teacher lesson info. Teacher ID: {}, Lesson ID: {}", teacherId, lessonId);
 
-        Teacher teacher = findTeacherById(teacherId);
-
+        Teacher teacher = validateTeacherAndAccess(teacherId, Boolean.FALSE);
         Lesson lesson = findLessonById(lessonId);
 
         List<TeacherCourse> teacherCourses = teacherCourseRepository.findTeacherCourseByTeacher(teacher);
@@ -207,7 +207,7 @@ public class TeacherServiceImpl implements TeacherService {
     public void deleteTeacherCourse(String teacherId, String courseId) {
         log.info("Deleting teacher course. Teacher ID: {}, Course ID: {}", teacherId, courseId);
 
-        Teacher teacher = findTeacherById(teacherId);
+        Teacher teacher = validateTeacherAndAccess(teacherId, Boolean.TRUE);
         Course course = findCourseById(courseId);
         TeacherCourse teacherCourse = findTeacherCourse(course, teacher);
         teacherCourseRepository.delete(teacherCourse);
@@ -220,8 +220,7 @@ public class TeacherServiceImpl implements TeacherService {
     public void deleteTeacherLesson(String teacherId, String lessonId) {
         log.info("Deleting teacher lesson. Teacher ID: {}, Lesson ID: {}", teacherId, lessonId);
 
-        Teacher teacher = findTeacherById(teacherId);
-
+        Teacher teacher = validateTeacherAndAccess(teacherId, Boolean.TRUE);
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new ResourceNotFoundException("Lesson not found!"));
 
@@ -245,8 +244,7 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public void deleteTeacherCourses(String teacherId) {
         log.info("Deleting all teacher courses. Teacher ID: {}", teacherId);
-
-        Teacher teacher = findTeacherById(teacherId);
+        Teacher teacher = validateTeacherAndAccess(teacherId, Boolean.TRUE);
         List<TeacherCourse> teacherCourses = teacherCourseRepository.findTeacherCourseByTeacher(teacher);
         teacherCourseRepository.deleteAll(teacherCourses);
 
@@ -256,8 +254,7 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public void deleteTeacherLessons(String teacherId) {
         log.info("Deleting all teacher lessons. Teacher ID: {}", teacherId);
-
-        Teacher teacher = findTeacherById(teacherId);
+        Teacher teacher = validateTeacherAndAccess(teacherId, Boolean.TRUE);
         List<TeacherCourse> teacherCourses = teacherCourseRepository.findTeacherCourseByTeacher(teacher);
         List<Lesson> list = teacherCourses.stream()
                 .flatMap(teacherCourse -> teacherCourse.getCourse().getLessons().stream()).toList();
@@ -268,13 +265,29 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public void deleteTeacher(String teacherId) {
-        teacherRepository.deleteById(teacherId);
+        Teacher teacher = validateTeacherAndAccess(teacherId, Boolean.TRUE);
+        teacherRepository.delete(teacher);
     }
 
     @Override
     public void deleteAllTeachers() {
         teacherRepository.deleteAll();
         teacherRepository.resetAutoIncrement();
+    }
+
+    private Teacher validateTeacherAndAccess(String teacherId, boolean isAllowedToAdmin) {
+        User authenticatedUser = authHelper.getAuthenticatedUser();
+        Teacher teacher = findTeacherById(teacherId);
+
+        boolean isOwner = teacher.getUser().getUuid().equals(authenticatedUser.getUuid());
+        boolean isAdmin = isAllowedToAdmin && authenticatedUser.getRoles().stream()
+                .anyMatch(userRole -> userRole.getName().equals(Role.ADMIN));
+
+        if (!isOwner && !isAdmin) {
+            throw new ForbiddenException("NOT_ALLOWED");
+        }
+
+        return teacher;
     }
 
     private Teacher findTeacherById(String teacherID) {
