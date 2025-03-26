@@ -20,8 +20,9 @@ public class AdminController {
     private final AdminService adminServiceImpl;
 
     @PostMapping(path = "assign/teacher/{studentId}")
-    public void checkStudentForTeacherRol(@PathVariable String studentId) {
+    public ResponseEntity<String> assignTeacherProfile(@PathVariable String studentId) {
         adminServiceImpl.assignTeacherProfile(studentId);
+        return ResponseEntity.ok("Teacher profile created successfully") ;
     }
 
 

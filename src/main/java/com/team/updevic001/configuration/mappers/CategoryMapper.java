@@ -21,7 +21,6 @@ public class CategoryMapper {
 
     public ResponseCategoryDto toDto(CourseCategory courseCategory) {
         return new ResponseCategoryDto(
-                courseCategory.getCategory(),
                 Optional.ofNullable(courseMapper.courseShortInfoDto(courseCategory.getCourses()))
                         .orElse(Collections.emptyList()),
                 courseCount(courseCategory)

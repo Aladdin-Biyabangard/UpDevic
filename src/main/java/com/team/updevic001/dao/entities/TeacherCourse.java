@@ -1,5 +1,6 @@
 package com.team.updevic001.dao.entities;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +8,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -17,7 +17,7 @@ import java.util.UUID;
 public class TeacherCourse {
 
     @Id
-    @Column(unique = true, nullable = false, length = 36)
+    @Column(unique = true, nullable = false, length = 12)
     private String uuid;
 
     @ManyToOne
@@ -32,9 +32,9 @@ public class TeacherCourse {
     private LocalDateTime assignedAt;
 
     @PrePersist
-    public void generateUuid() {
+    public void generateStudentNumber() {
         if (this.uuid == null) {
-            this.uuid = UUID.randomUUID().toString();
+            this.uuid = NanoIdUtils.randomNanoId().substring(0, 12);
         }
     }
 

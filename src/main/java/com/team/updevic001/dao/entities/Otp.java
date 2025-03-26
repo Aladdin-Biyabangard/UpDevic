@@ -1,31 +1,32 @@
 package com.team.updevic001.dao.entities;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Data
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 @Table(name = "otp")
 public class Otp {
     @Id
-    @Column(unique = true, nullable = false, length = 36)
-    String uuid;
-    Integer code;
-    String email;
-    LocalDateTime expirationTime;
+    @Column(unique = true, nullable = false, length = 12)
+    private String uuid;
+    private Integer code;
+    private String email;
+    private LocalDateTime expirationTime;
 
     @PrePersist
-    public void generateUuid() {
+    public void generateStudentNumber() {
         if (this.uuid == null) {
-            this.uuid = UUID.randomUUID().toString().substring(0, 35);
+            this.uuid = NanoIdUtils.randomNanoId().substring(0, 12);
         }
     }
 }

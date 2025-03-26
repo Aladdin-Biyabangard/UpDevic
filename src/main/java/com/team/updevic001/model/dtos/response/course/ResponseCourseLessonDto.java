@@ -23,8 +23,9 @@ public class ResponseCourseLessonDto {
 
     private LocalDateTime createdAt;
 
+    private List<ResponseLessonDto> lessons;
+
     private List<ResponseCommentDto> comments;
 
-    private List<ResponseLessonDto> lessons;
 
 }

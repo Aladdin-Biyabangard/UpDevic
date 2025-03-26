@@ -23,8 +23,6 @@ public class ResponseCourseDto {
 
     private LocalDateTime createdAt;
 
-    private List<ResponseCommentDto> commentDtoS;
-
     private long lessonCount;
 
     private long studentCount;
@@ -33,5 +31,6 @@ public class ResponseCourseDto {
 
     private Status status;
 
+    private List<ResponseCommentDto> commentDtoS;
 
 }

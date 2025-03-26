@@ -1,5 +1,6 @@
 package com.team.updevic001.dao.entities;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -10,7 +11,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,7 +21,7 @@ import java.util.UUID;
 public class Comment {
 
     @Id
-    @Column(unique = true, nullable = false, length = 36)
+    @Column(unique = true, nullable = false, length = 12)
     private String uuid;
 
     @Column(name = "content", nullable = false)
@@ -35,6 +35,7 @@ public class Comment {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private User user;
 
     @ManyToOne
@@ -48,9 +49,9 @@ public class Comment {
     private Lesson lesson;
 
     @PrePersist
-    public void generateUuid() {
+    public void generateStudentNumber() {
         if (this.uuid == null) {
-            this.uuid = UUID.randomUUID().toString();
+            this.uuid = NanoIdUtils.randomNanoId().substring(0, 12);
         }
     }
 

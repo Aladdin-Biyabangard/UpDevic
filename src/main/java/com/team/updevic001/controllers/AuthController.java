@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthController {
 
-    AuthService authService;
+    private final AuthService authService;
 
     @PostMapping("/sign-up")
     public ResponseEntity<?> registerUser(@RequestBody @Valid RegisterRequest request) {
