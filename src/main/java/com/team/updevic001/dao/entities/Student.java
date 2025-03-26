@@ -17,9 +17,8 @@ import java.time.LocalDateTime;
 @Inheritance(strategy = InheritanceType.JOINED)
 public class Student extends User {
 
-    @Column(name = "student_number", nullable = false)
-    private String studentNumber;
-
+//    @Column(name = "student_number", nullable = false)
+//    private String studentNumber;
 
     @Column(name = "enrolled_date")
     @CreationTimestamp
