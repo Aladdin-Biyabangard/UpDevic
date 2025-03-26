@@ -1,5 +1,6 @@
 package com.team.updevic001.model.dtos.response.course;
 
+import com.team.updevic001.model.dtos.response.comment.ResponseCommentDto;
 import com.team.updevic001.model.dtos.response.lesson.ResponseLessonDto;
 import com.team.updevic001.model.enums.CourseLevel;
 import lombok.AllArgsConstructor;
@@ -22,5 +23,8 @@ public class ResponseCourseLessonDto {
 
     private LocalDateTime createdAt;
 
+    private List<ResponseCommentDto> comments;
+
     private List<ResponseLessonDto> lessons;
+
 }

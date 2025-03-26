@@ -1,4 +1,4 @@
-package com.team.updevic001.config;
+package com.team.updevic001.configuration.config;
 
 import com.team.updevic001.config.enums.AuthMapping;
 import com.team.updevic001.model.enums.Role;

@@ -12,6 +12,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OtpRequest {
+
     @NotBlank(message = "Email is required")
     String email;
     @NotBlank(message = "OTP code is required")

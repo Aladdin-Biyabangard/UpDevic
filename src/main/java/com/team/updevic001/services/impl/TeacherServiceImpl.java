@@ -1,7 +1,7 @@
 package com.team.updevic001.services.impl;
 
-import com.team.updevic001.config.mappers.LessonMapper;
-import com.team.updevic001.config.mappers.TeacherMapper;
+import com.team.updevic001.configuration.mappers.LessonMapper;
+import com.team.updevic001.configuration.mappers.TeacherMapper;
 import com.team.updevic001.dao.entities.*;
 import com.team.updevic001.dao.repositories.CourseRepository;
 import com.team.updevic001.dao.repositories.LessonRepository;

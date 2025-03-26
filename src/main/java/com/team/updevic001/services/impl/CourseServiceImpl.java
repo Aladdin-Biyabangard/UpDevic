@@ -1,18 +1,18 @@
 package com.team.updevic001.services.impl;
 
-import com.team.updevic001.config.mappers.CategoryMapper;
-import com.team.updevic001.config.mappers.CommentMapper;
-import com.team.updevic001.config.mappers.CourseMapper;
-import com.team.updevic001.config.mappers.LessonMapper;
+import com.team.updevic001.configuration.mappers.CategoryMapper;
+import com.team.updevic001.configuration.mappers.CommentMapper;
+import com.team.updevic001.configuration.mappers.CourseMapper;
 import com.team.updevic001.dao.entities.Comment;
 import com.team.updevic001.dao.entities.Course;
 import com.team.updevic001.dao.entities.CourseCategory;
 import com.team.updevic001.dao.repositories.CourseCategoryRepository;
 import com.team.updevic001.dao.repositories.CourseRepository;
+import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.response.comment.ResponseCommentDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCategoryDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseDto;
-import com.team.updevic001.model.dtos.response.lesson.ResponseLessonDto;
+import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
 import com.team.updevic001.model.enums.CourseCategoryType;
 import com.team.updevic001.services.CourseService;
 import lombok.RequiredArgsConstructor;
@@ -32,10 +32,9 @@ public class CourseServiceImpl implements CourseService {
     private final CommentMapper commentMapper;
     private final CourseCategoryRepository courseCategoryRepository;
     private final CategoryMapper categoryMapper;
-    private final LessonMapper lessonMapper;
 
     @Override
-    public List<ResponseCourseDto> getCourse(String keyword) {
+    public List<ResponseCourseDto> searchCourse(String keyword) {
         List<Course> courses = findCourseBy(keyword);
         List<ResponseCourseDto> responseCourse = courses.stream().map(
                 course -> {
@@ -54,6 +53,12 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    public ResponseCourseLessonDto getCourse(String courseId) {
+        Course course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException("Course not found"));
+        return courseMapper.toDto(course);
+    }
+
+    @Override
     public List<ResponseCourseDto> getCourses() {
         List<Course> courses = courseRepository.findAll();
         return !courses.isEmpty() ? courseMapper.courseDto(courses) : List.of();
@@ -65,13 +70,6 @@ public class CourseServiceImpl implements CourseService {
         String category = categoryType.name();
         List<CourseCategory> courseCategories = courseCategoryRepository.searchCategoryByKeyword(category);
         return courseCategories.stream().map(categoryMapper::toDto).toList();
-    }
-
-    @Override
-    public List<ResponseLessonDto> getCourseLessons(String courseId) {
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("There are no lessons in this course."));
-        return !course.getLessons().isEmpty() ? lessonMapper.toDto(course.getLessons()) : List.of();
     }
 
     @Override

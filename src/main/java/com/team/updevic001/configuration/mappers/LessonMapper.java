@@ -1,4 +1,4 @@
-package com.team.updevic001.config.mappers;
+package com.team.updevic001.configuration.mappers;
 
 import com.team.updevic001.dao.entities.Lesson;
 import com.team.updevic001.model.dtos.response.lesson.ResponseLessonDto;
@@ -12,7 +12,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LessonMapper {
 
-    private final ModelMapper modelMapper;
     private final CommentMapper commentMapper;
 
     public ResponseLessonDto toDto(Lesson lesson) {

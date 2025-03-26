@@ -23,8 +23,8 @@
     @AllArgsConstructor
     @NoArgsConstructor
     @Entity
-    @Table(name = "users")
     @Builder
+    @Table(name = "users")
     @Inheritance(strategy = InheritanceType.JOINED)
     public class User implements UserDetails {
 

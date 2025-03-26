@@ -1,4 +1,4 @@
-package com.team.updevic001.config.mappers;
+package com.team.updevic001.configuration.mappers;
 
 import com.team.updevic001.dao.entities.Comment;
 import com.team.updevic001.model.dtos.response.comment.ResponseCommentDto;

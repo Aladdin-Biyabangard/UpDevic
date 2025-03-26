@@ -1,4 +1,4 @@
-package com.team.updevic001.config;
+package com.team.updevic001.configuration.config;
 
 import com.team.updevic001.dao.repositories.UserRepository;
 import com.team.updevic001.exceptions.ResourceNotFoundException;

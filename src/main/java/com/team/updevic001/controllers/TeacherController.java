@@ -20,13 +20,6 @@ public class TeacherController {
 
     private final TeacherService teacherServiceImpl;
 
-//    // Yeni müəllim əlavə etmək
-//    @PostMapping(path = "create")
-//    public ResponseEntity<Teacher> createTeacher(@RequestBody TeacherDto teacherDto) {
-//        Teacher teacher = modelMapper.map(teacherDto, Teacher.class);
-//        teacherRepository.save(teacher);
-//        return ResponseEntity.ok(teacher);
-//    }
 
     // Müəllimə kurs təyin etmək
     @PostMapping(path = "/{teacherId}/course/assign")

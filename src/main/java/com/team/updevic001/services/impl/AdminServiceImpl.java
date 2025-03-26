@@ -1,10 +1,9 @@
 package com.team.updevic001.services.impl;
 
-import com.team.updevic001.config.mappers.UserMapper;
+import com.team.updevic001.configuration.mappers.UserMapper;
 import com.team.updevic001.dao.entities.Teacher;
 import com.team.updevic001.dao.entities.User;
 import com.team.updevic001.dao.entities.UserRole;
-import com.team.updevic001.dao.repositories.StudentRepository;
 import com.team.updevic001.dao.repositories.TeacherRepository;
 import com.team.updevic001.dao.repositories.UserRepository;
 import com.team.updevic001.dao.repositories.UserRoleRepository;
