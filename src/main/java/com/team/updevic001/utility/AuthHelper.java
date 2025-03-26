@@ -2,8 +2,10 @@ package com.team.updevic001.utility;
 
 import com.team.updevic001.dao.entities.User;
 import com.team.updevic001.dao.repositories.UserRepository;
+import com.team.updevic001.exceptions.ForbiddenException;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.exceptions.UnauthorizedException;
+import com.team.updevic001.model.enums.Status;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -28,11 +30,19 @@ public class AuthHelper {
         String authenticatedEmail = authentication.getName();
         log.debug("Authenticated user email: {}", authenticatedEmail);
 
-        return userRepository.findByEmail(authenticatedEmail)
+        return userRepository.findByEmailAndStatus(authenticatedEmail, Status.ACTIVE)
                 .orElseThrow(() -> {
-                    log.error("User with email {} not found in the database", authenticatedEmail);
+                    log.error("User with email {} not found or is inactive", authenticatedEmail);
                     return new ResourceNotFoundException("USER_NOT_FOUND");
                 });
+    }
+
+    public User validateUserAccess(String userId) {
+        User authenticatedUser = getAuthenticatedUser();
+        if (!authenticatedUser.getUuid().equals(userId)) {
+            throw new ForbiddenException("NOT_ALLOWED");
+        }
+        return authenticatedUser;
     }
 }
 

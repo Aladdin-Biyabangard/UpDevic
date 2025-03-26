@@ -1,25 +1,23 @@
 package com.team.updevic001.dao.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
-@SuperBuilder
 @Entity
 @Data
+@SuperBuilder
 @Table(name = "students")
 @Inheritance(strategy = InheritanceType.JOINED)
 public class Student extends User {
 
-    @Column(name = "student_number")
+    @Column(name = "student_number", nullable = false)
     private String studentNumber;
 
 

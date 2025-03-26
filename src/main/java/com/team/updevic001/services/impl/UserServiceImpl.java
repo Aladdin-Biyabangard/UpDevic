@@ -1,26 +1,21 @@
 package com.team.updevic001.services.impl;
 
-import com.team.updevic001.config.mappers.UserMapper;
-import com.team.updevic001.dao.entities.Student;
 import com.team.updevic001.dao.entities.User;
 import com.team.updevic001.dao.entities.UserProfile;
-import com.team.updevic001.dao.entities.UserRole;
 import com.team.updevic001.dao.repositories.*;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
-import com.team.updevic001.mail.ConfirmationEmailServiceImpl;
-import com.team.updevic001.model.dtos.request.StudentDto;
+import com.team.updevic001.model.dtos.request.ChangePasswordDto;
 import com.team.updevic001.model.dtos.request.UserProfileDto;
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
-import com.team.updevic001.model.enums.Role;
 import com.team.updevic001.services.UserService;
+import com.team.updevic001.utility.AuthHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -28,7 +23,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserMapper userMapper;
+    private final com.team.updevic001.configuration.mappers.UserMapper userMapper;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final UserProfileRepository userProfileRepository;
@@ -51,6 +46,8 @@ public class UserServiceImpl implements UserService {
         userProfileRepository.save(userProfile);
         log.info("User with ID {} updated successfully.", uuid);
     }
+
+
 
     @Override
     public void updateUserPassword(String uuid, ChangePasswordDto passwordDto) {

@@ -62,6 +62,7 @@ public class AuthServiceImpl implements AuthService {
             );
 
             String jwtToken = jwtUtil.createToken(user);
+
             log.info("Authentication successful for user with email: {}", authRequest.getEmail());
 
             return AuthResponseDto.builder()
@@ -90,21 +91,6 @@ public class AuthServiceImpl implements AuthService {
         userProfileRepository.save(userProfile);
         log.info("New user with email {} saved with status {}", student.getEmail(), student.getStatus());
         otpService.sendOtp(student);
-    }
-
-    @Override
-    public AuthResponseDto verifyAndGetToken(OtpRequest request) {
-        log.info("Operation of verifying and generating token started");
-        User user = userRepository.findByEmailAndStatus(request.getEmail(), Status.PENDING)
-                .orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
-        otpService.verifyOtp(request);
-        user.setStatus(Status.ACTIVE);
-        userRepository.save(user);
-
-        var jwtToken = jwtUtil.createToken(user);
-        return AuthResponseDto.builder()
-                .accessToken(jwtToken)
-                .build();
     }
 
 
@@ -143,6 +129,22 @@ public class AuthServiceImpl implements AuthService {
     private User authenticateUser(AuthRequestDto authRequest) {
         return userRepository.findByEmail(authRequest.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
+
+    @Override
+    public AuthResponseDto verifyAndGetToken(OtpRequest request) {
+        log.info("Operation of verifying and generating token started");
+        User user = userRepository.findByEmailAndStatus(request.getEmail(), Status.PENDING)
+                .orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
+        otpService.verifyOtp(request);
+        user.setStatus(Status.ACTIVE);
+        userRepository.save(user);
+
+        var jwtToken = jwtUtil.createToken(user);
+        return AuthResponseDto.builder()
+                .accessToken(jwtToken)
+                .build();
     }
 
 }

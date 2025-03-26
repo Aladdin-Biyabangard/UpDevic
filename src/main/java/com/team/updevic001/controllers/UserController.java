@@ -1,9 +1,11 @@
 package com.team.updevic001.controllers;
 
+import com.team.updevic001.model.dtos.request.ChangePasswordDto;
 import com.team.updevic001.model.dtos.request.UserProfileDto;
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 import com.team.updevic001.services.AdminService;
 import com.team.updevic001.services.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,13 +21,8 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    // BU METODALRDA PRINCIPAL dan istifade edeciyik. Security qosulandan sonra
 
-//    @PostMapping
-//    public ResponseEntity<ResponseUserDto> newUser(@RequestBody StudentDto user) {
-//        ResponseUserDto responseUserDto = userService.newUser(user);
-//        return new ResponseEntity<>(responseUserDto, HttpStatus.CREATED);
-//
-//    }
 
     @PutMapping("/{uuid}/profile")
     public ResponseEntity<Void> updateUserProfileInfo(@PathVariable String uuid,
@@ -34,11 +31,9 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PutMapping("/{uuid}/password")
-    public ResponseEntity<Void> updateUserPassword(@PathVariable String uuid,
-                                                   @RequestParam String oldPassword,
-                                                   @RequestParam String newPassword) {
-        userService.updateUserPassword(uuid, oldPassword, newPassword);
+    @PatchMapping("/{uuid}/password")
+    public ResponseEntity<Void> updateUserPassword(@PathVariable String uuid, @Valid @RequestBody ChangePasswordDto passwordDto) {
+        userService.updateUserPassword(uuid, passwordDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -55,17 +50,10 @@ public class UserController {
     }
 
 
-//    @GetMapping(path = "/{uuid}/reset")
-//    public ResponseEntity<Void> sendPasswordResetEmail(@PathVariable String uuid) {
-//        userService.sendPasswordResetEmail(uuid);
-//        return new ResponseEntity<>(HttpStatus.OK);
-//    }
-
     @DeleteMapping(path = "/{uuid}")
     public ResponseEntity<Void> deleteUser(@PathVariable String uuid) {
         userService.deleteUser(uuid);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
 
 }
