@@ -1,6 +1,7 @@
 package com.aladdin.updevic001.services;
 
-import com.team.updevic001.config.mappers.UserMapper;
+
+import com.team.updevic001.configuration.mappers.UserMapper;
 import com.team.updevic001.dao.entities.User;
 import com.team.updevic001.dao.entities.UserRole;
 import com.team.updevic001.dao.repositories.UserRepository;
@@ -31,7 +32,7 @@ public class AdminServiceImplTest {
     @Mock
     private UserRoleRepository userRoleRepository;
     @Mock
-    private UserMapper userMapper;
+    private com.team.updevic001.configuration.mappers.UserMapper userMapper;
     @Mock
     private UserServiceImpl userServiceImpl;
     @InjectMocks

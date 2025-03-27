@@ -24,7 +24,6 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.modelmapper:modelmapper:2.4.4'
     implementation 'com.aventrix.jnanoid:jnanoid:2.0.0'
 
