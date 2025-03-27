@@ -1,19 +1,21 @@
 package com.team.updevic001.services.impl;
 
+import com.team.updevic001.configuration.mappers.CourseMapper;
 import com.team.updevic001.configuration.mappers.LessonMapper;
 import com.team.updevic001.configuration.mappers.TeacherMapper;
 import com.team.updevic001.dao.entities.*;
-import com.team.updevic001.dao.repositories.CourseRepository;
-import com.team.updevic001.dao.repositories.LessonRepository;
-import com.team.updevic001.dao.repositories.TeacherCourseRepository;
-import com.team.updevic001.dao.repositories.TeacherRepository;
+import com.team.updevic001.dao.repositories.*;
+import com.team.updevic001.exceptions.ForbiddenException;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.request.CourseDto;
 import com.team.updevic001.model.dtos.request.LessonDto;
+import com.team.updevic001.model.dtos.response.course.ResponseCourseDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
 import com.team.updevic001.model.dtos.response.lesson.ResponseLessonDto;
 import com.team.updevic001.model.dtos.response.teacher.ResponseTeacherWithCourses;
+import com.team.updevic001.model.enums.Role;
 import com.team.updevic001.services.TeacherService;
+import com.team.updevic001.utility.AuthHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -34,42 +36,41 @@ public class TeacherServiceImpl implements TeacherService {
     private final LessonRepository lessonRepository;
     private final LessonMapper lessonMapper;
     private final TeacherMapper teacherMapper;
-    private final CourseCategoryRepository courseCategoryRepository;
     private final UserRoleRepository userRoleRepository;
     private final CourseMapper courseMapper;
     private final AuthHelper authHelper;
 
-    @Override
-    public ResponseCourseDto createTeacherCourse(String teacherId, CourseDto courseDto) {
-        log.info("Creating a new teacher course. Teacher ID: {}, Course Title: {}", teacherId, courseDto.getTitle());
-
-        Teacher teacher = findTeacherById(teacherId);
-
-        UserRole userRole = userRoleRepository.findByName(Role.HEAD_TEACHER).orElseGet(() -> {
-            UserRole role = UserRole.builder()
-                    .name(Role.HEAD_TEACHER)
-                    .build();
-            return userRoleRepository.save(role);
-
-        });
-        teacher.getUser().getRoles().add(userRole);
-        teacherRepository.save(teacher);
-        Teacher teacher = validateTeacherAndAccess(teacherId, Boolean.FALSE);
-        Course course = modelMapper.map(courseDto, Course.class);
-        course.setCategory(CourseCategory.builder()
-                .category(courseDto.getCourseCategoryType())
-                .build());
-        courseRepository.save(course);
-        log.info("Course saved successfully. Course ID: {}", course.getUuid());
-
-        TeacherCourse teacherCourse = new TeacherCourse();
-        teacherCourse.setCourse(course);
-        teacherCourse.setTeacher(teacher);
-        teacherCourseRepository.save(teacherCourse);
-
-        log.info("TeacherCourse relationship saved successfully. Teacher ID: {}, Course ID: {}", teacherId, course.getUuid());
-        return courseMapper.courseDto(course);
-    }
+//    @Override
+//    public ResponseCourseDto createTeacherCourse(String teacherId, CourseDto courseDto) {
+//        log.info("Creating a new teacher course. Teacher ID: {}, Course Title: {}", teacherId, courseDto.getTitle());
+//
+//        Teacher teacher = findTeacherById(teacherId);
+//
+//        UserRole userRole = userRoleRepository.findByName(Role.HEAD_TEACHER).orElseGet(() -> {
+//            UserRole role = UserRole.builder()
+//                    .name(Role.HEAD_TEACHER)
+//                    .build();
+//            return userRoleRepository.save(role);
+//
+//        });
+//        teacher.getUser().getRoles().add(userRole);
+//        teacherRepository.save(teacher);
+////        Teacher teacher = validateTeacherAndAccess(teacherId, Boolean.FALSE);
+//        Course course = modelMapper.map(courseDto, Course.class);
+//        course.setCategory(CourseCategory.builder()
+//                .category(courseDto.getCourseCategoryType())
+//                .build());
+//        courseRepository.save(course);
+//        log.info("Course saved successfully. Course ID: {}", course.getUuid());
+//
+//        TeacherCourse teacherCourse = new TeacherCourse();
+//        teacherCourse.setCourse(course);
+//        teacherCourse.setTeacher(teacher);
+//        teacherCourseRepository.save(teacherCourse);
+//
+//        log.info("TeacherCourse relationship saved successfully. Teacher ID: {}, Course ID: {}", teacherId, course.getUuid());
+//        return courseMapper.courseDto(course);
+//    }
 
 
     public ResponseTeacherWithCourses addTeacherToCourse(String teacherId, String courseId) {
@@ -111,43 +112,45 @@ public class TeacherServiceImpl implements TeacherService {
         return modelMapper.map(lesson, ResponseLessonDto.class);
     }
 
-    @Override
-    public void updateTeacherCourseInfo(String teacherId, String courseId, CourseDto courseDto) {
-        log.info("Updating teacher course info. Teacher ID: {}, Course ID: {}", teacherId, courseId);
-
-        Teacher teacher = validateTeacherAndAccess(teacherId, Boolean.FALSE);
-        Course findCourse = courseRepository
-                .findById(courseId).orElseThrow(() -> new ResourceNotFoundException("Course not found!"));
-
-        TeacherCourse teacherCourse = findTeacherCourse(findCourse, teacher);
-
-        modelMapper.map(courseDto, findCourse);
-
-        courseRepository.save(findCourse);
-        teacherCourse.setCourse(findCourse);
-        teacherCourseRepository.save(teacherCourse);
-
-        log.info("Teacher course updated successfully. Course ID: {}", findCourse.getUuid());
-    }
-
-    @Override
-    public void updateTeacherLessonInfo(String teacherId, String lessonId, LessonDto updatedLessonDto) {
-        log.info("Updating teacher lesson info. Teacher ID: {}, Lesson ID: {}", teacherId, lessonId);
-
-        Teacher teacher = validateTeacherAndAccess(teacherId, Boolean.FALSE);
-        Lesson lesson = findLessonById(lessonId);
-
-        List<TeacherCourse> teacherCourses = teacherCourseRepository.findTeacherCourseByTeacher(teacher);
-
-        Optional<TeacherCourse> teacherCourse = teacherCourses.stream().filter(tc -> tc.getCourse().getLessons().contains(lesson)).findFirst();
-
-        if (teacherCourse.isPresent()) {
-            modelMapper.map(updatedLessonDto, lesson);
-            lessonRepository.save(lesson);
-        } else {
-            throw new IllegalArgumentException("No such lesson found for this teacher.");
-        }
-    }
+//    @Override
+//    public void updateTeacherCourseInfo(String courseId, CourseDto courseDto) {
+//        log.info("Updating teacher course info. Teacher ID: {}, Course ID: {}", teacherId, courseId);
+//        User authenticatedUser = authHelper.getAuthenticatedUser();
+//        Teacher teacher = authenticatedUser.getTeacher();
+//
+////        Teacher teacher = validateTeacherAndAccess(teacherId, Boolean.FALSE);
+//        Course findCourse = courseRepository
+//                .findById(courseId).orElseThrow(() -> new ResourceNotFoundException("Course not found!"));
+//
+//        TeacherCourse teacherCourse = findTeacherCourse(findCourse, teacher);
+//
+//        modelMapper.map(courseDto, findCourse);
+//
+//        courseRepository.save(findCourse);
+//        teacherCourse.setCourse(findCourse);
+//        teacherCourseRepository.save(teacherCourse);
+//
+//        log.info("Teacher course updated successfully. Course ID: {}", findCourse.getUuid());
+//    }
+//
+//    @Override
+//    public void updateTeacherLessonInfo(String teacherId, String lessonId, LessonDto updatedLessonDto) {
+//        log.info("Updating teacher lesson info. Teacher ID: {}, Lesson ID: {}", teacherId, lessonId);
+//
+//        Teacher teacher = validateTeacherAndAccess(teacherId, Boolean.FALSE);
+//        Lesson lesson = findLessonById(lessonId);
+//
+//        List<TeacherCourse> teacherCourses = teacherCourseRepository.findTeacherCourseByTeacher(teacher);
+//
+//        Optional<TeacherCourse> teacherCourse = teacherCourses.stream().filter(tc -> tc.getCourse().getLessons().contains(lesson)).findFirst();
+//
+//        if (teacherCourse.isPresent()) {
+//            modelMapper.map(updatedLessonDto, lesson);
+//            lessonRepository.save(lesson);
+//        } else {
+//            throw new IllegalArgumentException("No such lesson found for this teacher.");
+//        }
+//    }
 
     @Override
     public ResponseCourseShortInfoDto getTeacherCourse(String teacherId, String courseId) {
@@ -235,18 +238,18 @@ public class TeacherServiceImpl implements TeacherService {
         return lessons;
     }
 
-    @Override
-    public void deleteTeacherCourse(String teacherId, String courseId) {
-        log.info("Deleting teacher course. Teacher ID: {}, Course ID: {}", teacherId, courseId);
-
-        Teacher teacher = validateTeacherAndAccess(teacherId, Boolean.TRUE);
-        Course course = findCourseById(courseId);
-        TeacherCourse teacherCourse = findTeacherCourse(course, teacher);
-        teacherCourseRepository.delete(teacherCourse);
-        courseRepository.delete(course);
-
-        log.info("Teacher course deleted successfully. Teacher ID: {}, Course ID: {}", teacherId, courseId);
-    }
+//    @Override
+//    public void deleteTeacherCourse(String teacherId, String courseId) {
+//        log.info("Deleting teacher course. Teacher ID: {}, Course ID: {}", teacherId, courseId);
+//
+//        Teacher teacher = validateTeacherAndAccess(teacherId, Boolean.TRUE);
+//        Course course = findCourseById(courseId);
+//        TeacherCourse teacherCourse = findTeacherCourse(course, teacher);
+//        teacherCourseRepository.delete(teacherCourse);
+//        courseRepository.delete(course);
+//
+//        log.info("Teacher course deleted successfully. Teacher ID: {}, Course ID: {}", teacherId, courseId);
+//    }
 
     @Override
     public void deleteTeacherLesson(String teacherId, String lessonId) {

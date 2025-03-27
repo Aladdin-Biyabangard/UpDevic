@@ -3,7 +3,6 @@ package com.team.updevic001.controllers;
 import com.team.updevic001.model.dtos.request.ChangePasswordDto;
 import com.team.updevic001.model.dtos.request.UserProfileDto;
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
-import com.team.updevic001.services.AdminService;
 import com.team.updevic001.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,19 +20,16 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    // BU METODALRDA PRINCIPAL dan istifade edeciyik. Security qosulandan sonra
 
-
-    @PutMapping("/{uuid}/profile")
-    public ResponseEntity<Void> updateUserProfileInfo(@PathVariable String uuid,
-                                                      @RequestBody UserProfileDto userProfileDto) {
-        userService.updateUserProfileInfo(uuid, userProfileDto);
+    @PutMapping("/profile")
+    public ResponseEntity<Void> updateUserProfileInfo(@RequestBody UserProfileDto userProfileDto) {
+        userService.updateUserProfileInfo(userProfileDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PatchMapping("/{uuid}/password")
-    public ResponseEntity<Void> updateUserPassword(@PathVariable String uuid, @Valid @RequestBody ChangePasswordDto passwordDto) {
-        userService.updateUserPassword(uuid, passwordDto);
+    @PatchMapping("/password")
+    public ResponseEntity<Void> updateUserPassword(@Valid @RequestBody ChangePasswordDto passwordDto) {
+        userService.updateUserPassword(passwordDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -49,11 +45,10 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-
-    @DeleteMapping(path = "/{uuid}")
-    public ResponseEntity<Void> deleteUser(@PathVariable String uuid) {
-        userService.deleteUser(uuid);
-        return new ResponseEntity<>(HttpStatus.OK);
+    @DeleteMapping
+    public ResponseEntity<Void> deleteUser() {
+        userService.deleteUser();
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 }

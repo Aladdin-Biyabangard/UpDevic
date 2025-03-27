@@ -2,6 +2,7 @@ package com.team.updevic001.controllers;
 
 import com.team.updevic001.model.dtos.request.CourseDto;
 import com.team.updevic001.model.dtos.request.LessonDto;
+import com.team.updevic001.model.dtos.response.course.ResponseCourseDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
 import com.team.updevic001.model.dtos.response.lesson.ResponseLessonDto;
 import com.team.updevic001.model.dtos.response.teacher.ResponseTeacherWithCourses;
@@ -22,12 +23,12 @@ public class TeacherController {
 
 
     // Müəllimə kurs təyin etmək
-    @PostMapping(path = "{teacherId}/course/create")
-    public ResponseEntity<ResponseCourseDto> assignCourseToTeacher(@PathVariable String teacherId,
-                                                                   @RequestBody CourseDto courseDto) {
-        ResponseCourseDto teacherCourse = teacherServiceImpl.createTeacherCourse(teacherId, courseDto);
-        return ResponseEntity.ok(teacherCourse);
-    }
+//    @PostMapping(path = "{teacherId}/course/create")
+//    public ResponseEntity<ResponseCourseDto> assignCourseToTeacher(@PathVariable String teacherId,
+//                                                                   @RequestBody CourseDto courseDto) {
+//        ResponseCourseDto teacherCourse = teacherServiceImpl.createTeacherCourse(teacherId, courseDto);
+//        return new ResponseEntity<>(teacherCourse, HttpStatus.CREATED);
+//    }
 
     @PostMapping(path = "add/teacher/course")
     public ResponseEntity<ResponseTeacherWithCourses> addTeacherToCourse(@RequestParam String teacher,
@@ -45,25 +46,24 @@ public class TeacherController {
         return ResponseEntity.ok(responseLessonDto);
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // Müəllimə aid kurs məlumatlarını yeniləmək
-    @PutMapping(path = "/{teacherId}/course/{courseId}/update")
-    public ResponseEntity<Void> updateTeacherCourse(@PathVariable String teacherId,
-                                                    @PathVariable String courseId,
-                                                    @RequestBody CourseDto courseDto) {
-        teacherServiceImpl.updateTeacherCourseInfo(teacherId, courseId, courseDto);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    // Müəllimə aid dərs məlumatlarını yeniləmək
-    @PutMapping(path = "/{teacherId}/lesson/{lessonId}/update")
-    public ResponseEntity<Void> updateTeacherLesson(@PathVariable String teacherId,
-                                                    @PathVariable String lessonId,
-                                                    @RequestBody LessonDto lessonDto) {
-        teacherServiceImpl.updateTeacherLessonInfo(teacherId, lessonId, lessonDto);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
+//    // Müəllimə aid kurs məlumatlarını yeniləmək
+//    @PutMapping(path = "/course/{courseId}/update")
+//    public ResponseEntity<Void> updateTeacherCourse(@PathVariable String courseId,
+//                                                    @RequestBody CourseDto courseDto) {
+//        teacherServiceImpl.updateTeacherCourseInfo(courseId, courseDto);
+//        return new ResponseEntity<>(HttpStatus.OK);
+//    }
+//
+//    // Müəllimə aid dərs məlumatlarını yeniləmək
+//    @PutMapping(path = "/{teacherId}/lesson/{lessonId}/update")
+//    public ResponseEntity<Void> updateTeacherLesson(@PathVariable String teacherId,
+//                                                    @PathVariable String lessonId,
+//                                                    @RequestBody LessonDto lessonDto) {
+//        teacherServiceImpl.updateTeacherLessonInfo(teacherId, lessonId, lessonDto);
+//        return new ResponseEntity<>(HttpStatus.OK);
+//    }
 
     // Müəllimə aid kurs məlumatlarını əldə etmək
     @GetMapping(path = "/{teacherId}/course/{courseId}/info")
@@ -104,12 +104,12 @@ public class TeacherController {
     }
 
     // Müəllimin kursunu silmək
-    @DeleteMapping(path = "/{teacherId}/course/{courseId}/delete")
-    public ResponseEntity<Void> deleteTeacherCourse(@PathVariable String teacherId,
-                                                    @PathVariable String courseId) {
-        teacherServiceImpl.deleteTeacherCourse(teacherId, courseId);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
+//    @DeleteMapping(path = "/{teacherId}/course/{courseId}/delete")
+//    public ResponseEntity<Void> deleteTeacherCourse(@PathVariable String teacherId,
+//                                                    @PathVariable String courseId) {
+//        teacherServiceImpl.deleteTeacherCourse(teacherId, courseId);
+//        return new ResponseEntity<>(HttpStatus.OK);
+//    }
 
     // Müəllimin dərsini silmək
     @DeleteMapping(path = "/{teacherId}/lesson/{lessonId}/delete")

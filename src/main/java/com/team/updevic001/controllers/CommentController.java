@@ -19,20 +19,18 @@ public class CommentController {
 
     private final CommentService commentServiceImpl;
 
-    @PostMapping(path = "{userId}/user/{courseId}/course")
-    public ResponseEntity<String> addCommentToCourse(@PathVariable String userId,
-                                                     @PathVariable String courseId,
+    @PostMapping(path = "/{courseId}/course")
+    public ResponseEntity<String> addCommentToCourse(@PathVariable String courseId,
                                                      @RequestBody CommentDto comment) {
         URI location = URI.create("/api/comment/" + courseId + "/course");
-        commentServiceImpl.addCommentToCourse(userId, courseId, comment);
+        commentServiceImpl.addCommentToCourse(courseId, comment);
         return ResponseEntity.created(location).body("Comment added successfully.");
     }
 
-    @PostMapping(path = "{userId}/{lessonId}/lesson")
-    public ResponseEntity<String> addCommentToLesson(@PathVariable String userId,
-                                                     @PathVariable String lessonId,
+    @PostMapping(path = "/{lessonId}/lesson")
+    public ResponseEntity<String> addCommentToLesson(@PathVariable String lessonId,
                                                      @RequestBody CommentDto comment) {
-        commentServiceImpl.addCommentToLesson(userId, lessonId, comment);
+        commentServiceImpl.addCommentToLesson(lessonId, comment);
         return ResponseEntity.ok("Comment added successfully.");
     }
 
@@ -49,13 +47,13 @@ public class CommentController {
         return ResponseEntity.ok(comments);
     }
 
-    @GetMapping(path = "{lessonId}/course")
+    @GetMapping(path = "{lessonId}/lesson")
     public ResponseEntity<List<ResponseCommentDto>> getLessonComment(@PathVariable String lessonId) {
         List<ResponseCommentDto> comments = commentServiceImpl.getLessonComment(lessonId);
         return ResponseEntity.ok(comments);
     }
 
-    @DeleteMapping(path = "{commentId}/delete")
+    @DeleteMapping(path = "/{commentId}")
     public ResponseEntity<String> deleteComment(@PathVariable String commentId) {
         commentServiceImpl.deleteComment(commentId);
         return ResponseEntity.ok("Comment deleted successfully! ");

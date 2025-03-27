@@ -11,15 +11,15 @@ import java.util.List;
 
 public interface TeacherService {
 
-    ResponseCourseDto createTeacherCourse(String teacherId, CourseDto courseDto);
+//    ResponseCourseDto createTeacherCourse(String teacherId, CourseDto courseDto);
 
     ResponseTeacherWithCourses addTeacherToCourse(String teacherId, String courseId);
 
     ResponseLessonDto assignLessonToCourse(String teacherId, String courseId, LessonDto lessonDto);
 
-    void updateTeacherCourseInfo(String teacherId, String courseId, CourseDto courseDto);
-
-    void updateTeacherLessonInfo(String teacherId, String lessonId, LessonDto lessonDto);
+//    void updateTeacherCourseInfo(String courseId, CourseDto courseDto);
+//
+//    void updateTeacherLessonInfo(String teacherId, String lessonId, LessonDto lessonDto);
 
     ResponseCourseShortInfoDto getTeacherCourse(String teacherId, String courseId);
 
@@ -31,7 +31,7 @@ public interface TeacherService {
 
     List<ResponseLessonDto> getTeacherLessons(String teacherId);
 
-    void deleteTeacherCourse(String teacherId, String courseId);
+//    void deleteTeacherCourse(String teacherId, String courseId);
 
     void deleteTeacherLesson(String teacherId, String lessonId);
 

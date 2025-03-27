@@ -19,9 +19,9 @@ public enum AuthMapping {
 //            "/{teacherId}/course/{courseId}/update",
 //            "/api/teacher/delete/{teacherId}"
 //    }),
-    AUTHENTICATED(new String[]{}, new String[]{
-            "/api/course/category"
-    }),
+//    AUTHENTICATED(new String[]{}, new String[]{
+//            "/api/course/comment/{courseId}"
+//    }),
 
     ADMIN(new String[]{Role.ADMIN.name()}, new String[]{
             "/api/admin/**",

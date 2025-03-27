@@ -22,7 +22,7 @@ public class AdminController {
     @PostMapping(path = "assign/teacher/{studentId}")
     public ResponseEntity<String> assignTeacherProfile(@PathVariable String studentId) {
         adminServiceImpl.assignTeacherProfile(studentId);
-        return ResponseEntity.ok("Teacher profile created successfully") ;
+        return ResponseEntity.ok("Teacher profile created successfully");
     }
 
 
@@ -65,13 +65,13 @@ public class AdminController {
     @DeleteMapping(path = "/all")
     public ResponseEntity<Void> deleteUsers() {
         adminServiceImpl.deleteUsers();
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping(path = "/{uuid}/role")
     public ResponseEntity<Void> removeRoleFromUser(@PathVariable String uuid,
                                                    @RequestParam Role role) {
         adminServiceImpl.removeRoleFromUser(uuid, role);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

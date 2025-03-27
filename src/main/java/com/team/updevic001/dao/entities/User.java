@@ -67,6 +67,9 @@ public class User implements UserDetails {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserProfile userProfile;
 
+    @OneToOne(mappedBy = "user")
+    private Teacher teacher;
+
 
     @PrePersist
     public void generatedUuid() {

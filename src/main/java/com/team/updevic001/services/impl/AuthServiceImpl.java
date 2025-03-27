@@ -1,16 +1,13 @@
 package com.team.updevic001.services.impl;
 
-import com.team.updevic001.dao.entities.Student;
-import com.team.updevic001.dao.entities.User;
-import com.team.updevic001.dao.entities.UserProfile;
-import com.team.updevic001.dao.entities.UserRole;
-import com.team.updevic001.dao.repositories.StudentRepository;
-import com.team.updevic001.dao.repositories.UserProfileRepository;
-import com.team.updevic001.dao.repositories.UserRepository;
-import com.team.updevic001.dao.repositories.UserRoleRepository;
+import com.team.updevic001.dao.entities.*;
+import com.team.updevic001.dao.repositories.*;
 import com.team.updevic001.exceptions.ResourceAlreadyExistException;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.exceptions.UnauthorizedException;
+import com.team.updevic001.mail.ConfirmationEmailServiceImpl;
+import com.team.updevic001.mail.EmailTemplate;
+import com.team.updevic001.model.dtos.request.RecoveryPassword;
 import com.team.updevic001.model.dtos.request.security.AuthRequestDto;
 import com.team.updevic001.model.dtos.request.security.OtpRequest;
 import com.team.updevic001.model.dtos.request.security.RegisterRequest;
@@ -20,6 +17,7 @@ import com.team.updevic001.model.enums.Status;
 import com.team.updevic001.services.AuthService;
 import com.team.updevic001.services.OtpService;
 import com.team.updevic001.utility.JwtUtil;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -30,7 +28,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -46,6 +48,8 @@ public class AuthServiceImpl implements AuthService {
     UserProfileRepository userProfileRepository;
     OtpService otpService;
     StudentRepository studentRepository;
+    ConfirmationEmailServiceImpl confirmationEmailServiceImpl;
+    PasswordResetTokenRepository passwordResetTokenRepository;
 
     @Override
     public AuthResponseDto login(AuthRequestDto authRequest) {
@@ -127,8 +131,8 @@ public class AuthServiceImpl implements AuthService {
 
 
     private User authenticateUser(AuthRequestDto authRequest) {
-        return userRepository.findByEmail(authRequest.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return userRepository.findByEmailAndStatus(authRequest.getEmail(), Status.ACTIVE)
+                .orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND_OR_INACTIVE"));
     }
 
 
@@ -145,6 +149,50 @@ public class AuthServiceImpl implements AuthService {
         return AuthResponseDto.builder()
                 .accessToken(jwtToken)
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void requestPasswordReset(String email) {
+        User user = userRepository.findByEmailAndStatus(email, Status.ACTIVE).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
+        log.info("Requesting password reset started by user with ID {}", user.getUuid());
+        String token = generateToken();
+        PasswordResetToken passwordResetToken = PasswordResetToken.builder()
+                .token(token)
+                .user(user)
+                .expirationTime(LocalDateTime.now().plusMinutes(15))
+                .build();
+        passwordResetTokenRepository.save(passwordResetToken);
+        Map<String, String> placeholders = Map.of("userName", user.getFirstName(), "link", token);
+        confirmationEmailServiceImpl.sendEmail(email, EmailTemplate.PASSWORD_RESET, placeholders);
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(String token, RecoveryPassword recoveryPassword) {
+        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token).orElseThrow(() -> new ResourceNotFoundException("SUCH_TOKEN_NOT_FOUND"));
+        User user = resetToken.getUser();
+        if (isExpired(resetToken)) {
+            throw new IllegalArgumentException("TOKEN_EXPIRED");
+        }
+        if (!recoveryPassword.getNewPassword().equals(recoveryPassword.getRetryPassword())) {
+            throw new IllegalArgumentException("PASSWORDS_MISMATCHING");
+        }
+        user.setPassword(passwordEncoder.encode(recoveryPassword.getNewPassword()));
+        userRepository.save(user);
+        passwordResetTokenRepository.delete(resetToken);
+        log.info("Password was successfully recovered");
+    }
+
+    private boolean isExpired(PasswordResetToken resetToken) {
+        return resetToken.getExpirationTime().isBefore(LocalDateTime.now());
+    }
+
+    private static String generateToken() {
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] randomBytes = new byte[32];
+        secureRandom.nextBytes(randomBytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
     }
 
 }

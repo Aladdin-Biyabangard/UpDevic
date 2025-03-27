@@ -16,7 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -31,27 +30,26 @@ public class UserServiceImpl implements UserService {
     private final AuthHelper authHelper;
 
 
-    public void updateUserProfileInfo(String uuid, UserProfileDto userProfileDto) {
-        log.info("Updating user profile for ID: {}", uuid);
-        User authenticatedUser = authHelper.validateUserAccess(uuid);
+    public void updateUserProfileInfo(UserProfileDto userProfileDto) {
+        User authenticatedUser = authHelper.getAuthenticatedUser();
+        log.info("Updating user profile for ID: {}", authenticatedUser.getUuid());
 
         UserProfile userProfile = userProfileRepository.findByUser(authenticatedUser);
         if (userProfile == null) {
-            log.warn("UserProfile not found for user ID: {}, creating new profile.", uuid);
+            log.warn("UserProfile not found for user ID: {}, creating new profile.", authenticatedUser.getUuid());
             userProfile = UserProfile.builder()
                     .user(authenticatedUser)
                     .build();
         }
         modelMapper.map(userProfileDto, userProfile);
         userProfileRepository.save(userProfile);
-        log.info("User with ID {} updated successfully.", uuid);
+        log.info("User with ID {} updated successfully.", authenticatedUser.getUuid());
     }
 
 
-
     @Override
-    public void updateUserPassword(String uuid, ChangePasswordDto passwordDto) {
-        User authenticatedUser = authHelper.validateUserAccess(uuid);
+    public void updateUserPassword(ChangePasswordDto passwordDto) {
+        User authenticatedUser = authHelper.getAuthenticatedUser();
         if (!passwordEncoder.matches(passwordDto.getCurrentPassword(), authenticatedUser.getPassword()) || !passwordDto.getNewPassword().equals(passwordDto.getRetryPassword())) {
             log.error("Old password incorrect or retry password mismatches");
             throw new IllegalArgumentException("Password incorrect!");
@@ -83,49 +81,14 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-
-    // BU adi bildiyimiz restPassword emaili olacaq
-
-//    @Override
-//    public void sendPasswordResetEmail(String email) {
-//        Optional<User> optionalUser = userRepository.findByEmail(email);
-//        if (optionalUser.isPresent()) {
-//            confirmationEmailServiceImpl.sendEmail(optionalUser.get().getEmail(), "Click to change password", "Your token and RESTApi for change password");
-//            log.info("Email successfully send!");
-//        } else {
-//            throw new ResourceNotFoundException("User not found");
-//        }
-//    }
-
-    /* Token generatorda uniq olan email oldugu ucun subject emaille olacaq.
-       Ona gorede extract token ve validate token email uzerine olacaq
-       Controllerde token qebul eden metod ise request paramla gelen tokeni
-       extract token ve validate token metodlari ile yoxladiqdan sonra bu metodu cagiracaq
-    */
-
-    public void resetPassword(String email, String newPassword) {
-        Optional<User> optionalUser = userRepository.findByEmail(email);
-        if (optionalUser.isPresent()) {
-            //PASSWORD ENCODED will be used here
-
-            optionalUser.get().setPassword(newPassword);
-            log.info("Password changed correctly!");
-        }
-    }
-
     @Override
-    public void deleteUser(String uuid) {
-        log.info("Attempting to delete user with ID: {}", uuid);
+    public void deleteUser() {
+        User authenticatedUser = authHelper.getAuthenticatedUser();
 
-        if (!userRepository.existsById(uuid)) {
-            log.error("User with ID: {} not found", uuid);
-            throw new ResourceNotFoundException("USER_NOT_FOUND");
-        }
-
-        User authenticatedUser = authHelper.validateUserAccess(uuid);
+        log.info("Attempting to delete user with ID: {}", authenticatedUser.getUuid());
 
         userRepository.delete(authenticatedUser);
-        log.info("User with ID: {} successfully deleted.", uuid);
+        log.info("User successfully deleted.");
     }
 
 
