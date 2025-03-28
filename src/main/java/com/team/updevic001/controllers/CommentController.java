@@ -1,10 +1,13 @@
 package com.team.updevic001.controllers;
 
 import com.team.updevic001.model.dtos.request.CommentDto;
+import com.team.updevic001.model.dtos.request.CourseDto;
 import com.team.updevic001.model.dtos.response.comment.ResponseCommentDto;
 import com.team.updevic001.services.CommentService;
+import com.team.updevic001.services.CourseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +21,7 @@ import java.util.List;
 public class CommentController {
 
     private final CommentService commentServiceImpl;
+    private final CourseService courseService;
 
     @PostMapping(path = "/{courseId}/course")
     public ResponseEntity<String> addCommentToCourse(@PathVariable String courseId,
@@ -52,6 +56,16 @@ public class CommentController {
         List<ResponseCommentDto> comments = commentServiceImpl.getLessonComment(lessonId);
         return ResponseEntity.ok(comments);
     }
+
+
+
+//    @PutMapping(path = "/{teacherId}/lesson/{lessonId}/update")
+//    public ResponseEntity<Void> updateTeacherLesson(@PathVariable String teacherId,
+//                                                    @PathVariable String lessonId,
+//                                                    @RequestBody LessonDto lessonDto) {
+//        courseService.updateLessonInfo(teacherId, lessonId, lessonDto);
+//        return new ResponseEntity<>(HttpStatus.OK);
+//    }
 
     @DeleteMapping(path = "/{commentId}")
     public ResponseEntity<String> deleteComment(@PathVariable String commentId) {

@@ -6,9 +6,13 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 public interface TeacherRepository extends JpaRepository<Teacher, String> {
     @Modifying
     @Transactional
     @Query(value = "ALTER TABLE teachers AUTO_INCREMENT = 1", nativeQuery = true)
     void resetAutoIncrement();
+
+    Optional<Teacher> findByUserUuid(String userId);
 }

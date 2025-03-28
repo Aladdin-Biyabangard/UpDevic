@@ -2,6 +2,7 @@ package com.team.updevic001.services.impl;
 
 import com.team.updevic001.dao.entities.*;
 import com.team.updevic001.dao.repositories.*;
+import com.team.updevic001.exceptions.ExpiredRefreshTokenException;
 import com.team.updevic001.exceptions.ResourceAlreadyExistException;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.exceptions.UnauthorizedException;
@@ -10,6 +11,7 @@ import com.team.updevic001.mail.EmailTemplate;
 import com.team.updevic001.model.dtos.request.RecoveryPassword;
 import com.team.updevic001.model.dtos.request.security.AuthRequestDto;
 import com.team.updevic001.model.dtos.request.security.OtpRequest;
+import com.team.updevic001.model.dtos.request.security.RefreshTokenRequest;
 import com.team.updevic001.model.dtos.request.security.RegisterRequest;
 import com.team.updevic001.model.dtos.response.AuthResponseDto;
 import com.team.updevic001.model.enums.Role;
@@ -50,8 +52,10 @@ public class AuthServiceImpl implements AuthService {
     StudentRepository studentRepository;
     ConfirmationEmailServiceImpl confirmationEmailServiceImpl;
     PasswordResetTokenRepository passwordResetTokenRepository;
+    RefreshTokenRepository refreshTokenRepository;
 
     @Override
+    @Transactional
     public AuthResponseDto login(AuthRequestDto authRequest) {
         log.info("Attempting to authenticate user with email: {}", authRequest.getEmail());
 
@@ -65,13 +69,9 @@ public class AuthServiceImpl implements AuthService {
                     )
             );
 
-            String jwtToken = jwtUtil.createToken(user);
-
             log.info("Authentication successful for user with email: {}", authRequest.getEmail());
 
-            return AuthResponseDto.builder()
-                    .accessToken(jwtToken)
-                    .build();
+            return getAccessTokenAndRefreshToken(user);
 
         } catch (BadCredentialsException ex) {
             log.warn("Invalid login attempt for email: {}", authRequest.getEmail());
@@ -79,8 +79,8 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-
     @Override
+    @Transactional
     public void register(RegisterRequest request) {
         log.info("Registration process for user is started.");
         validateUserRequest(request);
@@ -97,46 +97,24 @@ public class AuthServiceImpl implements AuthService {
         otpService.sendOtp(student);
     }
 
-
-    private void validateUserRequest(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            log.error("User with email {} already exist.", request.getEmail());
-            throw new ResourceAlreadyExistException("USER_ALREADY_EXISTS");
-        }
-
-        if (!request.getPassword().equals(request.getPasswordConfirm())) {
-            log.error("Password and confirm password mismatches");
-            throw new IllegalArgumentException("PASSWORD_MISMATCHING");
-        }
-    }
-
-    private Student createUser(RegisterRequest request, UserRole userRole) {
-        return Student.builder()
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .email(request.getEmail())
-                .status(Status.PENDING)
-                .password(passwordEncoder.encode(request.getPassword()))
-                .roles(List.of(userRole))
+    @Transactional
+    public AuthResponseDto getAccessTokenAndRefreshToken(User user) {
+        var jwtToken = jwtUtil.createToken(user);
+        RefreshToken refreshToken = RefreshToken.builder()
+                .user(user)
+                .expiresAt(LocalDateTime.now().plusDays(7))
                 .build();
-
+        refreshTokenRepository.save(refreshToken);
+        AuthResponseDto authResponse = AuthResponseDto.builder()
+                .accessToken(jwtToken)
+                .refreshToken(refreshToken.getUuid().toString())
+                .build();
+        log.info("Access token and refresh token are returned");
+        return authResponse;
     }
-
-    private UserRole assignDefaultRole() {
-        return userRoleRepository.findByName(Role.STUDENT).orElseGet(() -> {
-            UserRole userRole = new UserRole(null, Role.STUDENT);
-            return userRoleRepository.save(userRole);
-        });
-    }
-
-
-    private User authenticateUser(AuthRequestDto authRequest) {
-        return userRepository.findByEmailAndStatus(authRequest.getEmail(), Status.ACTIVE)
-                .orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND_OR_INACTIVE"));
-    }
-
 
     @Override
+    @Transactional
     public AuthResponseDto verifyAndGetToken(OtpRequest request) {
         log.info("Operation of verifying and generating token started");
         User user = userRepository.findByEmailAndStatus(request.getEmail(), Status.PENDING)
@@ -144,11 +122,7 @@ public class AuthServiceImpl implements AuthService {
         otpService.verifyOtp(request);
         user.setStatus(Status.ACTIVE);
         userRepository.save(user);
-
-        var jwtToken = jwtUtil.createToken(user);
-        return AuthResponseDto.builder()
-                .accessToken(jwtToken)
-                .build();
+        return getAccessTokenAndRefreshToken(user);
     }
 
     @Override
@@ -184,8 +158,56 @@ public class AuthServiceImpl implements AuthService {
         log.info("Password was successfully recovered");
     }
 
+    @Override
+    public AuthResponseDto refreshAccessToken(RefreshTokenRequest tokenRequest) {
+        RefreshToken refreshToken = refreshTokenRepository.findByUuidAndExpiresAtAfter(tokenRequest.getUuid(), LocalDateTime.now())
+                .orElseThrow(() -> new ExpiredRefreshTokenException("REFRESH_TOKEN_EXPIRED_OR_INVALID"));
+        User user = refreshToken.getUser();
+
+        String newAccessToken = jwtUtil.createToken(user);
+
+        return new AuthResponseDto(newAccessToken, tokenRequest.getUuid().toString());
+    }
+
     private boolean isExpired(PasswordResetToken resetToken) {
         return resetToken.getExpirationTime().isBefore(LocalDateTime.now());
+    }
+
+
+    private void validateUserRequest(RegisterRequest request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            log.error("User with email {} already exist.", request.getEmail());
+            throw new ResourceAlreadyExistException("USER_ALREADY_EXISTS");
+        }
+
+        if (!request.getPassword().equals(request.getPasswordConfirm())) {
+            log.error("Password and confirm password mismatches");
+            throw new IllegalArgumentException("PASSWORD_MISMATCHING");
+        }
+    }
+
+    private Student createUser(RegisterRequest request, UserRole userRole) {
+        return Student.builder()
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .email(request.getEmail())
+                .status(Status.PENDING)
+                .password(passwordEncoder.encode(request.getPassword()))
+                .roles(List.of(userRole))
+                .build();
+
+    }
+
+    private UserRole assignDefaultRole() {
+        return userRoleRepository.findByName(Role.STUDENT).orElseGet(() -> {
+            UserRole userRole = new UserRole(null, Role.STUDENT);
+            return userRoleRepository.save(userRole);
+        });
+    }
+
+    private User authenticateUser(AuthRequestDto authRequest) {
+        return userRepository.findByEmailAndStatus(authRequest.getEmail(), Status.ACTIVE)
+                .orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND_OR_INACTIVE"));
     }
 
     private static String generateToken() {

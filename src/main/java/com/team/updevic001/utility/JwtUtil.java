@@ -3,10 +3,7 @@ package com.team.updevic001.utility;
 
 import com.team.updevic001.dao.entities.User;
 import com.team.updevic001.dao.repositories.UserRepository;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
@@ -99,12 +96,17 @@ public class JwtUtil {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts
-                .parserBuilder()
-                .setSigningKey(initializeKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts
+                    .parserBuilder()
+                    .setSigningKey(initializeKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            // Return claims even for expired tokens
+            return e.getClaims();
+        }
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimResolver) {

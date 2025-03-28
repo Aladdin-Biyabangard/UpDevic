@@ -61,9 +61,19 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED, request);
     }
 
+    @ExceptionHandler(ExpiredRefreshTokenException.class)
+    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ExpiredRefreshTokenException ex, WebRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED, request);
+    }
+
     @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<ErrorResponse> handlerForbiddenException(ForbiddenException ex, WebRequest request) {
         return buildErrorResponse(ex.getMessage(), HttpStatus.FORBIDDEN, request);
+    }
+
+    @ExceptionHandler(AlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handlerForbiddenException(AlreadyExistsException ex, WebRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT, request);
     }
 
 
