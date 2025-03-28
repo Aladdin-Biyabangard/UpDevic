@@ -3,44 +3,43 @@ package com.team.updevic001.dao.entities;
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @Entity
 @Data
-@Table(name = "certificates")
-public class Certificate {
+@AllArgsConstructor
+@NoArgsConstructor
+public class Task {
 
     @Id
     @Column(unique = true, nullable = false, length = 12)
     private String id;
 
-    @Column(name = "certificate_content")
-    private String certificateContent;
+    private String taskNumbers;
+    private String questions;
 
-    @OneToOne
-    @JoinColumn(name = "user_id")
-    private Student student;
+    @ElementCollection
+    private List<String> options = new ArrayList<>();
 
-    @OneToOne
+    private String correctAnswer;
+
+
+    @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;
-
-    @Column(name = "issue_date")
-    @CreationTimestamp
-    private LocalDateTime issueDate;
 
     @PrePersist
     public void generatedId() {
         if (this.id == null) {
             this.id = NanoIdUtils.randomNanoId().substring(0, 12);
+        }
+        if (this.taskNumbers == null) {
+            this.taskNumbers = UUID.randomUUID().toString().substring(0, 5);
         }
     }
 }

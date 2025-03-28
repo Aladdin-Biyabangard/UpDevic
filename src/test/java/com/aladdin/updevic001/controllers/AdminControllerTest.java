@@ -1,19 +1,14 @@
 package com.aladdin.updevic001.controllers;
 
-import com.team.updevic001.UpDevic001Application;
 import com.team.updevic001.controllers.AdminController;
-import com.team.updevic001.services.AdminService;
+import com.team.updevic001.services.interfaces.AdminService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
 //import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.Mockito.doNothing;
@@ -38,13 +33,13 @@ public class AdminControllerTest {
 
     @Test
     public void testActivateUser() throws Exception {
-        String uuid = "123e4567-e89b-12d3-a456-426614174000";
+        String id = "123e4567-e89b-12d3-a456-426614174000";
         //Mocking methodun cagrilmasi
-        doNothing().when(adminService).activateUser(uuid);
+        doNothing().when(adminService).activateUser(id);
         //Performans testi
-        mockMvc.perform(put("/api/admin/{uuid}/activate", uuid))
+        mockMvc.perform(put("/api/admin/{id}/activate", id))
                 .andExpect(status().isOk());
-        verify(adminService).activateUser(uuid);
+        verify(adminService).activateUser(id);
 
 
     }

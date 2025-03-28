@@ -1,27 +1,27 @@
 package com.team.updevic001.dao.entities;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
-@AllArgsConstructor
-@NoArgsConstructor
 @Entity
 @Data
-@Builder
-@Table(name = "otp")
-public class Otp {
+@AllArgsConstructor
+@NoArgsConstructor
+public class AnswerOption {
+
     @Id
     @Column(unique = true, nullable = false, length = 12)
     private String id;
-    private Integer code;
-    private String email;
-    private LocalDateTime expirationTime;
+
+    private String optionKey; // A, B, C, D
+    private String optionText; // Cavab mətni
+
 
     @PrePersist
     public void generatedId() {

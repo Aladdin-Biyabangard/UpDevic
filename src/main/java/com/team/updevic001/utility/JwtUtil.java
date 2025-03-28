@@ -55,7 +55,7 @@ public class JwtUtil {
                 .toList();
         Map<String, Object> claimsMap = new HashMap<>();
         claimsMap.put("authorities", roles);
-        claimsMap.put("user_id", user.getUuid());
+        claimsMap.put("user_id", user.getId());
 
         Date tokenCreateTime = new Date();
 

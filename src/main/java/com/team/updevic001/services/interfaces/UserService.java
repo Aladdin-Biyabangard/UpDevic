@@ -1,4 +1,4 @@
-package com.team.updevic001.services;
+package com.team.updevic001.services.interfaces;
 
 import com.team.updevic001.model.dtos.request.StudentDto;
 import com.team.updevic001.model.dtos.request.UserProfileDto;
@@ -10,17 +10,17 @@ public interface UserService {
 
     ResponseUserDto newUser(StudentDto user);
 
-    ResponseUserDto getUserById(String uuid);
+    ResponseUserDto getUserById(String id);
 
     List<ResponseUserDto> getUser(String query);
 
-    void updateUserProfileInfo(String uuid, UserProfileDto userProfileDto);
+    void updateUserProfileInfo(String id, UserProfileDto userProfileDto);
 
-    void updateUserPassword(String uuid, String oldPassword, String newPassword);
+    void updateUserPassword(String id, String oldPassword, String newPassword);
 
-//    void sendPasswordResetEmail(String uuid);
+//    void sendPasswordResetEmail(String id);
 
-    void deleteUser(String uuid);
+    void deleteUser(String id);
 
 
 }

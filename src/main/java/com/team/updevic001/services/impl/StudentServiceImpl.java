@@ -7,7 +7,7 @@ import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
 import com.team.updevic001.model.enums.Status;
-import com.team.updevic001.services.StudentService;
+import com.team.updevic001.services.interfaces.StudentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -110,21 +110,6 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public void deleteStudentCourse(String userId, String courseId) {
-        log.info("Attempting to delete course enrollment for student with ID: {} in course with ID: {}", userId, courseId);
-
-        User user = findUserById(userId);
-        Student student = castToStudent(user);
-        Course course = findCourseById(courseId);
-
-        StudentCourse studentCourse = studentCourseRepository.findByStudentAndCourse(student, course)
-                .orElseThrow(() -> new ResourceNotFoundException("This user is not registered for any courses."));
-
-        studentCourseRepository.delete(studentCourse);
-        log.info("Successfully deleted course enrollment for student with ID: {} in course with ID: {}", userId, courseId);
-    }
-
-    @Override
     public void deleteStudentCourseComment(String userId, String courseId, String commentId) {
         log.info("Attempting to delete comment with ID: {} from course with ID: {} for student with ID: {}", commentId, courseId, userId);
 
@@ -133,7 +118,7 @@ public class StudentServiceImpl implements StudentService {
 
         Comment comment = findCommentById(commentId);
         Comment findComment = user.getComments().stream()
-                .filter(comm -> comm.getCourse().equals(courseById) && comm.getUuid().equals(comment.getUuid()))
+                .filter(comm -> comm.getCourse().equals(courseById) && comm.getId().equals(comment.getId()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("User has no comment for this course"));
 
@@ -153,7 +138,7 @@ public class StudentServiceImpl implements StudentService {
         Comment comment = findCommentById(commentId);
 
         Comment findComment = user.getComments().stream()
-                .filter(comm -> comm.getLesson().equals(lesson) && comm.getUuid().equals(comment.getUuid()))
+                .filter(comm -> comm.getLesson().equals(lesson) && comm.getId().equals(comment.getId()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("User has no comment for this lesson"));
 
@@ -165,6 +150,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     // Helper methods
+
     private User findUserById(String userId) {
         log.debug("Looking for user with ID: {}", userId);
         return userServiceImpl.findUserById(userId);
@@ -189,7 +175,7 @@ public class StudentServiceImpl implements StudentService {
 
     private Student castToStudent(User user) {
         if (!(user instanceof Student)) {
-            log.error("User with ID: {} is not a student!", user.getUuid());
+            log.error("User with ID: {} is not a student!", user.getId());
             throw new IllegalStateException("User is not a student!");
         }
         return (Student) user;
@@ -206,4 +192,5 @@ public class StudentServiceImpl implements StudentService {
         studentCourse.setStatus(Status.ENROLLED);
         studentCourseRepository.save(studentCourse);
     }
+
 }

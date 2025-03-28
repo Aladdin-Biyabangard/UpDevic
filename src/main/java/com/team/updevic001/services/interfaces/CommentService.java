@@ -1,4 +1,4 @@
-package com.team.updevic001.services;
+package com.team.updevic001.services.interfaces;
 
 import com.team.updevic001.model.dtos.request.CommentDto;
 import com.team.updevic001.model.dtos.response.comment.ResponseCommentDto;

@@ -11,7 +11,7 @@ import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 import com.team.updevic001.model.enums.Role;
 import com.team.updevic001.model.enums.Status;
-import com.team.updevic001.services.AdminService;
+import com.team.updevic001.services.interfaces.AdminService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -66,33 +66,33 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void activateUser(String uuid) {
-        log.info("Activating user with ID: {}", uuid);
-        User user = findUserById(uuid);
+    public void activateUser(String id) {
+        log.info("Activating user with ID: {}", id);
+        User user = findUserById(id);
         user.setStatus(Status.ACTIVE);
         saveUser(user);
-        log.info("User with ID:{} status activated!", uuid);
+        log.info("User with ID:{} status activated!", id);
     }
 
     @Override
-    public void deactivateUser(String uuid) {
-        log.info("Deactivating user with ID: {}", uuid);
-        User user = findUserById(uuid);
+    public void deactivateUser(String id) {
+        log.info("Deactivating user with ID: {}", id);
+        User user = findUserById(id);
         user.setStatus(Status.INACTIVE);
         saveUser(user);
-        log.info("User with ID:{} status deactivated!", uuid);
+        log.info("User with ID:{} status deactivated!", id);
     }
 
     @Override
-    public void assignRoleToUser(String uuid, Role role) {
-        log.info("Assigning role {} to user with ID: {}", role, uuid);
-        User user = findUserById(uuid);
+    public void assignRoleToUser(String id, Role role) {
+        log.info("Assigning role {} to user with ID: {}", role, id);
+        User user = findUserById(id);
         UserRole userRole = UserRole.builder()
                 .name(role).build();
         saveUserRole(userRole);
         user.getRoles().add(userRole);
         saveUser(user);
-        log.info("Role {} successfully added to user with ID: {}", role, uuid);
+        log.info("Role {} successfully added to user with ID: {}", role, id);
     }
 
     @Override
@@ -145,16 +145,16 @@ public class AdminServiceImpl implements AdminService {
         return userCount;
     }
 
-    private User findUserById(String uuid) {
-        log.info("Finding user with ID: {}", uuid);
-        return userRepository.findById(uuid).orElseThrow(() -> {
-            log.error("User not found with ID: {}", uuid);
+    private User findUserById(String id) {
+        log.info("Finding user with ID: {}", id);
+        return userRepository.findById(id).orElseThrow(() -> {
+            log.error("User not found with ID: {}", id);
             return new ResourceNotFoundException("User not found");
         });
     }
 
     private void saveUser(User user) {
-        log.info("Saving user with ID: {}", user.getUuid());
+        log.info("Saving user with ID: {}", user.getId());
         userRepository.save(user);
     }
 

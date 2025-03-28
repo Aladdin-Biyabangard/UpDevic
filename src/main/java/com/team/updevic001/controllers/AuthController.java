@@ -4,7 +4,7 @@ import com.team.updevic001.model.dtos.request.security.AuthRequestDto;
 import com.team.updevic001.model.dtos.request.security.OtpRequest;
 import com.team.updevic001.model.dtos.request.security.RegisterRequest;
 import com.team.updevic001.model.dtos.response.AuthResponseDto;
-import com.team.updevic001.services.AuthService;
+import com.team.updevic001.services.interfaces.AuthService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

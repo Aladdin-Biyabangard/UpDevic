@@ -30,7 +30,7 @@ public class User implements UserDetails {
 
     @Id
     @Column(unique = true, nullable = false, length = 12)
-    private String uuid;
+    private String id;
 
     @Column(name = "first_name", nullable = false)
     private String firstName;
@@ -54,9 +54,9 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<Comment> comments;
+    private List<Comment> comments = new ArrayList<>();
 
-    @ManyToMany(cascade = CascadeType.PERSIST)
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -69,9 +69,9 @@ public class User implements UserDetails {
 
 
     @PrePersist
-    public void generatedUuid() {
-        if (this.uuid == null) {
-            this.uuid = NanoIdUtils.randomNanoId().substring(0, 12);
+    public void generatedId() {
+        if (this.id == null) {
+            this.id = NanoIdUtils.randomNanoId().substring(0, 12);
         }
     }
 

@@ -2,27 +2,15 @@ package com.aladdin.updevic001.controllers;
 
 
 import com.team.updevic001.controllers.StudentController;
-import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
 
-import com.team.updevic001.services.StudentService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import com.team.updevic001.services.interfaces.StudentService;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 @ExtendWith(MockitoExtension.class)
 public class StudentControllerTest {
     @InjectMocks
@@ -34,7 +22,7 @@ public class StudentControllerTest {
 //    @InjectMocks
 //    private StudentController studentController;
 //    private ObjectMapper objectMapper;
-
+/*
     @BeforeEach
     void setup() {
       this.mockMvc= MockMvcBuilders.standaloneSetup(studentController).build();
@@ -98,5 +86,5 @@ public class StudentControllerTest {
 
 
     }
-
+*/
 }

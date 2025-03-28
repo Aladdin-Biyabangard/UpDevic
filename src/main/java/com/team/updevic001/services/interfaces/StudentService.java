@@ -1,4 +1,4 @@
-package com.team.updevic001.services;
+package com.team.updevic001.services.interfaces;
 
 import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
@@ -16,9 +16,6 @@ public interface StudentService {
     List<ResponseCourseShortInfoDto> getStudentCourses(String userId);
 
     List<ResponseCourseLessonDto> getStudentLessons(String userId);
-
-    void deleteStudentCourse(String userId, String courseId);
-
 
     void deleteStudentCourseComment(String userId, String courseId, String commentId);
 

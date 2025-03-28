@@ -1,50 +1,3 @@
-//plugins {
-//    id 'java'
-//    id 'org.springframework.boot' version '3.4.3'
-//    id 'io.spring.dependency-management' version '1.1.7'
-//}
-//
-//group = 'com.Aladdin'
-//version = '0.0.1-SNAPSHOT'
-//
-//java {
-//    toolchain {
-//        languageVersion = JavaLanguageVersion.of(21)
-//    }
-//}
-//
-//configurations {
-//    compileOnly {
-//        extendsFrom annotationProcessor
-//    }
-//}
-//
-//repositories {
-//    mavenCentral()
-//
-//
-//    dependencies {
-//        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-//        implementation 'org.springframework.boot:spring-boot-starter-mail'
-//        implementation 'org.springframework.boot:spring-boot-starter-validation'
-//        implementation 'org.springframework.boot:spring-boot-starter-web'
-//        mplementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-//        implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
-//        implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5' // JSON üçün
-//        implementation 'org.modelmapper:modelmapper:2.4.4'
-//        compileOnly 'org.projectlombok:lombok'
-//        runtimeOnly 'com.mysql:mysql-connector-j'
-//        annotationProcessor 'org.projectlombok:lombok'
-//        testImplementation 'org.springframework.boot:spring-boot-starter-test'
-//        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-//        implementation 'org.springframework.boot:spring-boot-starter-security'
-//
-//
-////
-////tasks.named('test') {
-////    useJUnitPlatform()
-////}
-//}
 plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.5'
@@ -80,8 +33,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
-    implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     implementation 'com.aventrix.jnanoid:jnanoid:2.0.0'
+    implementation 'com.itextpdf:itext7-core:7.2.3'
+
 
     annotationProcessor 'org.projectlombok:lombok'
 
@@ -100,36 +55,3 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 }
 
-
-/* implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
- implementation 'org.springframework.boot:spring-boot-starter-mail'
- implementation 'org.springframework.boot:spring-boot-starter-validation'
- implementation 'org.springframework.boot:spring-boot-starter-web'
- implementation 'org.modelmapper:modelmapper:3.1.0' // Check for the latest version
- implementation 'org.mapstruct:mapstruct:1.5.5.Final'
-
- implementation 'org.springframework.boot:spring-boot-starter-security'  // Daha düzgün inteqrasiya
- implementation 'org.springframework.security:spring-security-core'
- implementation 'org.springframework.security:spring-security-web'
-
- // JWT library (ensure you use a compatible version)
- implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-
- // OpenAPI for documentation
- implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
-
- // Lombok for concise code
- compileOnly 'org.projectlombok:lombok'
- runtimeOnly 'com.mysql:mysql-connector-j'
-
- runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
- runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
-
- annotationProcessor 'org.projectlombok:lombok'
- annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
-}
-//
-//tasks.named('test') {
-//    useJUnitPlatform()
-//}
-*/

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface StudentCourseRepository extends JpaRepository<StudentCourse, String> {
-    @Query("SELECT uc.student FROM StudentCourse uc WHERE uc.course.uuid = :courseId")
+    @Query("SELECT uc.student FROM StudentCourse uc WHERE uc.course.id = :courseId")
     List<User> findUsersByCourse(@Param("courseId") Long courseId);
 
     @Query("SELECT c FROM Course c JOIN StudentCourse sc ON sc.course = c WHERE sc.student = :student")

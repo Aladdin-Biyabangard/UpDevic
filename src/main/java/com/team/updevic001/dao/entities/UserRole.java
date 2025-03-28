@@ -18,16 +18,16 @@ public class UserRole {
 
     @Id
     @Column(unique = true, nullable = false, length = 12)
-    private String uuid;
+    private String id;
 
     @Enumerated(value = EnumType.STRING)
     @Column(unique = true, nullable = false)
     private Role name;
 
     @PrePersist
-    public void generateStudentNumber() {
-        if (this.uuid == null) {
-            this.uuid = NanoIdUtils.randomNanoId().substring(0, 12);
+    public void generatedId() {
+        if (this.id == null) {
+            this.id = NanoIdUtils.randomNanoId().substring(0, 12);
         }
     }
 }

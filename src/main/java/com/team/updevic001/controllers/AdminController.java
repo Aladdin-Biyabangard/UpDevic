@@ -2,7 +2,7 @@ package com.team.updevic001.controllers;
 
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 import com.team.updevic001.model.enums.Role;
-import com.team.updevic001.services.AdminService;
+import com.team.updevic001.services.interfaces.AdminService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,22 +26,22 @@ public class AdminController {
     }
 
 
-    @PutMapping("/{uuid}/activate")
-    public ResponseEntity<Void> activateUser(@PathVariable String uuid) {
-        adminServiceImpl.activateUser(uuid);
+    @PutMapping("/{id}/activate")
+    public ResponseEntity<Void> activateUser(@PathVariable String id) {
+        adminServiceImpl.activateUser(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PutMapping("/{uuid}/deactivate")
-    public ResponseEntity<Void> deactivateUser(@PathVariable String uuid) {
-        adminServiceImpl.deactivateUser(uuid);
+    @PutMapping("/{id}/deactivate")
+    public ResponseEntity<Void> deactivateUser(@PathVariable String id) {
+        adminServiceImpl.deactivateUser(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PutMapping("/{uuid}/role")
-    public ResponseEntity<Void> assignRoleToUser(@PathVariable String uuid,
+    @PutMapping("/{id}/role")
+    public ResponseEntity<Void> assignRoleToUser(@PathVariable String id,
                                                  @RequestParam Role role) {
-        adminServiceImpl.assignRoleToUser(uuid, role);
+        adminServiceImpl.assignRoleToUser(id, role);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -68,10 +68,10 @@ public class AdminController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @DeleteMapping(path = "/{uuid}/role")
-    public ResponseEntity<Void> removeRoleFromUser(@PathVariable String uuid,
+    @DeleteMapping(path = "/{id}/role")
+    public ResponseEntity<Void> removeRoleFromUser(@PathVariable String id,
                                                    @RequestParam Role role) {
-        adminServiceImpl.removeRoleFromUser(uuid, role);
+        adminServiceImpl.removeRoleFromUser(id, role);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

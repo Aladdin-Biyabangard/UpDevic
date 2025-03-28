@@ -9,6 +9,9 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
@@ -27,8 +30,11 @@ public class Student extends User {
     @CreationTimestamp
     private LocalDateTime enrolledDate;
 
+    @OneToMany(mappedBy = "student")
+    private List<TestResult> testResults = new ArrayList<>();
+
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "certificate_id", referencedColumnName = "uuid")
+    @JoinColumn(name = "certificate_id", referencedColumnName = "id")
     private Certificate certificate;
 
 }

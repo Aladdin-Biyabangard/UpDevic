@@ -2,8 +2,7 @@ package com.team.updevic001.controllers;
 
 import com.team.updevic001.model.dtos.request.UserProfileDto;
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
-import com.team.updevic001.services.AdminService;
-import com.team.updevic001.services.UserService;
+import com.team.updevic001.services.interfaces.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,24 +26,24 @@ public class UserController {
 //
 //    }
 
-    @PutMapping("/{uuid}/profile")
-    public ResponseEntity<Void> updateUserProfileInfo(@PathVariable String uuid,
+    @PutMapping("/{id}/profile")
+    public ResponseEntity<Void> updateUserProfileInfo(@PathVariable String id,
                                                       @RequestBody UserProfileDto userProfileDto) {
-        userService.updateUserProfileInfo(uuid, userProfileDto);
+        userService.updateUserProfileInfo(id, userProfileDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PutMapping("/{uuid}/password")
-    public ResponseEntity<Void> updateUserPassword(@PathVariable String uuid,
+    @PutMapping("/{id}/password")
+    public ResponseEntity<Void> updateUserPassword(@PathVariable String id,
                                                    @RequestParam String oldPassword,
                                                    @RequestParam String newPassword) {
-        userService.updateUserPassword(uuid, oldPassword, newPassword);
+        userService.updateUserPassword(id, oldPassword, newPassword);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/{uuid}")
-    public ResponseEntity<ResponseUserDto> getUserById(@PathVariable String uuid) {
-        ResponseUserDto userById = userService.getUserById(uuid);
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseUserDto> getUserById(@PathVariable String id) {
+        ResponseUserDto userById = userService.getUserById(id);
         return new ResponseEntity<>(userById, HttpStatus.OK);
     }
 
@@ -55,15 +54,15 @@ public class UserController {
     }
 
 
-//    @GetMapping(path = "/{uuid}/reset")
-//    public ResponseEntity<Void> sendPasswordResetEmail(@PathVariable String uuid) {
-//        userService.sendPasswordResetEmail(uuid);
+//    @GetMapping(path = "/{id}/reset")
+//    public ResponseEntity<Void> sendPasswordResetEmail(@PathVariable String id) {
+//        userService.sendPasswordResetEmail(id);
 //        return new ResponseEntity<>(HttpStatus.OK);
 //    }
 
-    @DeleteMapping(path = "/{uuid}")
-    public ResponseEntity<Void> deleteUser(@PathVariable String uuid) {
-        userService.deleteUser(uuid);
+    @DeleteMapping(path = "/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
+        userService.deleteUser(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

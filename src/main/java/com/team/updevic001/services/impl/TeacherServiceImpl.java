@@ -11,10 +11,11 @@ import com.team.updevic001.model.dtos.request.LessonDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
 import com.team.updevic001.model.dtos.response.lesson.ResponseLessonDto;
+import com.team.updevic001.model.dtos.response.lesson.ResponseLessonShortInfoDto;
 import com.team.updevic001.model.dtos.response.teacher.ResponseTeacherWithCourses;
 import com.team.updevic001.model.enums.Role;
 import com.team.updevic001.model.enums.Status;
-import com.team.updevic001.services.TeacherService;
+import com.team.updevic001.services.interfaces.TeacherService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -63,20 +64,21 @@ public class TeacherServiceImpl implements TeacherService {
         course.setStatus(Status.CREATED);
         course.setCategory(category);
         courseRepository.save(course);
-        log.info("Course saved successfully. Course ID: {}", course.getUuid());
+        log.info("Course saved successfully. Course ID: {}", course.getId());
 
         TeacherCourse teacherCourse = new TeacherCourse();
         teacherCourse.setCourse(course);
         teacherCourse.setTeacher(teacher);
         teacherCourseRepository.save(teacherCourse);
 
-        log.info("TeacherCourse relationship saved successfully. Teacher ID: {}, Course ID: {}", teacherId, course.getUuid());
+        log.info("TeacherCourse relationship saved successfully. Teacher ID: {}, Course ID: {}", teacherId, course.getId());
         return courseMapper.courseDto(course);
     }
 
 
     public ResponseTeacherWithCourses addTeacherToCourse(String teacherId, String courseId) {
         Teacher teacher = findTeacherById(teacherId);
+
         Course course = courseRepository
                 .findById(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Not course found!"));
@@ -96,7 +98,7 @@ public class TeacherServiceImpl implements TeacherService {
 
 
     @Override
-    public ResponseLessonDto assignLessonToCourse(String teacherId, String courseId, LessonDto lessonDto) {
+    public ResponseLessonShortInfoDto assignLessonToCourse(String teacherId, String courseId, LessonDto lessonDto) {
         log.info("Assigning lesson to course. Teacher ID: {}, Course ID: {}", teacherId, courseId);
 
         Teacher teacher = findTeacherById(teacherId);
@@ -112,8 +114,8 @@ public class TeacherServiceImpl implements TeacherService {
         course.getLessons().add(lesson);
         lessonRepository.save(lesson);
 
-        log.info("Lesson assigned successfully. Lesson ID: {}", lesson.getUuid());
-        return modelMapper.map(lesson, ResponseLessonDto.class);
+        log.info("Lesson assigned successfully. Lesson ID: {}", lesson.getId());
+        return modelMapper.map(lesson, ResponseLessonShortInfoDto.class);
     }
 
     @Override
@@ -133,7 +135,7 @@ public class TeacherServiceImpl implements TeacherService {
         teacherCourse.setCourse(findCourse);
         teacherCourseRepository.save(teacherCourse);
 
-        log.info("Teacher course updated successfully. Course ID: {}", findCourse.getUuid());
+        log.info("Teacher course updated successfully. Course ID: {}", findCourse.getId());
     }
 
     @Override
@@ -165,7 +167,7 @@ public class TeacherServiceImpl implements TeacherService {
                 .findById(courseId).orElseThrow(() -> new ResourceNotFoundException("Course not found!"));
         findTeacherCourse(findCourse, teacher);
 
-        log.info("Teacher course retrieved successfully. Course ID: {}", findCourse.getUuid());
+        log.info("Teacher course retrieved successfully. Course ID: {}", findCourse.getId());
         return modelMapper.map(findCourse, ResponseCourseShortInfoDto.class);
     }
 
@@ -179,7 +181,7 @@ public class TeacherServiceImpl implements TeacherService {
         List<ResponseCourseShortInfoDto> courses = teacherCourses.stream()
                 .map(teacherCourse -> {
                     Course course = teacherCourse.getCourse();
-                    return new ResponseCourseShortInfoDto(course.getUuid(), course.getTitle(), course.getLevel());
+                    return new ResponseCourseShortInfoDto(course.getId(), course.getTitle(), course.getLevel());
                 })
                 .toList();
 
@@ -204,7 +206,7 @@ public class TeacherServiceImpl implements TeacherService {
                 .findFirst();
 
         if (teacherCourse.isPresent()) {
-            log.info("Teacher lesson retrieved successfully. Lesson ID: {}", findLesson.getUuid());
+            log.info("Teacher lesson retrieved successfully. Lesson ID: {}", findLesson.getId());
             return modelMapper.map(findLesson, ResponseLessonDto.class);
         } else {
             throw new IllegalArgumentException("No such lesson found for this teacher.");
@@ -335,9 +337,9 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     private TeacherCourse findTeacherCourse(Course course, Teacher teacher) {
-        log.info("Finding teacher-course relationship. Teacher ID: {}, Course ID: {}", teacher.getUuid(), course.getUuid());
+        log.info("Finding teacher-course relationship. Teacher ID: {}, Course ID: {}", teacher.getId(), course.getId());
         return teacherCourseRepository.findByCourseAndTeacher(course, teacher)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Teacher with ID: " + teacher.getUuid() + " is not assigned to course with ID: " + course.getUuid()));
+                        "Teacher with ID: " + teacher.getId() + " is not assigned to course with ID: " + course.getId()));
     }
 }

@@ -3,25 +3,30 @@ package com.team.updevic001.dao.entities;
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
+@Data
+@Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Data
-@Builder
-@Table(name = "otp")
-public class Otp {
+@Table(name = "student_tasks")
+public class StudentTask {
+
     @Id
     @Column(unique = true, nullable = false, length = 12)
     private String id;
-    private Integer code;
-    private String email;
-    private LocalDateTime expirationTime;
+
+
+    @ManyToOne
+    @JoinColumn(name = "student_id", nullable = false)
+    private Student student;
+
+    @ManyToOne
+    @JoinColumn(name = "task_id", nullable = false)
+    private Task task;
+
+    private Boolean completed;
 
     @PrePersist
     public void generatedId() {
@@ -29,4 +34,5 @@ public class Otp {
             this.id = NanoIdUtils.randomNanoId().substring(0, 12);
         }
     }
+
 }

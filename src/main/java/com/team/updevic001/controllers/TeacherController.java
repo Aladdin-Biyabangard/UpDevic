@@ -5,8 +5,9 @@ import com.team.updevic001.model.dtos.request.LessonDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
 import com.team.updevic001.model.dtos.response.lesson.ResponseLessonDto;
+import com.team.updevic001.model.dtos.response.lesson.ResponseLessonShortInfoDto;
 import com.team.updevic001.model.dtos.response.teacher.ResponseTeacherWithCourses;
-import com.team.updevic001.services.TeacherService;
+import com.team.updevic001.services.interfaces.TeacherService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,11 +40,11 @@ public class TeacherController {
 
     // Müəllimə dərs təyin etmək
     @PostMapping(path = "{teacherId}/course/{courseId}/lesson/assign")
-    public ResponseEntity<ResponseLessonDto> assignLessonToCourse(@PathVariable String teacherId,
-                                                                  @PathVariable String courseId,
-                                                                  @RequestBody LessonDto lessonDto) {
-        ResponseLessonDto responseLessonDto = teacherServiceImpl.assignLessonToCourse(teacherId, courseId, lessonDto);
-        return ResponseEntity.ok(responseLessonDto);
+    public ResponseEntity<ResponseLessonShortInfoDto> assignLessonToCourse(@PathVariable String teacherId,
+                                                                           @PathVariable String courseId,
+                                                                           @RequestBody LessonDto lessonDto) {
+        ResponseLessonShortInfoDto responseLesson = teacherServiceImpl.assignLessonToCourse(teacherId, courseId, lessonDto);
+        return ResponseEntity.ok(responseLesson);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

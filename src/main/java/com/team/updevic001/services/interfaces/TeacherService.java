@@ -1,10 +1,11 @@
-package com.team.updevic001.services;
+package com.team.updevic001.services.interfaces;
 
 import com.team.updevic001.model.dtos.request.CourseDto;
 import com.team.updevic001.model.dtos.request.LessonDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
 import com.team.updevic001.model.dtos.response.lesson.ResponseLessonDto;
+import com.team.updevic001.model.dtos.response.lesson.ResponseLessonShortInfoDto;
 import com.team.updevic001.model.dtos.response.teacher.ResponseTeacherWithCourses;
 
 import java.util.List;
@@ -15,7 +16,7 @@ public interface TeacherService {
 
     ResponseTeacherWithCourses addTeacherToCourse(String teacherId, String courseId);
 
-    ResponseLessonDto assignLessonToCourse(String teacherId, String courseId, LessonDto lessonDto);
+    ResponseLessonShortInfoDto assignLessonToCourse(String teacherId, String courseId, LessonDto lessonDto);
 
     void updateTeacherCourseInfo(String teacherId, String courseId, CourseDto courseDto);
 

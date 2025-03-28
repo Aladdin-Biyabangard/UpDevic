@@ -2,7 +2,7 @@ package com.team.updevic001.controllers;
 
 import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
-import com.team.updevic001.services.StudentService;
+import com.team.updevic001.services.interfaces.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -45,13 +45,6 @@ public class StudentController {
     public ResponseEntity<List<ResponseCourseLessonDto>> getStudentLessons(@RequestParam String userId) {
         List<ResponseCourseLessonDto> lessons = studentService.getStudentLessons(userId);
         return ResponseEntity.ok(lessons);
-    }
-
-    @DeleteMapping("/delete-course")
-    public ResponseEntity<String> deleteStudentCourse(@RequestParam String userId,
-                                                      @RequestParam String courseId) {
-        studentService.deleteStudentCourse(userId, courseId);
-        return ResponseEntity.ok("Student's course enrollment successfully deleted.");
     }
 
     @DeleteMapping("/delete-course-comment")

@@ -14,8 +14,10 @@ import com.team.updevic001.model.dtos.request.StudentDto;
 import com.team.updevic001.model.dtos.request.UserProfileDto;
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 import com.team.updevic001.model.enums.Role;
-import com.team.updevic001.services.UserService;
+import com.team.updevic001.services.interfaces.UserService;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,7 @@ import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
@@ -72,33 +75,33 @@ public class UserServiceImpl implements UserService {
         userProfileRepository.save(userProfile);
 
 
-        log.info("User created successfully with ID: {}", student.getUuid());
+        log.info("User created successfully with ID: {}", student.getId());
         //  confirmationEmailServiceImpl.sendEmail(user.getEmail(), "Thank you for registering", "Your token");
         return userMapper.toResponse(student, ResponseUserDto.class);
     }
 
 
-    public void updateUserProfileInfo(String uuid, UserProfileDto userProfileDto) {
-        log.info("Updating user profile for ID: {}", uuid);
+    public void updateUserProfileInfo(String id, UserProfileDto userProfileDto) {
+        log.info("Updating user profile for ID: {}", id);
 
-        User user = findUserById(uuid);
+        User user = findUserById(id);
 
         UserProfile userProfile = userProfileRepository.findByUser(user);
         if (userProfile == null) {
-            log.warn("UserProfile not found for user ID: {}, creating new profile.", uuid);
+            log.warn("UserProfile not found for user ID: {}, creating new profile.", id);
             userProfile = UserProfile.builder()
                     .user(user)
                     .build();
         }
         modelMapper.map(userProfileDto, userProfile);
         userProfileRepository.save(userProfile);
-        log.info("User with ID {} updated successfully.", uuid);
+        log.info("User with ID {} updated successfully.", id);
     }
 
     @Override
-    public void updateUserPassword(String uuid, String oldPassword, String newPassword) {
+    public void updateUserPassword(String id, String oldPassword, String newPassword) {
 
-        User user = findUserById(uuid);
+        User user = findUserById(id);
 
         if (Objects.equals(user.getPassword(), oldPassword)) {
             //PASSWORD ENCODED will be used here
@@ -111,11 +114,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseUserDto getUserById(String uuid) {
-        log.info("Searching for a user with this ID: {}", uuid);
+    public ResponseUserDto getUserById(String id) {
+        log.info("Searching for a user with this ID: {}", id);
 
-        User user = userRepository.findById(uuid).orElseThrow(() -> {
-            log.error("User not found with these ID: {}", uuid);
+        User user = userRepository.findById(id).orElseThrow(() -> {
+            log.error("User not found with these ID: {}", id);
             return new ResourceNotFoundException("User not found Exception!");
         });
 
@@ -164,20 +167,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(String uuid) {
-        log.info("Deleting user with ID: {}", uuid);
-        if (userRepository.existsById(uuid)) {
-            userRepository.deleteById(uuid);
-            log.info("User with ID: {} successfully deleted!", uuid);
+    public void deleteUser(String id) {
+        log.info("Deleting user with ID: {}", id);
+        if (userRepository.existsById(id)) {
+            userRepository.deleteById(id);
+            log.info("User with ID: {} successfully deleted!", id);
         } else {
-            log.info("Not found with these ID: {}", uuid);
+            log.info("Not found with these ID: {}", id);
             throw new ResourceNotFoundException("User not found !");
         }
     }
 
-    public User findUserById(String uuid) {
-        return userRepository.findById(uuid).orElseThrow(() -> {
-            log.error("User not found with ID: {}", uuid);
+    public User findUserById(String id) {
+        return userRepository.findById(id).orElseThrow(() -> {
+            log.error("User not found with ID: {}", id);
             return new ResourceNotFoundException("User not found");
         });
     }

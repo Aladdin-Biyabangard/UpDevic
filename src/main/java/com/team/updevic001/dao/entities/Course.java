@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -22,7 +23,7 @@ public class Course {
 
     @Id
     @Column(unique = true, nullable = false, length = 12)
-    private String uuid;
+    private String id;
 
     @Column(name = "title", nullable = false)
     private String title;
@@ -34,41 +35,49 @@ public class Course {
     @Enumerated(EnumType.STRING)
     private CourseLevel level;
 
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
     @Column(name = "created_at")
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference
-    private List<Lesson> lessons;
+    private List<Lesson> lessons = new ArrayList<>();
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference
-    private List<Comment> comments;
+    private List<Comment> comments = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "certificate_id", referencedColumnName = "uuid")
+    @JoinColumn(name = "certificate_id", referencedColumnName = "id")
     private Certificate certificate;
 
     // Bir çox StudentCourse ilə əlaqə
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<StudentCourse> studentCourses;
+    private List<StudentCourse> studentCourses = new ArrayList<>();
 
     // Bir çox TeacherCourse ilə əlaqə
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<TeacherCourse> teacherCourses;
+    private List<TeacherCourse> teacherCourses = new ArrayList<>();
 
     @ManyToOne
-    @JoinColumn(name = "course_category_uuid")
+    @JoinColumn(name = "course_category_id")
     private CourseCategory category;
 
-    @Enumerated(EnumType.STRING)
-    private Status status;
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Task> tasks = new ArrayList<>();
+
+
+    @OneToMany(mappedBy = "course")
+    private List<TestResult> testResults = new ArrayList<>();
 
     @PrePersist
-    public void generateStudentNumber() {
-        if (this.uuid == null) {
-            this.uuid = NanoIdUtils.randomNanoId().substring(0, 12);
+    public void generatedId() {
+        if (this.id == null) {
+            this.id = NanoIdUtils.randomNanoId().substring(0, 12);
         }
     }
 }

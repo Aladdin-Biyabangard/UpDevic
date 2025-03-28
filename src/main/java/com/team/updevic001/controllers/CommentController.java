@@ -2,7 +2,7 @@ package com.team.updevic001.controllers;
 
 import com.team.updevic001.model.dtos.request.CommentDto;
 import com.team.updevic001.model.dtos.response.comment.ResponseCommentDto;
-import com.team.updevic001.services.CommentService;
+import com.team.updevic001.services.interfaces.CommentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +49,7 @@ public class CommentController {
         return ResponseEntity.ok(comments);
     }
 
-    @GetMapping(path = "{lessonId}/course")
+    @GetMapping(path = "{lessonId}/lesson")
     public ResponseEntity<List<ResponseCommentDto>> getLessonComment(@PathVariable String lessonId) {
         List<ResponseCommentDto> comments = commentServiceImpl.getLessonComment(lessonId);
         return ResponseEntity.ok(comments);
