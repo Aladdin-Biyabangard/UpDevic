@@ -34,7 +34,7 @@ public class TeacherCourse {
     @CreationTimestamp
     private LocalDateTime assignedAt;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     private TeacherPrivileges teacherPrivilege;
 
     @PrePersist

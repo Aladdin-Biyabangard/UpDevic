@@ -3,8 +3,8 @@ package com.team.updevic001.model.enums;
 import java.util.Set;
 
 public enum TeacherPrivileges {
-    HEAD_TEACHER(Set.of(TeacherPermission.DELETE_COURSE, TeacherPermission.ADD_TEACHER, TeacherPermission.DELETE_COMMENT, TeacherPermission.ADD_LESSON)),
-    ASSISTANT_TEACHER(Set.of(TeacherPermission.DELETE_COMMENT, TeacherPermission.ADD_LESSON));
+    HEAD_TEACHER(Set.of(TeacherPermission.DELETE_COURSE, TeacherPermission.DELETE_LESSON, TeacherPermission.ADD_TEACHER, TeacherPermission.ADD_LESSON)),
+    ASSISTANT_TEACHER(Set.of(TeacherPermission.ADD_LESSON));
 
     TeacherPrivileges(Set<TeacherPermission> permissions) {
         this.permissions = permissions;

@@ -9,6 +9,7 @@ import com.team.updevic001.model.dtos.response.lesson.ResponseLessonDto;
 import com.team.updevic001.model.dtos.response.teacher.ResponseTeacherWithCourses;
 import com.team.updevic001.model.enums.CourseCategoryType;
 import com.team.updevic001.services.CourseService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,7 +26,7 @@ public class CourseController {
 
     private final CourseService courseService;
 
-    @GetMapping(path = "search")
+    @GetMapping(path = "/search")
     public ResponseEntity<List<ResponseCourseDto>> searchCourse(@RequestParam String keyword) {
         List<ResponseCourseDto> course = courseService.searchCourse(keyword);
         return ResponseEntity.ok(course);
@@ -37,26 +38,25 @@ public class CourseController {
         return ResponseEntity.ok(course);
     }
 
-    @GetMapping(path = "all")
+    @GetMapping(path = "/all")
     public ResponseEntity<List<ResponseCourseDto>> getCourses() {
         List<ResponseCourseDto> courses = courseService.getCourses();
         return ResponseEntity.ok(courses);
     }
 
-    @GetMapping(path = "category")
+    @GetMapping(path = "/category")
     public ResponseEntity<List<ResponseCategoryDto>> getCategory(@RequestParam CourseCategoryType categoryType) {
         List<ResponseCategoryDto> category = courseService.getCategory(categoryType);
         return ResponseEntity.ok(category);
     }
 
-    //todo
+
     @PostMapping
     public ResponseEntity<ResponseCourseDto> createCourse(@RequestBody CourseDto courseDto) {
         ResponseCourseDto teacherCourse = courseService.createCourse(courseDto);
         return new ResponseEntity<>(teacherCourse, HttpStatus.CREATED);
     }
 
-    //todo
     @PutMapping(path = "/{courseId}")
     public ResponseEntity<ResponseCourseDto> updateTeacherCourse(@PathVariable String courseId, @RequestBody CourseDto courseDto) {
         return new ResponseEntity<>(courseService.updateCourse(courseId, courseDto), HttpStatus.OK);
@@ -68,29 +68,19 @@ public class CourseController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    //todo
     @PostMapping(path = "/{courseId}/teacher")
     public ResponseEntity<ResponseTeacherWithCourses> addTeacherToCourse(@PathVariable String courseId, @RequestParam String userId) {
         ResponseTeacherWithCourses responseTeacherWithCourses = courseService.addTeacherToCourse(courseId, userId);
         return ResponseEntity.ok(responseTeacherWithCourses);
     }
 
-    //todo
     @GetMapping(path = "/{courseId}/lessons")
     public ResponseEntity<List<ResponseLessonDto>> getLessonsByCourse(@PathVariable String courseId) {
         List<ResponseLessonDto> teacherLessonsByCourse = courseService.getLessonsByCourse(courseId);
         return ResponseEntity.ok(teacherLessonsByCourse);
     }
 
-    //todo
-    @PostMapping(path = "/{courseId}/lessons")
-    public ResponseEntity<ResponseLessonDto> assignLessonToCourse(@PathVariable String courseId,
-                                                                  @RequestBody LessonDto lessonDto) {
-        ResponseLessonDto responseLessonDto = courseService.assignLessonToCourse(courseId, lessonDto);
-        return ResponseEntity.ok(responseLessonDto);
-    }
 
-    //todo
     @GetMapping(path = "/{courseId}/lessons/{lessonId}")
     public ResponseEntity<ResponseLessonDto> getTeacherLesson(@PathVariable String courseId,
                                                               @PathVariable String lessonId) {
@@ -98,10 +88,21 @@ public class CourseController {
         return ResponseEntity.ok(teacherLesson);
     }
 
-    //todo
+    @PostMapping(path = "/{courseId}/lessons")
+    public ResponseEntity<ResponseLessonDto> assignLessonToCourse(@PathVariable String courseId,
+                                                                  @RequestBody LessonDto lessonDto) {
+        ResponseLessonDto responseLessonDto = courseService.assignLessonToCourse(courseId, lessonDto);
+        return new ResponseEntity<>(responseLessonDto, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{courseId}/lessons/{lessonId}")
+    public ResponseEntity<ResponseLessonDto> updateLessonInfo(@PathVariable String courseId, @PathVariable String lessonId, @Valid @RequestBody LessonDto lessonDto) {
+        return ResponseEntity.ok(courseService.updateLessonInfo(courseId, lessonId, lessonDto));
+    }
+
     @DeleteMapping(path = "/{courseId}/lessons/{lessonId}")
-    public ResponseEntity<Void> deleteTeacherLesson(@PathVariable String courseId,
-                                                    @PathVariable String lessonId) {
+    public ResponseEntity<Void> deleteLesson(@PathVariable String courseId,
+                                             @PathVariable String lessonId) {
         courseService.deleteLesson(courseId, lessonId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

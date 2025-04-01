@@ -8,6 +8,7 @@ import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
 import com.team.updevic001.model.dtos.response.lesson.ResponseLessonDto;
 import com.team.updevic001.model.dtos.response.teacher.ResponseTeacherWithCourses;
 import com.team.updevic001.model.enums.CourseCategoryType;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -36,4 +37,6 @@ public interface CourseService {
     ResponseLessonDto getLessonOfCourse(String courseId, String lessonId);
 
     void deleteLesson(String courseId, String lessonId);
+
+    ResponseLessonDto updateLessonInfo(String courseId, String lessonId, LessonDto lessonDto);
 }

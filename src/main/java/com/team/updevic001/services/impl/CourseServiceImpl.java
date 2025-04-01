@@ -121,7 +121,7 @@ public class CourseServiceImpl implements CourseService {
                 .teacherPrivilege(TeacherPrivileges.ASSISTANT_TEACHER)
                 .build();
         teacherCourseRepository.save(newTeacherCourseRelation);
-
+        log.info("New teacher successfully added to course");
         return teacherMapper.toDto(newTeacher);
     }
 
@@ -198,26 +198,39 @@ public class CourseServiceImpl implements CourseService {
 
     }
 
-
-    //    @Override
+    @Override
     @Transactional
-    public void updateLessonInfo(String lessonId, LessonDto updatedLessonDto) {
+    public void deleteLesson(String courseId, String lessonId) {
+        Teacher authenticatedTeacher = teacherService.getAuthenticatedTeacher();
+        log.info("Operation of deleting lesson with ID {} of course with ID {} started by teacher with ID {}(whose user ID is {})", lessonId, courseId, authenticatedTeacher.getUuid(), authenticatedTeacher.getUser().getUuid());
+        Course course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException(Course.class));
+        TeacherCourse teacherCourse = validateAccess(courseId, authenticatedTeacher);
+        Lesson lesson = lessonRepository.findByUuidAndCourse(lessonId, course).orElseThrow(() -> new ResourceNotFoundException(Lesson.class));
+        if (!teacherCourse.getTeacherPrivilege().hasPermission(TeacherPermission.DELETE_COURSE) || !lesson.getTeacher().getUuid().equals(authenticatedTeacher.getUuid())) {
+            log.error("Teacher with ID {}(whose user ID is {}) is not allowed to delete the lesson with ID {}", authenticatedTeacher.getUuid(), authenticatedTeacher.getUser().getUuid(), lessonId);
+            throw new ForbiddenException("NOT_ALLOWED_DELETE_LESSON");
+        }
+        lessonRepository.delete(lesson);
+        log.info("Lesson successfully deleted");
+    }
 
-//        log.info("Updating teacher lesson info. Teacher ID: {}, Lesson ID: {}", teacherId, lessonId);
-//
-//        Teacher teacher = validateTeacherAndAccess(teacherId, Boolean.FALSE);
-//        Lesson lesson = findLessonById(lessonId);
-//
-//        List<TeacherCourse> teacherCourses = teacherCourseRepository.findTeacherCourseByTeacher(teacher);
-//
-//        Optional<TeacherCourse> teacherCourse = teacherCourses.stream().filter(tc -> tc.getCourse().getLessons().contains(lesson)).findFirst();
-//
-//        if (teacherCourse.isPresent()) {
-//            modelMapper.map(updatedLessonDto, lesson);
-//            lessonRepository.save(lesson);
-//        } else {
-//            throw new IllegalArgumentException("No such lesson found for this teacher.");
-//        }
+
+    @Override
+    @Transactional
+    public ResponseLessonDto updateLessonInfo(String courseId, String lessonId, LessonDto lessonDto) {
+        Teacher authenticatedTeacher = teacherService.getAuthenticatedTeacher();
+        log.info("Operation of updating lesson with ID {} of course with ID {} started by teacher with ID {}(whose user ID is {})", lessonId, courseId, authenticatedTeacher.getUuid(), authenticatedTeacher.getUser().getUuid());
+        Course course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException(Course.class));
+        validateAccess(courseId, authenticatedTeacher);
+        Lesson lesson = lessonRepository.findByUuidAndCourse(lessonId, course).orElseThrow(() -> new ResourceNotFoundException(Lesson.class));
+        if (!lesson.getTeacher().getUuid().equals(authenticatedTeacher.getUuid())) {
+            log.error("Teacher with ID {}(whose user ID is {}) is not allowed to update the lesson with ID {}", authenticatedTeacher.getUuid(), authenticatedTeacher.getUser().getUuid(), lessonId);
+            throw new ForbiddenException("NOT_ALLOWED_UPDATE_LESSON");
+        }
+        modelMapper.map(lessonDto, lesson);
+        ResponseLessonDto updatedLesson = modelMapper.map(lesson, ResponseLessonDto.class);
+        log.info("Lesson info successfully updated");
+        return updatedLesson;
     }
 
     @Override
@@ -239,7 +252,7 @@ public class CourseServiceImpl implements CourseService {
 
     private TeacherCourse validateAccess(String courseId, Teacher authenticatedTeacher) {
         return teacherCourseRepository.findByCourseUuidAndTeacher(courseId, authenticatedTeacher).orElseThrow(() -> {
-            log.error("TeacherCourse relation is not present: That means teacher with ID {} is not teacher in course with ID {}", authenticatedTeacher.getUuid(), courseId);
+            log.error("TeacherCourse relation is not present: That means teacher with ID {} is not teacher in course with ID {} or curse doesn't exit", authenticatedTeacher.getUuid(), courseId);
             return new ForbiddenException("NOT_ALLOWED");
         });
     }

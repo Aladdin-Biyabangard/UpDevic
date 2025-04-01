@@ -41,6 +41,10 @@ public class Lesson {
     @JsonManagedReference
     private List<Comment> comments;
 
+    @ManyToOne
+    @JoinColumn(name = "teacher_id")
+    private Teacher teacher;
+
     @PrePersist
     public void generateStudentNumber() {
         if (this.uuid == null) {
