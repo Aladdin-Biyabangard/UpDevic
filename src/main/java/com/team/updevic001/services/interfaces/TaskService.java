@@ -8,9 +8,9 @@ import java.util.List;
 
 public interface TaskService {
 
-    void createTask(String courseId, TaskDto taskDto);
+    void createTask(String userId, String courseId, TaskDto taskDto);
 
-    void checkAnswer(String studentId, String courseId, String taskId, AnswerDto answerDto);
+    void checkAnswer(String userId, String courseId, String taskId, AnswerDto answerDto);
 
     List<ResponseTaskDto> getTasks(String courseId);
 }

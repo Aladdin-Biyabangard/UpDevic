@@ -23,17 +23,21 @@ public class TaskServiceImpl implements TaskService {
     private final ModelMapper modelMapper;
     private final TaskRepository taskRepository;
     private final TestResultRepository testResultRepository;
-    private final StudentRepository studentRepository;
     private final CourseRepository courseRepository;
     private final StudentTaskRepository studentTaskRepository;
 
     private final StudentCourseRepository studentCourseRepository;
+    private final CourseServiceImpl courseServiceImpl;
+    private final TeacherServiceImpl teacherServiceImpl;
+    private final AdminServiceImpl adminServiceImpl;
+    private final StudentServiceImpl studentServiceImpl;
 
     @Override
-    public void createTask(String courseId, TaskDto taskDto) {
+    public void createTask(String userId, String courseId, TaskDto taskDto) {
         log.info("Creating task for course: {}", courseId);
-        Course course = findCourseById(courseId);
-
+        Course course = courseServiceImpl.findCourseById(courseId);
+        Teacher teacher = teacherServiceImpl.findTeacherByUserId(userId);
+        teacherServiceImpl.findTeacherCourse(course, teacher);
         Task task = modelMapper.map(taskDto, Task.class);
 
         List<String> options = formatedOptions(taskDto.getOptions());
@@ -49,24 +53,24 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void checkAnswer(String studentId, String courseId, String taskId, AnswerDto answerDto) {
-        log.info("Checking answer for student: {} in course: {} and task: {}", studentId, courseId, taskId);
+    public void checkAnswer(String userId, String courseId, String taskId, AnswerDto answerDto) {
+        log.info("Checking answer for student: {} in course: {} and task: {}", userId, courseId, taskId);
 
         //TODO bu hissede holder den gelen useri yəni studenti gotureciyik
-        Student student = findStudentById(studentId);
+        User user = adminServiceImpl.findUserById(userId);
+        Student student = studentServiceImpl.castToStudent(user);
+        Course course = courseServiceImpl.findCourseById(courseId);
 
-        Course course = findCourseById(courseId);
-        // Bunu sonradan sileceiyik onsuz qeydiyyat etmeyibse testlere baxa bilmir
         ensureStudentIsEnrolled(student, course);
 
         Task task = findTaskById(taskId);
 
-        checkCompletionTask();
+        checkCompletionTask(student, task);
 
         TestResult result = checkTestResult(student, course);
 
         validateAnswerAndUpdateScore(student, result, task, answerDto, course);
-        log.info("Answer checked and score updated for student: {}", studentId);
+        log.info("Answer checked and score updated for student: {}", userId);
     }
 
     @Override
@@ -85,16 +89,16 @@ public class TaskServiceImpl implements TaskService {
                 .toList();
     }
 
-    private void checkCompletionTask() {
+    private void checkCompletionTask(Student student, Task task) {
         log.debug("Checking if task has already been completed...");
-        if (studentTaskRepository.findStudentTaskByCompleted(true)) {
+        if (studentTaskRepository.existsStudentTaskByCompletedAndStudentAndTask(true, student, task)) {
             log.error("This question has already been answered.");
             throw new IllegalArgumentException("This question has already been answered.");
         }
     }
 
     private TestResult checkTestResult(Student student, Course course) {
-        log.debug("Fetching test result for student: {} and course: {}", student.getId(), course.getId());
+        log.debug("Fetching test result for student: {} and course: {}", student, course.getId());
         return testResultRepository
                 .findTestResultByStudentAndCourse(student, course).orElseGet(
                         () -> {
@@ -111,17 +115,21 @@ public class TaskServiceImpl implements TaskService {
         String correctAnswer = task.getCorrectAnswer();
 
         double percent = calculateScore(course);
+        StudentTask studentTask = new StudentTask();
 
         if (correctAnswer.contains(answerDto.getAnswer())) {
             result.setScore(result.getScore() + percent);
             testResultRepository.save(result);
-            studentTaskRepository.save(new StudentTask(null, student, task, true));
-
+            studentTask.setCompleted(true);
             log.info("Answer correct. Score updated for student: {}", student.getId());
         } else {
+            studentTask.setCompleted(false);
             log.error("Incorrect answer provided by student: {}", student.getId());
             throw new IllegalArgumentException("Incorrect answer!");
         }
+        studentTask.setStudent(student);
+        studentTask.setTask(task);
+        studentTaskRepository.save(studentTask);
     }
 
     private double calculateScore(Course course) {
@@ -130,23 +138,6 @@ public class TaskServiceImpl implements TaskService {
         return (double) 100 / taskCount;
     }
 
-    private Student findStudentById(String studentId) {
-        log.debug("Fetching student with ID: {}", studentId);
-        return studentRepository.findById(studentId)
-                .orElseThrow(() -> {
-                    log.error("Student not found with ID: {}", studentId);
-                    return new ResourceNotFoundException("USER_NOT_FOUND");
-                });
-    }
-
-    private Course findCourseById(String courseId) {
-        log.debug("Fetching course with ID: {}", courseId);
-        return courseRepository.findById(courseId)
-                .orElseThrow(() -> {
-                    log.error("Course not found with ID: {}", courseId);
-                    return new ResourceNotFoundException("COURSE_NOT_FOUND");
-                });
-    }
 
     private Task findTaskById(String taskId) {
         log.debug("Fetching task with ID: {}", taskId);
