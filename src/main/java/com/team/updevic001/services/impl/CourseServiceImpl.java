@@ -78,9 +78,9 @@ public class CourseServiceImpl implements CourseService {
         Teacher authenticatedTeacher = teacherService.getAuthenticatedTeacher();
         log.info("Operation of creating new course started by user with ID {}(whose teacher ID is {}", authenticatedTeacher.getUser().getUuid(), authenticatedTeacher.getUuid());
         Course course = modelMapper.map(courseDto, Course.class);
-        course.setCategory(CourseCategory.builder()
+        course.setCategory(courseCategoryRepository.save(CourseCategory.builder()
                 .category(courseDto.getCourseCategoryType())
-                .build());
+                .build()));
         courseRepository.save(course);
         log.info("Course saved successfully. Course ID: {}", course.getUuid());
 
@@ -91,7 +91,9 @@ public class CourseServiceImpl implements CourseService {
                 .build();
         teacherCourseRepository.save(teacherCourse);
         log.info("TeacherCourse relationship saved successfully. Teacher ID: {}, Course ID: {}", authenticatedTeacher.getUuid(), course.getUuid());
-        return courseMapper.courseDto(course);
+        ResponseCourseDto responseCourseDto = courseMapper.courseDto(course);
+        log.info("Operation of creating course ended successfully");
+        return responseCourseDto;
     }
 
 

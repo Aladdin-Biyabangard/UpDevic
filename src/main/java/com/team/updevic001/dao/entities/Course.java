@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -40,11 +41,11 @@ public class Course {
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference
-    private List<Lesson> lessons;
+    private List<Lesson> lessons = new ArrayList<>();
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference
-    private List<Comment> comments;
+    private List<Comment> comments = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "certificate_id", referencedColumnName = "uuid")
@@ -52,11 +53,11 @@ public class Course {
 
     // Bir çox StudentCourse ilə əlaqə
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<StudentCourse> studentCourses;
+    private List<StudentCourse> studentCourses = new ArrayList<>();
 
     // Bir çox TeacherCourse ilə əlaqə
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<TeacherCourse> teacherCourses;
+    private List<TeacherCourse> teacherCourses = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "course_category_uuid")

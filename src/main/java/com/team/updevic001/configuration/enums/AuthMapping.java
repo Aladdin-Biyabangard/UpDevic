@@ -7,11 +7,9 @@ import lombok.Getter;
 public enum AuthMapping {
 
     TEACHER_ADMIN(new String[]{Role.TEACHER.name(), Role.ADMIN.name()}, new String[]{
-            "/api/teacher/{teacherId}/course/{courseId}/delete",
-            "/api/teacher/{teacherId}/lesson/{lessonId}/delete",
-            "/api/teacher/{teacherId}/courses/delete",
-            "/api/teacher/{teacherId}/lessons/delete",
-            "/api/teacher/delete/{teacherId}"
+            "/api/course/{courseId}",
+            "/api/course/{courseId}/lessons/{lessonId}",
+            "/api/teacher/{teacherId}"
     }),
     //    TEACHER(new String[]{Role.TEACHER.name(), Role.ADMIN.name()}, new String[]{
 //            "/api/teacher/{teacherId}/course/assign",
@@ -38,15 +36,13 @@ public enum AuthMapping {
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/api/auth/**",
-            "/api/teacher/{teacherId}/course/{courseId}/info",
-            "/api/teacher/{teacherId}/courses",
-            "/api/teacher/{teacherId}/lesson/{lessonId}",
-            "/api/teacher/{teacherId}/course/{courseId}/lessons",
-            "/api/teacher/{teacherId}/lessons",
             "/api/course/search",
             "/api/course/{courseId}",
             "/api/course/all",
             "/api/course/category",
+            "/api/course/{courseId}/lessons",
+            "/api/course/{courseId}/lessons/{lessonId}",
+            "/api/teacher/{teacherId}/courses",
             "/error"
     });
 

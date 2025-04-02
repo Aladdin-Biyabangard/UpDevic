@@ -40,7 +40,7 @@ spring:
 application:
   security:
     jwt:
-      expiration: 60000
+      expiration: 900000
       key: ${SECURITY_KEY}
 
 

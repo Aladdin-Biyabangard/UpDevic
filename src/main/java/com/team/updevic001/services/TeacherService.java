@@ -14,22 +14,10 @@ public interface TeacherService {
 
     List<ResponseCourseShortInfoDto> getTeacherAndRelatedCourses(String teacherId);
 
-
-//    List<ResponseLessonDto> getTeacherLessonsByCourse(String teacherId, String courseId);
-
-//    List<ResponseLessonDto> getTeacherLessons(String teacherId);
-
-//    void deleteTeacherLesson(String teacherId, String lessonId);
-
-//    void deleteTeacherCourses(String teacherId);
-
-//    void deleteTeacherLessons(String teacherId);
-
     void deleteTeacher(String teacherId);
 
     void deleteAllTeachers();
 
     Teacher getAuthenticatedTeacher();
 
-//    void deleteTeacherCourses(String teacherId);
 }

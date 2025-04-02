@@ -36,28 +36,4 @@ public class TeacherController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-//
-//    // Müəllimin bütün dərslərini əldə etmək
-//    @GetMapping(path = "/{teacherId}/lessons")
-//    public ResponseEntity<List<ResponseLessonDto>> getTeacherLessons(@PathVariable String teacherId) {
-//        List<ResponseLessonDto> teacherLessons = teacherServiceImpl.getTeacherLessons(teacherId);
-//        return ResponseEntity.ok(teacherLessons);
-//    }
-
-//
-//    //Müəllimin bütün kurslarını silmək
-//    @DeleteMapping(path = "/{teacherId}/courses/delete")
-//    public ResponseEntity<Void> deleteTeacherCourses(@PathVariable String teacherId) {
-//        teacherServiceImpl.deleteTeacherCourses(teacherId);
-//        return new ResponseEntity<>(HttpStatus.OK);
-//    }
-//
-//    // Müəllimin bütün dərslərini silmək
-//    @DeleteMapping(path = "/{teacherId}/lessons/delete")
-//    public ResponseEntity<Void> deleteTeacherLessons(@PathVariable String teacherId) {
-//        teacherServiceImpl.deleteTeacherLessons(teacherId);
-//        return new ResponseEntity<>(HttpStatus.OK);
-//
-//    }
-
 }

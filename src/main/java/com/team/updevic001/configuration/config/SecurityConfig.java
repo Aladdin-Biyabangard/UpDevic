@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -45,8 +46,16 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authorize ->
                         authorize
+                                .requestMatchers(HttpMethod.GET, "/api/comment/{courseId}/course",
+                                        "/api/comment/{lessonId}/lesson",
+                                        "/api/course/search",
+                                        "/api/course/{courseId}",
+                                        "/api/course/all",
+                                        "/api/course/category",
+                                        "/api/course/{courseId}/lessons",
+                                        "/api/course/{courseId}/lessons/{lessonId}").permitAll()
                                 .requestMatchers(AuthMapping.ADMIN.getUrls()).hasAnyRole(Role.ADMIN.name())
-                                .requestMatchers(AuthMapping.TEACHER_ADMIN.getUrls()).hasAnyRole(Role.ADMIN.name(), Role.TEACHER.name())
+                                .requestMatchers(HttpMethod.DELETE, AuthMapping.TEACHER_ADMIN.getUrls()).hasAnyRole(Role.ADMIN.name(), Role.TEACHER.name())
                                 .requestMatchers(AuthMapping.PERMIT_ALL.getUrls()).permitAll()
                                 .anyRequest().authenticated()
                 )

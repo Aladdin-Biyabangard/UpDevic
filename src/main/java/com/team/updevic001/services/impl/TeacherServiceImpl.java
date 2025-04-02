@@ -43,68 +43,6 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
 
-//    @Override
-//    public List<ResponseLessonDto> getTeacherLessons(String teacherId) {
-//        log.info("Getting teacher lessons. Teacher ID: {}", teacherId);
-//
-//        Teacher teacher = findTeacherById(teacherId);
-//        List<TeacherCourse> teacherCourses = teacherCourseRepository.findTeacherCourseByTeacher(teacher);
-//        List<ResponseLessonDto> lessons =
-//                teacherCourses.stream()
-//                        .flatMap(teacherCourse -> teacherCourse.getCourse().getLessons().stream())
-//                        .map(lessonMapper::toDto).toList();
-//
-//        log.info("Retrieved {} lessons for teacher ID: {}", lessons.size(), teacherId);
-//        return lessons;
-//    }
-
-//    @Override
-//    public void deleteTeacherLesson(String teacherId, String lessonId) {
-//        log.info("Deleting teacher lesson. Teacher ID: {}, Lesson ID: {}", teacherId, lessonId);
-//
-//        Teacher teacher = validateTeacherAndAccess(teacherId, Boolean.TRUE);
-//        Lesson lesson = lessonRepository.findById(lessonId)
-//                .orElseThrow(() -> new ResourceNotFoundException("Lesson not found!"));
-//
-//        List<TeacherCourse> teacherCourses = teacherCourseRepository.findTeacherCourseByTeacher(teacher);
-//
-//        Optional<TeacherCourse> teacherCourse = teacherCourses.stream()
-//                .filter(tc -> tc.getCourse().getLessons().contains(lesson)) // Bu dərs kursda olmalıdır
-//                .findFirst();
-//
-//        if (teacherCourse.isPresent()) {
-//            teacherCourse.get().getCourse().getLessons().remove(lesson); // Dərsi kursdan silirik
-//            courseRepository.save(teacherCourse.get().getCourse()); // Kursu yeniləyirik
-//            lessonRepository.delete(lesson);
-//            log.info("Teacher lesson deleted successfully. Lesson ID: {}", lessonId);
-//        } else {
-//            throw new IllegalArgumentException("No such lesson found for this teacher.");
-//        }
-//    }
-
-//
-//    @Override
-//    public void deleteTeacherCourses(String teacherId) {
-//        log.info("Deleting all teacher courses. Teacher ID: {}", teacherId);
-//        Teacher teacher = validateTeacherAndAccess(teacherId, Boolean.TRUE);
-//        List<TeacherCourse> teacherCourses = teacherCourseRepository.findTeacherCourseByTeacher(teacher);
-//        teacherCourseRepository.deleteAll(teacherCourses);
-//
-//        log.info("All teacher courses deleted successfully. Teacher ID: {}", teacherId);
-//    }
-
-//    @Override
-//    public void deleteTeacherLessons(String teacherId) {
-//        log.info("Deleting all teacher lessons. Teacher ID: {}", teacherId);
-//        Teacher teacher = validateTeacherAndAccess(teacherId, Boolean.TRUE);
-//        List<TeacherCourse> teacherCourses = teacherCourseRepository.findTeacherCourseByTeacher(teacher);
-//        List<Lesson> list = teacherCourses.stream()
-//                .flatMap(teacherCourse -> teacherCourse.getCourse().getLessons().stream()).toList();
-//        lessonRepository.deleteAll(list);
-//
-//        log.info("All teacher lessons deleted successfully. Teacher ID: {}", teacherId);
-//    }
-
     @Override
     public void deleteTeacher(String teacherId) {
         Teacher teacher = validateTeacherAndAccess(teacherId, Boolean.TRUE);
