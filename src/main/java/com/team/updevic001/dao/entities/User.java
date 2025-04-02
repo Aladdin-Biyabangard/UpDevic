@@ -56,7 +56,7 @@ public class User implements UserDetails {
     @JsonIgnore
     private List<Comment> comments = new ArrayList<>();
 
-    @ManyToMany(cascade = CascadeType.PERSIST,)
+    @ManyToMany(cascade = CascadeType.PERSIST,fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
