@@ -12,6 +12,4 @@ public class LessonDto {
 
     private String description;
 
-    private String videoUrl;
-
 }

@@ -1,5 +1,6 @@
 package com.team.updevic001.services.interfaces;
 
+import com.team.updevic001.dao.entities.Course;
 import com.team.updevic001.model.dtos.response.course.ResponseCategoryDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
@@ -17,4 +18,7 @@ public interface CourseService {
 
     List<ResponseCategoryDto> getCategory(CourseCategoryType categoryType);
 
+    List<Course> findCourseBy(String keyword);
+
+    Course findCourseById(String courseId);
 }

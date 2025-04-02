@@ -5,6 +5,7 @@ import com.team.updevic001.model.dtos.response.course.ResponseCourseDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
 import com.team.updevic001.model.enums.CourseCategoryType;
 import com.team.updevic001.services.interfaces.CourseService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ public class CourseController {
 
     private final CourseService courseServiceImpl;
 
+    @Operation(summary = "Search for courses by keyword")
     @GetMapping(path = "search")
     public ResponseEntity<List<ResponseCourseDto>> searchCourse(@RequestParam String keyword) {
         List<ResponseCourseDto> course = courseServiceImpl.searchCourse(keyword);

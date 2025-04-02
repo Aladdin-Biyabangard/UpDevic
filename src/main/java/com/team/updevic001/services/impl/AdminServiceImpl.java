@@ -28,13 +28,11 @@ public class AdminServiceImpl implements AdminService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final UserRoleRepository userRoleRepository;
-    private final UserServiceImpl userServiceImpl;
     private final TeacherRepository teacherRepository;
 
     @Override
-    public void assignTeacherProfile(String studentId) {
-
-        User user = userRepository.findById(studentId)
+    public void assignTeacherProfile(String email) {
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Enter the email you registered with."));
         UserRole userRole = userRoleRepository.findByName(Role.TEACHER).orElseGet(() -> {
             UserRole role = UserRole.builder()
@@ -99,7 +97,7 @@ public class AdminServiceImpl implements AdminService {
     @Transactional
     public void removeRoleFromUser(String userId, Role role) {
         log.info("Removing role {} from user with ID: {}", role, userId);
-        User user = userServiceImpl.findUserById(userId);
+        User user = findUserById(userId);
 
         UserRole findRole = user.getRoles()
                 .stream()
@@ -145,7 +143,7 @@ public class AdminServiceImpl implements AdminService {
         return userCount;
     }
 
-    private User findUserById(String id) {
+    public User findUserById(String id) {
         log.info("Finding user with ID: {}", id);
         return userRepository.findById(id).orElseThrow(() -> {
             log.error("User not found with ID: {}", id);
@@ -161,5 +159,12 @@ public class AdminServiceImpl implements AdminService {
     private void saveUserRole(UserRole userRole) {
         log.info("Saving user role: {}", userRole.getName());
         userRoleRepository.save(userRole);
+    }
+
+    @Override
+    public void permanentlyDeleteUser(String userId) {
+        log.info("Attempting to delete user with ID: {}", userId);
+        userRepository.deleteById(userId);
+        log.info("User successfully deleted.");
     }
 }

@@ -6,32 +6,31 @@ import com.team.updevic001.dao.entities.Course;
 import com.team.updevic001.dao.entities.Lesson;
 import com.team.updevic001.dao.entities.User;
 import com.team.updevic001.dao.repositories.CommentRepository;
-import com.team.updevic001.dao.repositories.CourseRepository;
-import com.team.updevic001.dao.repositories.LessonRepository;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.request.CommentDto;
 import com.team.updevic001.model.dtos.response.comment.ResponseCommentDto;
 import com.team.updevic001.services.interfaces.CommentService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
 
-    private final CourseRepository courseRepository;
     private final CommentMapper commentMapper;
-    private final LessonRepository lessonRepository;
-    private final UserServiceImpl userServiceImpl;
     private final CommentRepository commentRepository;
+    private final AdminServiceImpl adminServiceImpl;
+    private final LessonServiceImpl lessonServiceImpl;
+    private final CourseServiceImpl courseServiceImpl;
 
     @Override
     public void addCommentToCourse(String userId, String courseId, CommentDto commentDto) {
-        User user = userServiceImpl.findUserById(userId);
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new ResourceNotFoundException("There is no such course."));
+        User user = adminServiceImpl.findUserById(userId);
+        Course course = courseServiceImpl.findCourseById(courseId);
         Comment comment = Comment.builder()
                 .content(commentDto.getContent())
                 .user(user)
@@ -42,9 +41,8 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void addCommentToLesson(String userId, String lessonId, CommentDto commentDto) {
-        User user = userServiceImpl.findUserById(userId);
-        Lesson lesson = lessonRepository.findById(lessonId)
-                .orElseThrow(() -> new ResourceNotFoundException("There is no such lesson."));
+        User user = adminServiceImpl.findUserById(userId);
+        Lesson lesson = lessonServiceImpl.findLessonById(lessonId);
         Comment comment = Comment.builder()
                 .content(commentDto.getContent())
                 .user(user)
@@ -55,24 +53,21 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void updateComment(String commentId, CommentDto commentDto) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new ResourceNotFoundException("This comment has been deleted."));
+        Comment comment = findCommentById(commentId);
         comment.setContent(commentDto.getContent());
         commentRepository.save(comment);
     }
 
     @Override
     public List<ResponseCommentDto> getCourseComment(String courseId) {
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new ResourceNotFoundException("There is no such course."));
+        Course course = courseServiceImpl.findCourseById(courseId);
         List<Comment> comments = course.getComments();
         return !comments.isEmpty() ? commentMapper.toDto(comments) : List.of();
     }
 
     @Override
     public List<ResponseCommentDto> getLessonComment(String lessonId) {
-        Lesson lesson = lessonRepository.findById(lessonId)
-                .orElseThrow(() -> new ResourceNotFoundException("There is no such lesson."));
+        Lesson lesson = lessonServiceImpl.findLessonById(lessonId);
         List<Comment> comments = lesson.getComments();
         return !comments.isEmpty() ? commentMapper.toDto(comments) : List.of();
     }
@@ -80,5 +75,11 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public void deleteComment(String commentId) {
         commentRepository.deleteById(commentId);
+    }
+
+    public Comment findCommentById(String commentId) {
+        log.debug("Looking for comment with ID: {}", commentId);
+        return commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment with ID " + commentId + " not found"));
     }
 }

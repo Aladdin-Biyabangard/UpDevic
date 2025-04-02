@@ -13,7 +13,11 @@ spring:
       hibernate:
         format_sql: true
     database-platform: org.hibernate.dialect.MySQLDialect
-
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 1000MB
+      max-request-size: 1000MB
 
   logging:
     level:
@@ -25,8 +29,6 @@ spring:
               sql:
                 BasicBinder: TRACE
       org.springframework.data.jpa.repository: DEBUG
-
-
 
   mail:
     host: smtp.gmail.com
@@ -63,3 +65,11 @@ springdoc:
     enabled: true
   swagger-ui:
     enabled: true
+
+
+server:
+  tomcat:
+    uri-encoding: utf-8
+
+video:
+  directory: D://Videos/

@@ -20,6 +20,8 @@ public interface AdminService {
 
     void activateUser(String id);
 
+    void permanentlyDeleteUser(String userId);
+
     void deactivateUser(String id);
 
     Long countUsers();

@@ -1,8 +1,13 @@
 package com.team.updevic001.services.interfaces;
 
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
+
+import java.io.IOException;
+
 public interface CertificateService {
 
-    void downloadCourseCertificate(String userId, String courseId);
+    ResponseEntity<Resource> generateCertificate(String userId, String courseId) throws IOException;
 
-
+    double checkEligibilityForCertification(String userId, String courseId);
 }

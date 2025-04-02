@@ -2,7 +2,10 @@ package com.team.updevic001.services.impl;
 
 import com.team.updevic001.configuration.mappers.CourseMapper;
 import com.team.updevic001.dao.entities.*;
-import com.team.updevic001.dao.repositories.*;
+import com.team.updevic001.dao.repositories.CommentRepository;
+import com.team.updevic001.dao.repositories.CourseRepository;
+import com.team.updevic001.dao.repositories.StudentCourseRepository;
+import com.team.updevic001.dao.repositories.UserRepository;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
@@ -20,23 +23,25 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StudentServiceImpl implements StudentService {
 
-    private final UserServiceImpl userServiceImpl;
     private final StudentCourseRepository studentCourseRepository;
     private final ModelMapper modelMapper;
     private final CourseMapper courseMapper;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
-    private final LessonRepository lessonRepository;
     private final CourseRepository courseRepository;
+    private final CourseServiceImpl courseServiceImpl;
+    private final CommentServiceImpl commentServiceImpl;
+    private final AdminServiceImpl adminServiceImpl;
+    private final LessonServiceImpl lessonServiceImpl;
 
     @Override
     public void enrollInCourse(String courseId, String userId) {
         log.info("Attempting to enroll user with ID: {} in course with ID: {}", userId, courseId);
 
-        User user = findUserById(userId);
+        User user = adminServiceImpl.findUserById(userId);
         Student student = castToStudent(user);
 
-        Course course = findCourseById(courseId);
+        Course course = courseServiceImpl.findCourseById(courseId);
 
         if (isAlreadyEnrolledInCourse(student, course)) {
             log.error("Student with ID: {} is already enrolled in course with ID: {}", userId, courseId);
@@ -51,10 +56,10 @@ public class StudentServiceImpl implements StudentService {
     public void unenrollUserFromCourse(String userId, String courseId) {
         log.info("Attempting to unenroll user with ID: {} from course with ID: {}", userId, courseId);
 
-        User user = findUserById(userId);
+        User user = adminServiceImpl.findUserById(userId);
         Student student = castToStudent(user);
 
-        Course course = findCourseById(courseId);
+        Course course = courseServiceImpl.findCourseById(courseId);
 
         if (!isAlreadyEnrolledInCourse(student, course)) {
             log.error("Student with ID: {} is not enrolled in course with ID: {}", userId, courseId);
@@ -72,7 +77,7 @@ public class StudentServiceImpl implements StudentService {
     public ResponseCourseShortInfoDto getStudentCourse(String userId, String courseId) {
         log.info("Fetching course for student with ID: {}", userId);
 
-        User user = findUserById(userId);
+        User user = adminServiceImpl.findUserById(userId);
         Student student = castToStudent(user);
         Course course = courseRepository
                 .findById(courseId).orElseThrow(() -> new ResourceNotFoundException("Not found course !"));
@@ -87,7 +92,7 @@ public class StudentServiceImpl implements StudentService {
     public List<ResponseCourseShortInfoDto> getStudentCourses(String userId) {
         log.info("Fetching courses for student with ID: {}", userId);
 
-        User user = findUserById(userId);
+        User user = adminServiceImpl.findUserById(userId);
         Student student = castToStudent(user);
         List<Course> courseByStudent = studentCourseRepository.findCourseByStudent(student);
 
@@ -97,12 +102,11 @@ public class StudentServiceImpl implements StudentService {
                 .toList();
     }
 
-
     @Override
     public List<ResponseCourseLessonDto> getStudentLessons(String userId) {
         log.info("Fetching lessons for student with ID: {}", userId);
 
-        User user = findUserById(userId);
+        User user = adminServiceImpl.findUserById(userId);
         Student student = castToStudent(user);
         List<Course> courses = studentCourseRepository.findCourseByStudent(student);
 
@@ -113,12 +117,12 @@ public class StudentServiceImpl implements StudentService {
     public void deleteStudentCourseComment(String userId, String courseId, String commentId) {
         log.info("Attempting to delete comment with ID: {} from course with ID: {} for student with ID: {}", commentId, courseId, userId);
 
-        User user = findUserById(userId);
-        Course courseById = findCourseById(courseId);
+        User user = adminServiceImpl.findUserById(userId);
+        Course course = courseServiceImpl.findCourseById(courseId);
 
-        Comment comment = findCommentById(commentId);
+        Comment comment = commentServiceImpl.findCommentById(commentId);
         Comment findComment = user.getComments().stream()
-                .filter(comm -> comm.getCourse().equals(courseById) && comm.getId().equals(comment.getId()))
+                .filter(comm -> comm.getCourse().equals(course) && comm.getId().equals(comment.getId()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("User has no comment for this course"));
 
@@ -133,9 +137,9 @@ public class StudentServiceImpl implements StudentService {
     public void deleteStudentLessonComment(String userId, String lessonId, String commentId) {
         log.info("Attempting to delete comment with ID: {} from lesson with ID: {} for student with ID: {}", commentId, lessonId, userId);
 
-        User user = findUserById(userId);
-        Lesson lesson = findLessonById(lessonId);
-        Comment comment = findCommentById(commentId);
+        User user = adminServiceImpl.findUserById(userId);
+        Lesson lesson = lessonServiceImpl.findLessonById(lessonId);
+        Comment comment = commentServiceImpl.findCommentById(commentId);
 
         Comment findComment = user.getComments().stream()
                 .filter(comm -> comm.getLesson().equals(lesson) && comm.getId().equals(comment.getId()))
@@ -151,29 +155,8 @@ public class StudentServiceImpl implements StudentService {
 
     // Helper methods
 
-    private User findUserById(String userId) {
-        log.debug("Looking for user with ID: {}", userId);
-        return userServiceImpl.findUserById(userId);
-    }
-
-    private Course findCourseById(String courseId) {
-        log.debug("Looking for course with ID: {}", courseId);
-        return courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException("Course not found!"));
-    }
-
-    private Comment findCommentById(String commentId) {
-        log.debug("Looking for comment with ID: {}", commentId);
-        return commentRepository.findById(commentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Comment with ID " + commentId + " not found"));
-    }
-
-    private Lesson findLessonById(String lessonId) {
-        log.debug("Looking for lesson with ID: {}", lessonId);
-        return lessonRepository.findById(lessonId)
-                .orElseThrow(() -> new ResourceNotFoundException("Lesson with ID " + lessonId + " not found!"));
-    }
-
-    private Student castToStudent(User user) {
+    @Override
+    public Student castToStudent(User user) {
         if (!(user instanceof Student)) {
             log.error("User with ID: {} is not a student!", user.getId());
             throw new IllegalStateException("User is not a student!");

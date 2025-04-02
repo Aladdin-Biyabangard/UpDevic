@@ -55,8 +55,20 @@ public class CourseServiceImpl implements CourseService {
         return courseCategories.stream().map(categoryMapper::toDto).toList();
     }
 
-
+    @Override
     public List<Course> findCourseBy(String keyword) {
         return courseRepository.searchCoursesByKeyword(keyword);
     }
+
+    @Override
+    public Course findCourseById(String courseId) {
+        log.debug("Fetching course with ID: {}", courseId);
+        return courseRepository.findById(courseId)
+                .orElseThrow(() -> {
+                    log.error("Course not found with ID: {}", courseId);
+                    return new ResourceNotFoundException("COURSE_NOT_FOUND");
+                });
+    }
+
+
 }

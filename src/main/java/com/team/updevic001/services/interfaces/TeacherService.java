@@ -1,5 +1,8 @@
 package com.team.updevic001.services.interfaces;
 
+import com.team.updevic001.dao.entities.Course;
+import com.team.updevic001.dao.entities.Teacher;
+import com.team.updevic001.dao.entities.TeacherCourse;
 import com.team.updevic001.model.dtos.request.CourseDto;
 import com.team.updevic001.model.dtos.request.LessonDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseDto;
@@ -7,40 +10,46 @@ import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto
 import com.team.updevic001.model.dtos.response.lesson.ResponseLessonDto;
 import com.team.updevic001.model.dtos.response.lesson.ResponseLessonShortInfoDto;
 import com.team.updevic001.model.dtos.response.teacher.ResponseTeacherWithCourses;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface TeacherService {
 
-    ResponseCourseDto createTeacherCourse(String teacherId, CourseDto courseDto);
+    ResponseCourseDto createCourse(String userId, CourseDto courseDto);
 
-    ResponseTeacherWithCourses addTeacherToCourse(String teacherId, String courseId);
+    ResponseTeacherWithCourses addTeacherToCourse(String userId, String courseId);
 
-    ResponseLessonShortInfoDto assignLessonToCourse(String teacherId, String courseId, LessonDto lessonDto);
+    ResponseLessonShortInfoDto assignLessonToCourse(String courseId, LessonDto lessonDto, MultipartFile file) throws Exception;
 
-    void updateTeacherCourseInfo(String teacherId, String courseId, CourseDto courseDto);
+    void updateTeacherCourseInfo(String courseId, CourseDto courseDto);
 
-    void updateTeacherLessonInfo(String teacherId, String lessonId, LessonDto lessonDto);
+    void updateTeacherLessonInfo(String lessonId, LessonDto lessonDto);
 
-    ResponseCourseShortInfoDto getTeacherCourse(String teacherId, String courseId);
+    ResponseCourseShortInfoDto getTeacherCourse(String courseId);
 
-    List<ResponseCourseShortInfoDto> getTeacherAndRelatedCourses(String teacherId);
+    List<ResponseCourseShortInfoDto> getTeacherAndRelatedCourses();
 
-    ResponseLessonDto getTeacherLesson(String teacherId, String lessonId);
+    ResponseLessonDto getTeacherLesson(String lessonId);
 
-    List<ResponseLessonDto> getTeacherLessonsByCourse(String teacherId, String courseId);
+    List<ResponseLessonDto> getTeacherLessonsByCourse(String courseId);
 
-    List<ResponseLessonDto> getTeacherLessons(String teacherId);
+    List<ResponseLessonDto> getTeacherLessons();
 
-    void deleteTeacherCourse(String teacherId, String courseId);
+    TeacherCourse findTeacherCourse(Course course, Teacher teacher);
 
-    void deleteTeacherLesson(String teacherId, String lessonId);
+    Teacher findTeacherByUserId(String userId);
 
-    void deleteTeacherCourses(String teacherId);
 
-    void deleteTeacherLessons(String teacherId);
+    void deleteTeacherCourse(String userId, String courseId);
 
-    void deleteTeacher(String teacherId);
+    void deleteTeacherLesson(String userId, String lessonId);
+
+    void deleteTeacherCourses(String userId);
+
+    void deleteTeacherLessons(String userId);
+
+    void deleteTeacher(String userId);
 
     void deleteAllTeachers();
 
