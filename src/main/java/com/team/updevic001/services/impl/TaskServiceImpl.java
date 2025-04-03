@@ -73,7 +73,7 @@ public class TaskServiceImpl implements TaskService {
         TestResult result = checkTestResult(student, course);
 
         validateAnswerAndUpdateScore(student, result, task, answerDto, course);
-        log.info("Answer checked and score updated for student: {}", userId);
+        log.info("Answer checked and score updated for student: {}", authenticatedUser.getId());
     }
 
     @Override
