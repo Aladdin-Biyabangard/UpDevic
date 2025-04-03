@@ -7,6 +7,7 @@ import com.team.updevic001.model.dtos.request.AnswerDto;
 import com.team.updevic001.model.dtos.request.TaskDto;
 import com.team.updevic001.model.dtos.response.task.ResponseTaskDto;
 import com.team.updevic001.services.interfaces.TaskService;
+import com.team.updevic001.utility.AuthHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -31,12 +32,14 @@ public class TaskServiceImpl implements TaskService {
     private final TeacherServiceImpl teacherServiceImpl;
     private final AdminServiceImpl adminServiceImpl;
     private final StudentServiceImpl studentServiceImpl;
+    private final AuthHelper authHelper;
 
     @Override
-    public void createTask(String userId, String courseId, TaskDto taskDto) {
+    public void createTask(String courseId, TaskDto taskDto) {
+        User authenticatedUser = authHelper.getAuthenticatedUser();
         log.info("Creating task for course: {}", courseId);
         Course course = courseServiceImpl.findCourseById(courseId);
-        Teacher teacher = teacherServiceImpl.findTeacherByUserId(userId);
+        Teacher teacher = teacherServiceImpl.findTeacherByUserId(authenticatedUser.getId());
         teacherServiceImpl.findTeacherCourse(course, teacher);
         Task task = modelMapper.map(taskDto, Task.class);
 
@@ -53,11 +56,11 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void checkAnswer(String userId, String courseId, String taskId, AnswerDto answerDto) {
-        log.info("Checking answer for student: {} in course: {} and task: {}", userId, courseId, taskId);
+    public void checkAnswer(String courseId, String taskId, AnswerDto answerDto) {
+        User authenticatedUser = authHelper.getAuthenticatedUser();
+        log.info("Checking answer for student: {} in course: {} and task: {}", authenticatedUser.getId(), courseId, taskId);
 
-        //TODO bu hissede holder den gelen useri yəni studenti gotureciyik
-        User user = adminServiceImpl.findUserById(userId);
+        User user = adminServiceImpl.findUserById(authenticatedUser.getId());
         Student student = studentServiceImpl.castToStudent(user);
         Course course = courseServiceImpl.findCourseById(courseId);
 

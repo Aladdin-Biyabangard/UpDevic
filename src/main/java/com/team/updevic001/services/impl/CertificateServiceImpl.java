@@ -5,6 +5,7 @@ import com.team.updevic001.dao.repositories.StudentTaskRepository;
 import com.team.updevic001.dao.repositories.TestResultRepository;
 import com.team.updevic001.model.enums.CertificateTemplate;
 import com.team.updevic001.services.interfaces.CertificateService;
+import com.team.updevic001.utility.AuthHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
@@ -27,13 +28,16 @@ public class CertificateServiceImpl implements CertificateService {
     private final TestResultRepository testResultRepository;
     private final StudentTaskRepository studentTaskRepository;
     private final AdminServiceImpl adminServiceImpl;
+    private final AuthHelper authHelper;
+    private final StudentServiceImpl studentServiceImpl;
 
 
     @Override
-    public ResponseEntity<Resource> generateCertificate(String userId, String courseId) throws IOException {
-        User user = adminServiceImpl.findUserById(userId);
+    public ResponseEntity<Resource> generateCertificate(String courseId) throws IOException {
+        User authenticatedUser = authHelper.getAuthenticatedUser();
+        User user = adminServiceImpl.findUserById(authenticatedUser.getId());
         Course course = courseServiceImpl.findCourseById(courseId);
-        double score = checkEligibilityForCertification(userId, courseId);
+        double score = checkEligibilityForCertification(authenticatedUser.getId(), courseId);
 
         DecimalFormat df = new DecimalFormat("#.0");
         String testScore = df.format(score);
@@ -63,6 +67,7 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public double checkEligibilityForCertification(String userId, String courseId) {
         User user = adminServiceImpl.findUserById(userId);
+        Student student = studentServiceImpl.castToStudent(user);
         Course course = courseServiceImpl.findCourseById(courseId);
         long taskCount = course.getTasks().size();
         List<String> taskIds = course.getTasks().stream().map(Task::getId).toList();
@@ -73,7 +78,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
 
         TestResult testResult = testResultRepository
-                .findTestResultByStudentAndCourse((Student) user, course)
+                .findTestResultByStudentAndCourse(student, course)
                 .orElseThrow(() -> new IllegalArgumentException("This student is not enrolled in this course."));
 
         double score = testResult.getScore();

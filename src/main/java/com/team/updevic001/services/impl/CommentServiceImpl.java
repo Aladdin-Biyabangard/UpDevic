@@ -10,6 +10,7 @@ import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.request.CommentDto;
 import com.team.updevic001.model.dtos.response.comment.ResponseCommentDto;
 import com.team.updevic001.services.interfaces.CommentService;
+import com.team.updevic001.utility.AuthHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,10 +27,12 @@ public class CommentServiceImpl implements CommentService {
     private final AdminServiceImpl adminServiceImpl;
     private final LessonServiceImpl lessonServiceImpl;
     private final CourseServiceImpl courseServiceImpl;
+    private final AuthHelper authHelper;
 
     @Override
-    public void addCommentToCourse(String userId, String courseId, CommentDto commentDto) {
-        User user = adminServiceImpl.findUserById(userId);
+    public void addCommentToCourse(String courseId, CommentDto commentDto) {
+        User authenticatedUser = authHelper.getAuthenticatedUser();
+        User user = adminServiceImpl.findUserById(authenticatedUser.getId());
         Course course = courseServiceImpl.findCourseById(courseId);
         Comment comment = Comment.builder()
                 .content(commentDto.getContent())
@@ -40,8 +43,9 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void addCommentToLesson(String userId, String lessonId, CommentDto commentDto) {
-        User user = adminServiceImpl.findUserById(userId);
+    public void addCommentToLesson(String lessonId, CommentDto commentDto) {
+        User authenticatedUser = authHelper.getAuthenticatedUser();
+        User user = adminServiceImpl.findUserById(authenticatedUser.getId());
         Lesson lesson = lessonServiceImpl.findLessonById(lessonId);
         Comment comment = Comment.builder()
                 .content(commentDto.getContent())
