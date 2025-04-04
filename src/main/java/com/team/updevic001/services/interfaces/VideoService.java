@@ -1,9 +1,6 @@
 package com.team.updevic001.services.interfaces;
 
-import com.team.updevic001.model.dtos.response.video.LessonVideoResponse;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.net.MalformedURLException;
 
 public interface VideoService {
 
