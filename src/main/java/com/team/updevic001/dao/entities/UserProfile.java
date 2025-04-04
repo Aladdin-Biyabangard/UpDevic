@@ -19,7 +19,7 @@ public class UserProfile {
 
     @Id
     @Column(unique = true, nullable = false, length = 12)
-    private String uuid;
+    private String id;
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
@@ -43,9 +43,9 @@ public class UserProfile {
 
 
     @PrePersist
-    public void generateStudentNumber() {
-        if (this.uuid == null) {
-            this.uuid = NanoIdUtils.randomNanoId().substring(0, 12);
+    public void generatedId() {
+        if (this.id == null) {
+            this.id = NanoIdUtils.randomNanoId().substring(0, 12);
         }
     }
 }

@@ -20,7 +20,7 @@ public class Certificate {
 
     @Id
     @Column(unique = true, nullable = false, length = 12)
-    private String uuid;
+    private String id;
 
     @Column(name = "certificate_content")
     private String certificateContent;
@@ -38,9 +38,9 @@ public class Certificate {
     private LocalDateTime issueDate;
 
     @PrePersist
-    public void generateStudentNumber() {
-        if (this.uuid == null) {
-            this.uuid = NanoIdUtils.randomNanoId().substring(0, 12);
+    public void generatedId() {
+        if (this.id == null) {
+            this.id = NanoIdUtils.randomNanoId().substring(0, 12);
         }
     }
 }

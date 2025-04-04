@@ -12,7 +12,7 @@ import com.team.updevic001.exceptions.ForbiddenException;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.request.CommentDto;
 import com.team.updevic001.model.dtos.response.comment.ResponseCommentDto;
-import com.team.updevic001.services.CommentService;
+import com.team.updevic001.services.interfaces.CommentService;
 import com.team.updevic001.utility.AuthHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Slf4j
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
 
@@ -30,6 +30,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentMapper commentMapper;
     private final LessonRepository lessonRepository;
     private final CommentRepository commentRepository;
+    private final AuthHelper authHelper;
     private final AuthHelper authHelper;
 
     @Override
@@ -119,5 +120,11 @@ public class CommentServiceImpl implements CommentService {
         }
         commentRepository.deleteById(commentId);
         log.info("Comment successfully deleted");
+    }
+
+    public Comment findCommentById(String commentId) {
+        log.debug("Looking for comment with ID: {}", commentId);
+        return commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment with ID " + commentId + " not found"));
     }
 }

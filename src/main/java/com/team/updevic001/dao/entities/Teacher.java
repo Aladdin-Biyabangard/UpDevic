@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -20,7 +21,7 @@ public class Teacher {
 
     @Id
     @Column(unique = true, nullable = false, length = 12)
-    private String uuid;
+    private String id;
 
     @Enumerated(EnumType.STRING)
     private Specialty speciality;
@@ -33,16 +34,16 @@ public class Teacher {
     private LocalDateTime hireDate;
 
     @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<TeacherCourse> teacherCourses;
+    private List<TeacherCourse> teacherCourses = new ArrayList<>();
 
-    @OneToOne
-    @JoinColumn(name = "student_id", referencedColumnName = "uuid")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "student_id", referencedColumnName = "id")
     private User user;
 
     @PrePersist
-    public void generateStudentNumber() {
-        if (this.uuid == null) {
-            this.uuid = NanoIdUtils.randomNanoId().substring(0, 12);
+    public void generatedId() {
+        if (this.id == null) {
+            this.id = NanoIdUtils.randomNanoId().substring(0, 12);
         }
     }
 }

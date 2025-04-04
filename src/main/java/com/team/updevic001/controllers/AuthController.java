@@ -1,12 +1,12 @@
 package com.team.updevic001.controllers;
 
-import com.team.updevic001.model.dtos.request.RecoveryPassword;
+import com.team.updevic001.model.dtos.request.security.RecoveryPassword;
 import com.team.updevic001.model.dtos.request.security.AuthRequestDto;
 import com.team.updevic001.model.dtos.request.security.OtpRequest;
 import com.team.updevic001.model.dtos.request.security.RefreshTokenRequest;
 import com.team.updevic001.model.dtos.request.security.RegisterRequest;
 import com.team.updevic001.model.dtos.response.AuthResponseDto;
-import com.team.updevic001.services.AuthService;
+import com.team.updevic001.services.interfaces.AuthService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;

@@ -9,6 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 public interface TeacherRepository extends JpaRepository<Teacher, String> {
+
+    Optional<Teacher> findTeacherByUserId(String userId);
+
     @Modifying
     @Transactional
     @Query(value = "ALTER TABLE teachers AUTO_INCREMENT = 1", nativeQuery = true)

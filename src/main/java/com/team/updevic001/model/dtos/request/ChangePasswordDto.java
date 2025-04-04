@@ -18,7 +18,6 @@ public class ChangePasswordDto {
             message = "Invalid Password: Must be at least 6 characters long, with at least one uppercase letter, one lowercase letter, and one digit. Special characters (!@#$%^&*) are allowed but not required."
     )
 
-
     private String newPassword;
 
     @NotNull(message = "retry password can not be null")

@@ -5,10 +5,11 @@ import com.team.updevic001.model.dtos.request.LessonDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCategoryDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
+import com.team.updevic001.model.dtos.response.teacher.ResponseTeacherWithCourses;
 import com.team.updevic001.model.dtos.response.lesson.ResponseLessonDto;
 import com.team.updevic001.model.dtos.response.teacher.ResponseTeacherWithCourses;
 import com.team.updevic001.model.enums.CourseCategoryType;
-import com.team.updevic001.services.CourseService;
+import com.team.updevic001.services.interfaces.CourseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ public class CourseController {
         List<ResponseCourseDto> course = courseService.searchCourse(keyword);
         return ResponseEntity.ok(course);
     }
+
 
     @GetMapping(path = "/{courseId}/")
     public ResponseEntity<ResponseCourseLessonDto> getCourse(@PathVariable String courseId) {

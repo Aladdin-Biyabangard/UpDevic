@@ -25,6 +25,7 @@ spring:
         org.springframework.data.jpa.repository: DEBUG
 
 
+
   mail:
     host: smtp.gmail.com
     port: 587
@@ -40,17 +41,11 @@ spring:
 application:
   security:
     jwt:
-      expiration: 900000
+      expiration: 86400000
       key: ${SECURITY_KEY}
 
 
-email:
-  fromEmail: ${FROM_EMAIL}
-
 ALGORITHM: ${ALGORITHM}
-
-
-
 #
 ##java:
 ##  io:
@@ -64,3 +59,11 @@ springdoc:
     enabled: true
   swagger-ui:
     enabled: true
+
+
+server:
+  tomcat:
+    uri-encoding: utf-8
+
+video:
+  directory: D://Videos/

@@ -1,0 +1,42 @@
+package com.team.updevic001.controllers;
+
+import com.team.updevic001.model.dtos.request.AnswerDto;
+import com.team.updevic001.model.dtos.request.TaskDto;
+import com.team.updevic001.model.dtos.response.task.ResponseTaskDto;
+import com.team.updevic001.services.interfaces.TaskService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/task")
+@RequiredArgsConstructor
+public class TaskController {
+
+    private final TaskService taskServiceImpl;
+
+    @PostMapping(path = "/{userId}/user/{courseId}/lesson/create-task")
+    public ResponseEntity<String> createTask(@PathVariable String userId,
+                                             @PathVariable String courseId,
+                                             @RequestBody TaskDto taskDto) {
+        taskServiceImpl.createTask(userId, courseId, taskDto);
+        return ResponseEntity.ok("Task successfully created!");
+    }
+
+    @PostMapping(path = "/{studentId}/student/{courseId}/lesson/{taskId}/check")
+    public ResponseEntity<String> checkAnswer(@PathVariable String studentId,
+                                              @PathVariable String courseId,
+                                              @PathVariable String taskId,
+                                              @RequestBody AnswerDto answerDto) {
+        taskServiceImpl.checkAnswer(studentId, courseId, taskId, answerDto);
+        return ResponseEntity.ok("Correct answer!");
+    }
+
+    @GetMapping(path = "course/{courseId}")
+    public ResponseEntity<List<ResponseTaskDto>> getTasks(@PathVariable String courseId) {
+        List<ResponseTaskDto> tasks = taskServiceImpl.getTasks(courseId);
+        return ResponseEntity.ok(tasks);
+    }
+}

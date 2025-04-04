@@ -1,51 +1,57 @@
 package com.team.updevic001.services.impl;
 
+import com.team.updevic001.configuration.mappers.UserMapper;
 import com.team.updevic001.dao.entities.User;
 import com.team.updevic001.dao.entities.UserProfile;
-import com.team.updevic001.dao.repositories.*;
+import com.team.updevic001.dao.repositories.UserProfileRepository;
+import com.team.updevic001.dao.repositories.UserRepository;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.request.ChangePasswordDto;
 import com.team.updevic001.model.dtos.request.UserProfileDto;
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
-import com.team.updevic001.services.UserService;
+import com.team.updevic001.model.enums.Status;
+import com.team.updevic001.services.interfaces.UserService;
 import com.team.updevic001.utility.AuthHelper;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final com.team.updevic001.configuration.mappers.UserMapper userMapper;
+    private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final UserProfileRepository userProfileRepository;
-    private final PasswordEncoder passwordEncoder;
     private final AuthHelper authHelper;
-
+    private final PasswordEncoder passwordEncoder;
+    private final AdminServiceImpl adminServiceImpl;
 
     public void updateUserProfileInfo(UserProfileDto userProfileDto) {
         User authenticatedUser = authHelper.getAuthenticatedUser();
-        log.info("Updating user profile for ID: {}", authenticatedUser.getUuid());
-
+        log.info("Updating user profile for ID: {}", authenticatedUser.getId());
         UserProfile userProfile = userProfileRepository.findByUser(authenticatedUser);
         if (userProfile == null) {
-            log.warn("UserProfile not found for user ID: {}, creating new profile.", authenticatedUser.getUuid());
+            log.warn("UserProfile not found for user ID: {}, creating new profile.", authenticatedUser.getId());
             userProfile = UserProfile.builder()
                     .user(authenticatedUser)
                     .build();
         }
         modelMapper.map(userProfileDto, userProfile);
+        userProfile.getUser().setPassword(passwordEncoder.encode(userProfileDto.getPassword()));
         userProfileRepository.save(userProfile);
-        log.info("User with ID {} updated successfully.", authenticatedUser.getUuid());
+        log.info("User with ID {} updated successfully.", authenticatedUser.getId());
     }
-
 
     @Override
     public void updateUserPassword(ChangePasswordDto passwordDto) {
@@ -84,17 +90,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser() {
         User authenticatedUser = authHelper.getAuthenticatedUser();
-
-        log.info("Attempting to delete user with ID: {}", authenticatedUser.getUuid());
-
-        userRepository.delete(authenticatedUser);
+        log.info("Attempting to delete user with ID: {}", authenticatedUser.getId());
+        User user = findUserById(authenticatedUser.getId());
+        user.setStatus(Status.INACTIVE);
+        userRepository.save(user);
         log.info("User successfully deleted.");
     }
 
-
-    public User findUserById(String uuid) {
-        return userRepository.findById(uuid).orElseThrow(() -> {
-            log.error("User not found with ID: {}", uuid);
+    public User findUserById(String id) {
+        return userRepository.findById(id).orElseThrow(() -> {
+            log.error("User not found with ID: {}", id);
             return new ResourceNotFoundException("User not found");
         });
     }

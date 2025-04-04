@@ -25,7 +25,6 @@ public class AuthHelper {
             log.error("No authenticated user found in the security context.");
             throw new UnauthorizedException("No authenticated user found");
         }
-
         String authenticatedEmail = authentication.getName();
         log.debug("Authenticated user email: {}", authenticatedEmail);
 

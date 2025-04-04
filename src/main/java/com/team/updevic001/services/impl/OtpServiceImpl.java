@@ -7,7 +7,7 @@ import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.mail.ConfirmationEmailServiceImpl;
 import com.team.updevic001.mail.EmailTemplate;
 import com.team.updevic001.model.dtos.request.security.OtpRequest;
-import com.team.updevic001.services.OtpService;
+import com.team.updevic001.services.interfaces.OtpService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

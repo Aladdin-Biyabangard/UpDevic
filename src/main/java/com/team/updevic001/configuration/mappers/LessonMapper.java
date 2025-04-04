@@ -3,7 +3,6 @@ package com.team.updevic001.configuration.mappers;
 import com.team.updevic001.dao.entities.Lesson;
 import com.team.updevic001.model.dtos.response.lesson.ResponseLessonDto;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

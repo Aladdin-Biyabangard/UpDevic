@@ -1,9 +1,8 @@
 
-package com.team.updevic001.services;
+package com.team.updevic001.services.interfaces;
 
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 import com.team.updevic001.model.enums.Role;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -19,9 +18,11 @@ public interface AdminService {
 
     List<ResponseUserDto> getUsersByRole(Role role);  // Rol üzrə istifadəçiləri almaq
 
-    void activateUser(String uuid);
+    void activateUser(String id);
 
-    void deactivateUser(String uuid);
+    void permanentlyDeleteUser(String userId);
+
+    void deactivateUser(String id);
 
     Long countUsers();
 

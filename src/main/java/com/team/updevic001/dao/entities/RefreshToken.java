@@ -1,13 +1,12 @@
 package com.team.updevic001.dao.entities;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "refresh_token")
@@ -19,8 +18,9 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RefreshToken {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    UUID uuid;
+    @Column(unique = true, nullable = false, length = 12)
+    private String id;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     User user;
@@ -29,4 +29,11 @@ public class RefreshToken {
     LocalDateTime createdAt;
     @Column(nullable = false)
     LocalDateTime expiresAt;
+
+    @PrePersist
+    public void generatedId() {
+        if (this.id == null) {
+            this.id = NanoIdUtils.randomNanoId().substring(0, 12);
+        }
+    }
 }

@@ -23,7 +23,7 @@ public class Course {
 
     @Id
     @Column(unique = true, nullable = false, length = 12)
-    private String uuid;
+    private String id;
 
     @Column(name = "title", nullable = false)
     private String title;
@@ -34,6 +34,9 @@ public class Course {
     @Column(name = "course_level")
     @Enumerated(EnumType.STRING)
     private CourseLevel level;
+
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     @Column(name = "created_at")
     @CreationTimestamp
@@ -48,7 +51,7 @@ public class Course {
     private List<Comment> comments = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "certificate_id", referencedColumnName = "uuid")
+    @JoinColumn(name = "certificate_id", referencedColumnName = "id")
     private Certificate certificate;
 
     // Bir çox StudentCourse ilə əlaqə
@@ -60,16 +63,21 @@ public class Course {
     private List<TeacherCourse> teacherCourses = new ArrayList<>();
 
     @ManyToOne
-    @JoinColumn(name = "course_category_uuid")
+    @JoinColumn(name = "course_category_id")
     private CourseCategory category;
 
-    @Enumerated(EnumType.STRING)
-    private Status status;
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Task> tasks = new ArrayList<>();
+
+
+    @OneToMany(mappedBy = "course")
+    private List<TestResult> testResults = new ArrayList<>();
 
     @PrePersist
-    public void generateStudentNumber() {
-        if (this.uuid == null) {
-            this.uuid = NanoIdUtils.randomNanoId().substring(0, 12);
+    public void generatedId() {
+        if (this.id == null) {
+            this.id = NanoIdUtils.randomNanoId().substring(0, 12);
         }
     }
 }
