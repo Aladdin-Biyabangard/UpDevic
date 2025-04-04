@@ -9,21 +9,16 @@ import java.util.List;
 
 public interface StudentService {
 
-    void enrollInCourse(String courseId, String userId);
+    void enrollInCourse(String courseId);
 
-    void unenrollUserFromCourse(String userId, String courseId);
+    void unenrollUserFromCourse(String courseId);
 
-    ResponseCourseShortInfoDto getStudentCourse(String userId, String courseId);
+    ResponseCourseShortInfoDto getStudentCourse(String courseId);
 
-    List<ResponseCourseShortInfoDto> getStudentCourses(String userId);
+    List<ResponseCourseShortInfoDto> getStudentCourses();
 
-    List<ResponseCourseLessonDto> getStudentLessons(String userId);
-
-    void deleteStudentCourseComment(String userId, String courseId, String commentId);
-
-    void deleteStudentLessonComment(String userId, String lessonId, String commentId);
+    List<ResponseCourseLessonDto> getStudentLessons();
 
     Student castToStudent(User user);
-
 
 }

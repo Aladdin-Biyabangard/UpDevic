@@ -5,6 +5,7 @@ import com.team.updevic001.dao.repositories.StudentTaskRepository;
 import com.team.updevic001.dao.repositories.TestResultRepository;
 import com.team.updevic001.model.enums.CertificateTemplate;
 import com.team.updevic001.services.interfaces.CertificateService;
+import com.team.updevic001.utility.AuthHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
@@ -27,13 +28,14 @@ public class CertificateServiceImpl implements CertificateService {
     private final TestResultRepository testResultRepository;
     private final StudentTaskRepository studentTaskRepository;
     private final AdminServiceImpl adminServiceImpl;
+    private final AuthHelper authHelper;
 
 
     @Override
-    public ResponseEntity<Resource> generateCertificate(String userId, String courseId) throws IOException {
-        User user = adminServiceImpl.findUserById(userId);
+    public ResponseEntity<Resource> generateCertificate(String courseId) throws IOException {
+        User user = authHelper.getAuthenticatedUser();
         Course course = courseServiceImpl.findCourseById(courseId);
-        double score = checkEligibilityForCertification(userId, courseId);
+        double score = checkEligibilityForCertification(user.getId(), courseId);
 
         DecimalFormat df = new DecimalFormat("#.0");
         String testScore = df.format(score);

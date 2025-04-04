@@ -19,57 +19,39 @@ public class StudentController {
 
     @Operation(summary = "Enroll a student in a course")
     @PostMapping("/enroll")
-    public ResponseEntity<String> enrollInCourse(@RequestParam String courseId, @RequestParam String userId) {
-        studentService.enrollInCourse(courseId, userId);
+    public ResponseEntity<String> enrollInCourse(@RequestParam String courseId) {
+        studentService.enrollInCourse(courseId);
         return ResponseEntity.ok("Student successfully enrolled in the course.");
     }
 
     @Operation(summary = "Unenroll a student from a course")
     @DeleteMapping("/unenroll")
-    public ResponseEntity<String> unenrollFromCourse(@RequestParam String userId,
-                                                     @RequestParam String courseId) {
-        studentService.unenrollUserFromCourse(userId, courseId);
+    public ResponseEntity<String> unenrollFromCourse(@RequestParam String courseId) {
+        studentService.unenrollUserFromCourse(courseId);
         return ResponseEntity.ok("Student successfully unenrolled from the course.");
     }
 
     @Operation(summary = "Get a student's course information")
     @GetMapping
-    public ResponseEntity<ResponseCourseShortInfoDto> getStudentCourse(@RequestParam String userId, @RequestParam String courseId) {
-        ResponseCourseShortInfoDto studentCourse = studentService.getStudentCourse(userId, courseId);
+    public ResponseEntity<ResponseCourseShortInfoDto> getStudentCourse(@RequestParam String courseId) {
+        ResponseCourseShortInfoDto studentCourse = studentService.getStudentCourse(courseId);
         return ResponseEntity.ok(studentCourse);
     }
 
     @Operation(summary = "Get all courses of a student")
     @GetMapping("/courses")
-    public ResponseEntity<List<ResponseCourseShortInfoDto>> getStudentCourses(@RequestParam String userId) {
-        List<ResponseCourseShortInfoDto> courses = studentService.getStudentCourses(userId);
+    public ResponseEntity<List<ResponseCourseShortInfoDto>> getStudentCourses() {
+        List<ResponseCourseShortInfoDto> courses = studentService.getStudentCourses();
         return ResponseEntity.ok(courses);
     }
 
     @Operation(summary = "Get all lessons of a student")
     @GetMapping("/lessons")
-    public ResponseEntity<List<ResponseCourseLessonDto>> getStudentLessons(@RequestParam String userId) {
-        List<ResponseCourseLessonDto> lessons = studentService.getStudentLessons(userId);
+    public ResponseEntity<List<ResponseCourseLessonDto>> getStudentLessons() {
+        List<ResponseCourseLessonDto> lessons = studentService.getStudentLessons();
         return ResponseEntity.ok(lessons);
     }
 
-    @Operation(summary = "Delete a student's comment on a course")
-    @DeleteMapping("/delete-course-comment")
-    public ResponseEntity<String> deleteStudentCourseComment(@RequestParam String userId,
-                                                             @RequestParam String courseId,
-                                                             @RequestParam String commentId) {
-        studentService.deleteStudentCourseComment(userId, courseId, commentId);
-        return ResponseEntity.ok("Student's comment on the course successfully deleted.");
-    }
-
-    @Operation(summary = "Delete a student's comment on a lesson")
-    @DeleteMapping("/delete-lesson-comment")
-    public ResponseEntity<String> deleteStudentLessonComment(@RequestParam String userId,
-                                                             @RequestParam String lessonId,
-                                                             @RequestParam String commentId) {
-        studentService.deleteStudentLessonComment(userId, lessonId, commentId);
-        return ResponseEntity.ok("Student's comment on the lesson successfully deleted.");
-    }
 
     @Operation(summary = "API request to become a teacher!")
     @GetMapping(path = "/for-teacher")
