@@ -6,6 +6,7 @@ import com.team.updevic001.dao.entities.Course;
 import com.team.updevic001.dao.entities.Lesson;
 import com.team.updevic001.dao.entities.User;
 import com.team.updevic001.dao.repositories.CommentRepository;
+import com.team.updevic001.exceptions.ResourceAlreadyExistException;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.request.CommentDto;
 import com.team.updevic001.model.dtos.response.comment.ResponseCommentDto;
@@ -25,7 +26,6 @@ public class CommentServiceImpl implements CommentService {
 
     private final CommentMapper commentMapper;
     private final CommentRepository commentRepository;
-    private final AdminServiceImpl adminServiceImpl;
     private final LessonServiceImpl lessonServiceImpl;
     private final CourseServiceImpl courseServiceImpl;
     private final AuthHelper authHelper;
@@ -83,6 +83,7 @@ public class CommentServiceImpl implements CommentService {
         if (comment.isPresent()) {
             commentRepository.deleteById(commentId);
         }
+        throw new ResourceAlreadyExistException("COMMENT_NOT_FOUND");
     }
 
     public Comment findCommentById(String commentId) {

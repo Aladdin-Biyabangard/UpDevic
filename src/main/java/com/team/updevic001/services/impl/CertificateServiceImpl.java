@@ -27,8 +27,8 @@ public class CertificateServiceImpl implements CertificateService {
     private final CourseServiceImpl courseServiceImpl;
     private final TestResultRepository testResultRepository;
     private final StudentTaskRepository studentTaskRepository;
-    private final AdminServiceImpl adminServiceImpl;
     private final AuthHelper authHelper;
+    private final UserServiceImpl userServiceImpl;
 
 
     @Override
@@ -64,7 +64,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public double checkEligibilityForCertification(String userId, String courseId) {
-        User user = adminServiceImpl.findUserById(userId);
+        User user = userServiceImpl.findUserById(userId);
         Course course = courseServiceImpl.findCourseById(courseId);
         long taskCount = course.getTasks().size();
         List<String> taskIds = course.getTasks().stream().map(Task::getId).toList();
