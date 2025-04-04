@@ -1,6 +1,7 @@
 package com.team.updevic001.dao.entities;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
+import com.team.updevic001.model.enums.TeacherPrivileges;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,6 +31,9 @@ public class TeacherCourse {
 
     @CreationTimestamp
     private LocalDateTime assignedAt;
+
+    @Enumerated(EnumType.STRING)
+    private TeacherPrivileges teacherPrivilege;
 
     @PrePersist
     public void generatedId() {

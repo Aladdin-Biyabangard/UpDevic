@@ -42,6 +42,10 @@ public class Lesson {
     @JsonManagedReference
     private List<Comment> comments = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name = "teacher_id")
+    private Teacher teacher;
+
 
     @PrePersist
     public void generatedId() {

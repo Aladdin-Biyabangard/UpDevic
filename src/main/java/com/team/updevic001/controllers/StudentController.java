@@ -15,40 +15,40 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StudentController {
 
-    private final StudentService studentService;
+    private final StudentService studentServiceImpl;
 
     @Operation(summary = "Enroll a student in a course")
     @PostMapping("/enroll")
     public ResponseEntity<String> enrollInCourse(@RequestParam String courseId) {
-        studentService.enrollInCourse(courseId);
+        studentServiceImpl.enrollInCourse(courseId);
         return ResponseEntity.ok("Student successfully enrolled in the course.");
     }
 
     @Operation(summary = "Unenroll a student from a course")
     @DeleteMapping("/unenroll")
     public ResponseEntity<String> unenrollFromCourse(@RequestParam String courseId) {
-        studentService.unenrollUserFromCourse(courseId);
+        studentServiceImpl.unenrollUserFromCourse(courseId);
         return ResponseEntity.ok("Student successfully unenrolled from the course.");
     }
 
     @Operation(summary = "Get a student's course information")
     @GetMapping
     public ResponseEntity<ResponseCourseShortInfoDto> getStudentCourse(@RequestParam String courseId) {
-        ResponseCourseShortInfoDto studentCourse = studentService.getStudentCourse(courseId);
+        ResponseCourseShortInfoDto studentCourse = studentServiceImpl.getStudentCourse(courseId);
         return ResponseEntity.ok(studentCourse);
     }
 
     @Operation(summary = "Get all courses of a student")
     @GetMapping("/courses")
     public ResponseEntity<List<ResponseCourseShortInfoDto>> getStudentCourses() {
-        List<ResponseCourseShortInfoDto> courses = studentService.getStudentCourses();
+        List<ResponseCourseShortInfoDto> courses = studentServiceImpl.getStudentCourses();
         return ResponseEntity.ok(courses);
     }
 
     @Operation(summary = "Get all lessons of a student")
     @GetMapping("/lessons")
     public ResponseEntity<List<ResponseCourseLessonDto>> getStudentLessons() {
-        List<ResponseCourseLessonDto> lessons = studentService.getStudentLessons();
+        List<ResponseCourseLessonDto> lessons = studentServiceImpl.getStudentLessons();
         return ResponseEntity.ok(lessons);
     }
 
@@ -56,7 +56,7 @@ public class StudentController {
     @DeleteMapping("/delete-course-comment")
     public ResponseEntity<String> deleteStudentCourseComment(@RequestParam String courseId,
                                                              @RequestParam String commentId) {
-        studentService.deleteStudentCourseComment(courseId, commentId);
+        studentServiceImpl.deleteStudentCourseComment(courseId, commentId);
         return ResponseEntity.ok("Student's comment on the course successfully deleted.");
     }
 
@@ -64,7 +64,7 @@ public class StudentController {
     @DeleteMapping("/delete-lesson-comment")
     public ResponseEntity<String> deleteStudentLessonComment(@RequestParam String lessonId,
                                                              @RequestParam String commentId) {
-        studentService.deleteStudentLessonComment(lessonId, commentId);
+        studentServiceImpl.deleteStudentLessonComment(lessonId, commentId);
         return ResponseEntity.ok("Student's comment on the lesson successfully deleted.");
     }
 

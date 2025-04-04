@@ -10,7 +10,7 @@ import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
 import com.team.updevic001.model.enums.Status;
-import com.team.updevic001.services.interfaces.StudentService;
+import com.team.updevic001.services.interfaces.*;
 import com.team.updevic001.utility.AuthHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,10 +30,10 @@ public class StudentServiceImpl implements StudentService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final CourseRepository courseRepository;
-    private final CourseServiceImpl courseServiceImpl;
-    private final CommentServiceImpl commentServiceImpl;
-    private final AdminServiceImpl adminServiceImpl;
-    private final LessonServiceImpl lessonServiceImpl;
+    private final CourseService courseService;
+    private final CommentService commentServiceImpl;
+    private final AdminService adminServiceImpl;
+    private final LessonService lessonServiceImpl;
     private final AuthHelper authHelper;
 
     @Override
@@ -44,7 +44,7 @@ public class StudentServiceImpl implements StudentService {
         User user = adminServiceImpl.findUserById(authenticatedUser.getId());
         Student student = castToStudent(user);
 
-        Course course = courseServiceImpl.findCourseById(courseId);
+        Course course = courseService.findCourseById(courseId);
 
         if (isAlreadyEnrolledInCourse(student, course)) {
             log.error("Student with ID: {} is already enrolled in course with ID: {}", authenticatedUser.getId(), courseId);
@@ -63,7 +63,7 @@ public class StudentServiceImpl implements StudentService {
         User user = adminServiceImpl.findUserById(authenticatedUser.getId());
         Student student = castToStudent(user);
 
-        Course course = courseServiceImpl.findCourseById(courseId);
+        Course course = courseService.findCourseById(courseId);
 
         if (!isAlreadyEnrolledInCourse(student, course)) {
             log.error("Student with ID: {} is not enrolled in course with ID: {}", authenticatedUser.getId(), courseId);
@@ -126,7 +126,7 @@ public class StudentServiceImpl implements StudentService {
         log.info("Attempting to delete comment with ID: {} from course with ID: {} for student with ID: {}", commentId, courseId, authenticatedUser.getId());
 
         User user = adminServiceImpl.findUserById(authenticatedUser.getId());
-        Course course = courseServiceImpl.findCourseById(courseId);
+        Course course = courseService.findCourseById(courseId);
 
         Comment comment = commentServiceImpl.findCommentById(commentId);
         Comment findComment = user.getComments().stream()

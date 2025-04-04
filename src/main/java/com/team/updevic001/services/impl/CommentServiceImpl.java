@@ -9,7 +9,10 @@ import com.team.updevic001.dao.repositories.CommentRepository;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.request.CommentDto;
 import com.team.updevic001.model.dtos.response.comment.ResponseCommentDto;
+import com.team.updevic001.services.interfaces.AdminService;
 import com.team.updevic001.services.interfaces.CommentService;
+import com.team.updevic001.services.interfaces.CourseService;
+import com.team.updevic001.services.interfaces.LessonService;
 import com.team.updevic001.utility.AuthHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,16 +27,16 @@ public class CommentServiceImpl implements CommentService {
 
     private final CommentMapper commentMapper;
     private final CommentRepository commentRepository;
-    private final AdminServiceImpl adminServiceImpl;
-    private final LessonServiceImpl lessonServiceImpl;
-    private final CourseServiceImpl courseServiceImpl;
+    private final AdminService adminServiceImpl;
+    private final LessonService lessonServiceImpl;
+    private final CourseService courseService;
     private final AuthHelper authHelper;
 
     @Override
     public void addCommentToCourse(String courseId, CommentDto commentDto) {
         User authenticatedUser = authHelper.getAuthenticatedUser();
         User user = adminServiceImpl.findUserById(authenticatedUser.getId());
-        Course course = courseServiceImpl.findCourseById(courseId);
+        Course course = courseService.findCourseById(courseId);
         Comment comment = Comment.builder()
                 .content(commentDto.getContent())
                 .user(user)
@@ -64,7 +67,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<ResponseCommentDto> getCourseComment(String courseId) {
-        Course course = courseServiceImpl.findCourseById(courseId);
+        Course course = courseService.findCourseById(courseId);
         List<Comment> comments = course.getComments();
         return !comments.isEmpty() ? commentMapper.toDto(comments) : List.of();
     }
@@ -81,6 +84,7 @@ public class CommentServiceImpl implements CommentService {
         commentRepository.deleteById(commentId);
     }
 
+    @Override
     public Comment findCommentById(String commentId) {
         log.debug("Looking for comment with ID: {}", commentId);
         return commentRepository.findById(commentId)

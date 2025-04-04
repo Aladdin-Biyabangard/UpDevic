@@ -6,7 +6,7 @@ import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.request.AnswerDto;
 import com.team.updevic001.model.dtos.request.TaskDto;
 import com.team.updevic001.model.dtos.response.task.ResponseTaskDto;
-import com.team.updevic001.services.interfaces.TaskService;
+import com.team.updevic001.services.interfaces.*;
 import com.team.updevic001.utility.AuthHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,19 +28,19 @@ public class TaskServiceImpl implements TaskService {
     private final StudentTaskRepository studentTaskRepository;
 
     private final StudentCourseRepository studentCourseRepository;
-    private final CourseServiceImpl courseServiceImpl;
-    private final TeacherServiceImpl teacherServiceImpl;
-    private final AdminServiceImpl adminServiceImpl;
-    private final StudentServiceImpl studentServiceImpl;
+    private final CourseService courseService;
+    private final TeacherService teacherService;
+    private final AdminService adminServiceImpl;
+    private final StudentService studentServiceImpl;
     private final AuthHelper authHelper;
 
     @Override
     public void createTask(String courseId, TaskDto taskDto) {
         User authenticatedUser = authHelper.getAuthenticatedUser();
         log.info("Creating task for course: {}", courseId);
-        Course course = courseServiceImpl.findCourseById(courseId);
-        Teacher teacher = teacherServiceImpl.findTeacherByUserId(authenticatedUser.getId());
-        teacherServiceImpl.findTeacherCourse(course, teacher);
+        Course course = courseService.findCourseById(courseId);
+        Teacher teacher = teacherService.findTeacherByUserId(authenticatedUser.getId());
+        courseService.findTeacherCourse(course, teacher);
         Task task = modelMapper.map(taskDto, Task.class);
 
         List<String> options = formatedOptions(taskDto.getOptions());
@@ -62,7 +62,7 @@ public class TaskServiceImpl implements TaskService {
 
         User user = adminServiceImpl.findUserById(authenticatedUser.getId());
         Student student = studentServiceImpl.castToStudent(user);
-        Course course = courseServiceImpl.findCourseById(courseId);
+        Course course = courseService.findCourseById(courseId);
 
         ensureStudentIsEnrolled(student, course);
 

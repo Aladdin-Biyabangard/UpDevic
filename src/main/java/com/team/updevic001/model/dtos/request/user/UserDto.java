@@ -1,7 +1,5 @@
-package com.team.updevic001.model.dtos.request;
+package com.team.updevic001.model.dtos.request.user;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

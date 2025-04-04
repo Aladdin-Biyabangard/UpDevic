@@ -4,7 +4,10 @@ import com.team.updevic001.dao.entities.*;
 import com.team.updevic001.dao.repositories.StudentTaskRepository;
 import com.team.updevic001.dao.repositories.TestResultRepository;
 import com.team.updevic001.model.enums.CertificateTemplate;
+import com.team.updevic001.services.interfaces.AdminService;
 import com.team.updevic001.services.interfaces.CertificateService;
+import com.team.updevic001.services.interfaces.CourseService;
+import com.team.updevic001.services.interfaces.StudentService;
 import com.team.updevic001.utility.AuthHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,19 +27,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CertificateServiceImpl implements CertificateService {
 
-    private final CourseServiceImpl courseServiceImpl;
+    private final CourseService courseService;
     private final TestResultRepository testResultRepository;
     private final StudentTaskRepository studentTaskRepository;
-    private final AdminServiceImpl adminServiceImpl;
+    private final AdminService adminServiceImpl;
     private final AuthHelper authHelper;
-    private final StudentServiceImpl studentServiceImpl;
+    private final StudentService studentServiceImpl;
 
 
     @Override
     public ResponseEntity<Resource> generateCertificate(String courseId) throws IOException {
         User authenticatedUser = authHelper.getAuthenticatedUser();
         User user = adminServiceImpl.findUserById(authenticatedUser.getId());
-        Course course = courseServiceImpl.findCourseById(courseId);
+        Course course = courseService.findCourseById(courseId);
         double score = checkEligibilityForCertification(authenticatedUser.getId(), courseId);
 
         DecimalFormat df = new DecimalFormat("#.0");
@@ -68,7 +71,7 @@ public class CertificateServiceImpl implements CertificateService {
     public double checkEligibilityForCertification(String userId, String courseId) {
         User user = adminServiceImpl.findUserById(userId);
         Student student = studentServiceImpl.castToStudent(user);
-        Course course = courseServiceImpl.findCourseById(courseId);
+        Course course = courseService.findCourseById(courseId);
         long taskCount = course.getTasks().size();
         List<String> taskIds = course.getTasks().stream().map(Task::getId).toList();
 
