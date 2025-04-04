@@ -63,5 +63,4 @@ public class StudentController {
     public ResponseEntity<String> requestToBecameTeacher() {
         return ResponseEntity.ok("https://forms.gle/GersS1t7jwena3Dz9");
     }
-
 }

@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public interface CertificateService {
 
-    ResponseEntity<Resource> generateCertificate(String userId, String courseId) throws IOException;
+    ResponseEntity<Resource> generateCertificate(String courseId) throws IOException;
 
     double checkEligibilityForCertification(String userId, String courseId);
 }

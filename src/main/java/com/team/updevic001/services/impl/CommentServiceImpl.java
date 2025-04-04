@@ -58,7 +58,7 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() -> new ResourceNotFoundException(Lesson.class));
         Comment comment = Comment.builder()
                 .content(commentDto.getContent())
-                .user(authenticatedUser)
+                .user(user)
                 .lesson(lesson)
                 .build();
         commentRepository.save(comment);
@@ -111,10 +111,10 @@ public class CommentServiceImpl implements CommentService {
         log.info("Operation of deleting comment with ID {} started by user with ID {}", commentId, authenticatedUser.getUuid());
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException(Comment.class));
-        if (!comment.getUser().getUuid().equals(authenticatedUser.getUuid())
+        if (!comment.getUser().getId().equals(authenticatedUser.getId())
                 || comment.getCourse().getTeacherCourses().stream()
-                .map(tc -> tc.getTeacher().getUser().getUuid())
-                .noneMatch(authenticatedUser.getUuid()::equals)) {
+                .map(tc -> tc.getTeacher().getUser().getId())
+                .noneMatch(authenticatedUser.getId()::equals)) {
             log.error("User with ID {} not allowed to delete comment: User must be either admin of the course or author of course", authenticatedUser.getUuid());
             throw new ForbiddenException("NOT_ALLOWED_DELETE_COMMENT");
         }

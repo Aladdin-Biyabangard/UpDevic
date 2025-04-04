@@ -35,7 +35,6 @@ public class UserServiceImpl implements UserService {
     private final UserProfileRepository userProfileRepository;
     private final AuthHelper authHelper;
     private final PasswordEncoder passwordEncoder;
-    private final AdminServiceImpl adminServiceImpl;
 
     public void updateUserProfileInfo(UserProfileDto userProfileDto) {
         User authenticatedUser = authHelper.getAuthenticatedUser();
@@ -86,6 +85,15 @@ public class UserServiceImpl implements UserService {
             throw new ResourceNotFoundException("There is no user with this name.");
         }
     }
+
+    public User findUserById(String id) {
+        log.info("Finding user with ID: {}", id);
+        return userRepository.findById(id).orElseThrow(() -> {
+            log.error("User not found with ID: {}", id);
+            return new ResourceNotFoundException("User not found");
+        });
+    }
+
 
     @Override
     public void deleteUser() {

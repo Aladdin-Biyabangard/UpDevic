@@ -19,7 +19,7 @@ public class CommentController {
 
     private final CommentService commentServiceImpl;
 
-    @PostMapping(path = "/{courseId}/course")
+    @PostMapping(path = "{courseId}/course-comment")
     public ResponseEntity<String> addCommentToCourse(@PathVariable String courseId,
                                                      @RequestBody CommentDto comment) {
         URI location = URI.create("/api/comment/" + courseId + "/course");
@@ -27,7 +27,7 @@ public class CommentController {
         return ResponseEntity.created(location).body("Comment added successfully.");
     }
 
-    @PostMapping(path = "/{lessonId}/lesson")
+    @PostMapping(path = "{lessonId}/lesson-comment")
     public ResponseEntity<String> addCommentToLesson(@PathVariable String lessonId,
                                                      @RequestBody CommentDto comment) {
         commentServiceImpl.addCommentToLesson(lessonId, comment);

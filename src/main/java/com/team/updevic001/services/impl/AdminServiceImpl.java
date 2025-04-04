@@ -29,6 +29,7 @@ public class AdminServiceImpl implements AdminService {
     private final UserMapper userMapper;
     private final UserRoleRepository userRoleRepository;
     private final TeacherRepository teacherRepository;
+    private final UserServiceImpl userServiceImpl;
 
     @Override
     public void assignTeacherProfile(String email) {
@@ -66,7 +67,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void activateUser(String id) {
         log.info("Activating user with ID: {}", id);
-        User user = findUserById(id);
+        User user = userServiceImpl.findUserById(id);
         user.setStatus(Status.ACTIVE);
         saveUser(user);
         log.info("User with ID:{} status activated!", id);
@@ -75,7 +76,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void deactivateUser(String id) {
         log.info("Deactivating user with ID: {}", id);
-        User user = findUserById(id);
+        User user = userServiceImpl.findUserById(id);
         user.setStatus(Status.INACTIVE);
         saveUser(user);
         log.info("User with ID:{} status deactivated!", id);
@@ -84,7 +85,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void assignRoleToUser(String id, Role role) {
         log.info("Assigning role {} to user with ID: {}", role, id);
-        User user = findUserById(id);
+        User user = userServiceImpl.findUserById(id);
         UserRole userRole = UserRole.builder()
                 .name(role).build();
         saveUserRole(userRole);
@@ -97,7 +98,7 @@ public class AdminServiceImpl implements AdminService {
     @Transactional
     public void removeRoleFromUser(String userId, Role role) {
         log.info("Removing role {} from user with ID: {}", role, userId);
-        User user = findUserById(userId);
+        User user = userServiceImpl.findUserById(userId);
 
         UserRole findRole = user.getRoles()
                 .stream()
@@ -141,14 +142,6 @@ public class AdminServiceImpl implements AdminService {
         Long userCount = userRepository.count();
         log.info("Total number of users: {}", userCount);
         return userCount;
-    }
-
-    public User findUserById(String id) {
-        log.info("Finding user with ID: {}", id);
-        return userRepository.findById(id).orElseThrow(() -> {
-            log.error("User not found with ID: {}", id);
-            return new ResourceNotFoundException("User not found");
-        });
     }
 
     private void saveUser(User user) {

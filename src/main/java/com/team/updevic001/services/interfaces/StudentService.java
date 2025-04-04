@@ -1,5 +1,7 @@
-package com.team.updevic001.services;
+package com.team.updevic001.services.interfaces;
 
+import com.team.updevic001.dao.entities.Student;
+import com.team.updevic001.dao.entities.User;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
 
@@ -17,6 +19,6 @@ public interface StudentService {
 
     List<ResponseCourseLessonDto> getStudentLessons();
 
-    void deleteStudentCourse(String courseId);
+    Student castToStudent(User user);
 
 }
