@@ -1,5 +1,6 @@
 package com.team.updevic001.dao.entities;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -31,4 +32,11 @@ public class RefreshToken {
 
     @Column(nullable = false)
     LocalDateTime expiresAt;
+
+    @PrePersist
+    public void generatedId() {
+        if (this.id == null) {
+            this.id = NanoIdUtils.randomNanoId().substring(0, 12);
+        }
+    }
 }

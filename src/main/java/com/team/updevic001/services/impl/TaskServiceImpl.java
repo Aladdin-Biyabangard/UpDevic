@@ -6,8 +6,7 @@ import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.request.AnswerDto;
 import com.team.updevic001.model.dtos.request.TaskDto;
 import com.team.updevic001.model.dtos.response.task.ResponseTaskDto;
-import com.team.updevic001.services.interfaces.*;
-import com.team.updevic001.utility.AuthHelper;
+import com.team.updevic001.services.interfaces.TaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -28,19 +27,17 @@ public class TaskServiceImpl implements TaskService {
     private final StudentTaskRepository studentTaskRepository;
 
     private final StudentCourseRepository studentCourseRepository;
-    private final CourseService courseService;
-    private final TeacherService teacherService;
-    private final AdminService adminServiceImpl;
-    private final StudentService studentServiceImpl;
-    private final AuthHelper authHelper;
+    private final CourseServiceImpl courseServiceImpl;
+    private final TeacherServiceImpl teacherServiceImpl;
+    private final AdminServiceImpl adminServiceImpl;
+    private final StudentServiceImpl studentServiceImpl;
 
     @Override
-    public void createTask(String courseId, TaskDto taskDto) {
-        User authenticatedUser = authHelper.getAuthenticatedUser();
+    public void createTask(String userId, String courseId, TaskDto taskDto) {
         log.info("Creating task for course: {}", courseId);
-        Course course = courseService.findCourseById(courseId);
-        Teacher teacher = teacherService.findTeacherByUserId(authenticatedUser.getId());
-        courseService.findTeacherCourse(course, teacher);
+        Course course = courseServiceImpl.findCourseById(courseId);
+        Teacher teacher = teacherServiceImpl.findTeacherByUserId(userId);
+        courseServiceImpl.validateAccess(courseId, teacher);
         Task task = modelMapper.map(taskDto, Task.class);
 
         List<String> options = formatedOptions(taskDto.getOptions());
@@ -56,13 +53,13 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void checkAnswer(String courseId, String taskId, AnswerDto answerDto) {
-        User authenticatedUser = authHelper.getAuthenticatedUser();
-        log.info("Checking answer for student: {} in course: {} and task: {}", authenticatedUser.getId(), courseId, taskId);
+    public void checkAnswer(String userId, String courseId, String taskId, AnswerDto answerDto) {
+        log.info("Checking answer for student: {} in course: {} and task: {}", userId, courseId, taskId);
 
-        User user = adminServiceImpl.findUserById(authenticatedUser.getId());
+        //TODO bu hissede holder den gelen useri yəni studenti gotureciyik
+        User user = adminServiceImpl.findUserById(userId);
         Student student = studentServiceImpl.castToStudent(user);
-        Course course = courseService.findCourseById(courseId);
+        Course course = courseServiceImpl.findCourseById(courseId);
 
         ensureStudentIsEnrolled(student, course);
 
@@ -73,7 +70,7 @@ public class TaskServiceImpl implements TaskService {
         TestResult result = checkTestResult(student, course);
 
         validateAnswerAndUpdateScore(student, result, task, answerDto, course);
-        log.info("Answer checked and score updated for student: {}", authenticatedUser.getId());
+        log.info("Answer checked and score updated for student: {}", userId);
     }
 
     @Override

@@ -9,19 +9,19 @@ import java.util.List;
 
 public interface StudentService {
 
-    void enrollInCourse(String courseId);
+    void enrollInCourse(String courseId, String userId);
 
-    void unenrollUserFromCourse(String courseId);
+    void unenrollUserFromCourse(String userId, String courseId);
 
-    ResponseCourseShortInfoDto getStudentCourse(String courseId);
+    ResponseCourseShortInfoDto getStudentCourse(String userId, String courseId);
 
-    List<ResponseCourseShortInfoDto> getStudentCourses();
+    List<ResponseCourseShortInfoDto> getStudentCourses(String userId);
 
-    List<ResponseCourseLessonDto> getStudentLessons();
+    List<ResponseCourseLessonDto> getStudentLessons(String userId);
 
-    void deleteStudentCourseComment(String courseId, String commentId);
+    void deleteStudentCourseComment(String userId, String courseId, String commentId);
 
-    void deleteStudentLessonComment(String lessonId, String commentId);
+    void deleteStudentLessonComment(String userId, String lessonId, String commentId);
 
     Student castToStudent(User user);
 

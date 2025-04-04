@@ -14,6 +14,6 @@ public interface TeacherCourseRepository extends JpaRepository<TeacherCourse, St
 
     List<TeacherCourse> findTeacherCourseByTeacher(Teacher teacher);
 
-    Optional<TeacherCourse> findByCourseIdAndTeacher(String courseId, Teacher authenticatedTeacher);
+  Optional<TeacherCourse> findByCourseIdAndTeacher(String courseId, Teacher authenticatedTeacher);
 
 }

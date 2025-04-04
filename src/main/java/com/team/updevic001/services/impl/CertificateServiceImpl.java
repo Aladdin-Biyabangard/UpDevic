@@ -4,11 +4,7 @@ import com.team.updevic001.dao.entities.*;
 import com.team.updevic001.dao.repositories.StudentTaskRepository;
 import com.team.updevic001.dao.repositories.TestResultRepository;
 import com.team.updevic001.model.enums.CertificateTemplate;
-import com.team.updevic001.services.interfaces.AdminService;
 import com.team.updevic001.services.interfaces.CertificateService;
-import com.team.updevic001.services.interfaces.CourseService;
-import com.team.updevic001.services.interfaces.StudentService;
-import com.team.updevic001.utility.AuthHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
@@ -27,20 +23,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CertificateServiceImpl implements CertificateService {
 
-    private final CourseService courseService;
+    private final CourseServiceImpl courseServiceImpl;
     private final TestResultRepository testResultRepository;
     private final StudentTaskRepository studentTaskRepository;
-    private final AdminService adminServiceImpl;
-    private final AuthHelper authHelper;
-    private final StudentService studentServiceImpl;
+    private final AdminServiceImpl adminServiceImpl;
 
 
     @Override
-    public ResponseEntity<Resource> generateCertificate(String courseId) throws IOException {
-        User authenticatedUser = authHelper.getAuthenticatedUser();
-        User user = adminServiceImpl.findUserById(authenticatedUser.getId());
-        Course course = courseService.findCourseById(courseId);
-        double score = checkEligibilityForCertification(authenticatedUser.getId(), courseId);
+    public ResponseEntity<Resource> generateCertificate(String userId, String courseId) throws IOException {
+        User user = adminServiceImpl.findUserById(userId);
+        Course course = courseServiceImpl.findCourseById(courseId);
+        double score = checkEligibilityForCertification(userId, courseId);
 
         DecimalFormat df = new DecimalFormat("#.0");
         String testScore = df.format(score);
@@ -70,8 +63,7 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public double checkEligibilityForCertification(String userId, String courseId) {
         User user = adminServiceImpl.findUserById(userId);
-        Student student = studentServiceImpl.castToStudent(user);
-        Course course = courseService.findCourseById(courseId);
+        Course course = courseServiceImpl.findCourseById(courseId);
         long taskCount = course.getTasks().size();
         List<String> taskIds = course.getTasks().stream().map(Task::getId).toList();
 
@@ -81,7 +73,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
 
         TestResult testResult = testResultRepository
-                .findTestResultByStudentAndCourse(student, course)
+                .findTestResultByStudentAndCourse((Student) user, course)
                 .orElseThrow(() -> new IllegalArgumentException("This student is not enrolled in this course."));
 
         double score = testResult.getScore();

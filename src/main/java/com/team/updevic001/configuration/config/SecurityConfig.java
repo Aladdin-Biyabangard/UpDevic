@@ -1,9 +1,12 @@
 package com.team.updevic001.configuration.config;
 
+import com.team.updevic001.configuration.enums.AuthMapping;
+import com.team.updevic001.model.enums.Role;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,6 +17,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.Collections;
 
 
 @EnableWebSecurity
@@ -27,10 +33,31 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(corsConfigurer -> corsConfigurer.configurationSource(request -> {
+                    CorsConfiguration config = new CorsConfiguration();
+                    config.setAllowedOrigins(Collections.singletonList("*"));
+                    config.setAllowedMethods(Collections.singletonList("*"));
+                    config.setAllowCredentials(true);
+                    config.setAllowedHeaders(Collections.singletonList("*"));
+                    config.setMaxAge(3600L);
+                    return config;
+                }))
                 .csrf(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authorize ->
-                                authorize.anyRequest().permitAll()
+                        authorize
+                                .requestMatchers(HttpMethod.GET, "/api/comment/{courseId}/course",
+                                        "/api/comment/{lessonId}/lesson",
+                                        "/api/course/search",
+                                        "/api/course/{courseId}",
+                                        "/api/course/all",
+                                        "/api/course/category",
+                                        "/api/course/{courseId}/lessons",
+                                        "/api/course/{courseId}/lessons/{lessonId}").permitAll()
+                                .requestMatchers(AuthMapping.ADMIN.getUrls()).hasAnyRole(Role.ADMIN.name())
+                                .requestMatchers(HttpMethod.DELETE, AuthMapping.TEACHER_ADMIN.getUrls()).hasAnyRole(Role.ADMIN.name(), Role.TEACHER.name())
+                                .requestMatchers(AuthMapping.PERMIT_ALL.getUrls()).permitAll()
+                                .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) ->
@@ -45,8 +72,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(
-            HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {
+    public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder passwordEncoder)
+            throws Exception {
         AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
         authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
         return authenticationManagerBuilder.build();

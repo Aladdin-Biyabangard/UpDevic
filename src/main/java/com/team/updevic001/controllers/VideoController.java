@@ -27,12 +27,4 @@ public class VideoController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/{lessonId}/video/{videoName}")
-    public ResponseEntity<LessonVideoResponse> getLessonWithVideo(
-            @PathVariable String lessonId,
-            @PathVariable String videoName) throws MalformedURLException {
-
-        LessonVideoResponse response = videoServiceImpl.getVideo(lessonId, videoName);
-        return ResponseEntity.ok(response);
-    }
 }

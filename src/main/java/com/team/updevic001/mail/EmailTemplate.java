@@ -12,6 +12,14 @@ public enum EmailTemplate {
                     {code}
                     This code expires in 15 minutes.
                     Ignore this email if you have not made the request."""
+    ),
+
+    PASSWORD_RESET("You have requested to reset your password\n",
+            """
+                    Hi {userName},
+                    Use the link below to reset your password:
+                    {link}
+                    Ignore this email if you do remember your password, or you have not made the request."""
     );
     private final String subject;
     private final String body;

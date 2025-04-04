@@ -47,4 +47,5 @@ public class ConfirmationEmailServiceImpl {
         message.setText(body);
         return message;
     }
+
 }

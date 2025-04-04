@@ -9,11 +9,7 @@ import com.team.updevic001.dao.repositories.CommentRepository;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.request.CommentDto;
 import com.team.updevic001.model.dtos.response.comment.ResponseCommentDto;
-import com.team.updevic001.services.interfaces.AdminService;
 import com.team.updevic001.services.interfaces.CommentService;
-import com.team.updevic001.services.interfaces.CourseService;
-import com.team.updevic001.services.interfaces.LessonService;
-import com.team.updevic001.utility.AuthHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,16 +23,14 @@ public class CommentServiceImpl implements CommentService {
 
     private final CommentMapper commentMapper;
     private final CommentRepository commentRepository;
-    private final AdminService adminServiceImpl;
-    private final LessonService lessonServiceImpl;
-    private final CourseService courseService;
-    private final AuthHelper authHelper;
+    private final AdminServiceImpl adminServiceImpl;
+    private final LessonServiceImpl lessonServiceImpl;
+    private final CourseServiceImpl courseServiceImpl;
 
     @Override
-    public void addCommentToCourse(String courseId, CommentDto commentDto) {
-        User authenticatedUser = authHelper.getAuthenticatedUser();
-        User user = adminServiceImpl.findUserById(authenticatedUser.getId());
-        Course course = courseService.findCourseById(courseId);
+    public void addCommentToCourse(String userId, String courseId, CommentDto commentDto) {
+        User user = adminServiceImpl.findUserById(userId);
+        Course course = courseServiceImpl.findCourseById(courseId);
         Comment comment = Comment.builder()
                 .content(commentDto.getContent())
                 .user(user)
@@ -46,9 +40,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void addCommentToLesson(String lessonId, CommentDto commentDto) {
-        User authenticatedUser = authHelper.getAuthenticatedUser();
-        User user = adminServiceImpl.findUserById(authenticatedUser.getId());
+    public void addCommentToLesson(String userId, String lessonId, CommentDto commentDto) {
+        User user = adminServiceImpl.findUserById(userId);
         Lesson lesson = lessonServiceImpl.findLessonById(lessonId);
         Comment comment = Comment.builder()
                 .content(commentDto.getContent())
@@ -67,7 +60,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<ResponseCommentDto> getCourseComment(String courseId) {
-        Course course = courseService.findCourseById(courseId);
+        Course course = courseServiceImpl.findCourseById(courseId);
         List<Comment> comments = course.getComments();
         return !comments.isEmpty() ? commentMapper.toDto(comments) : List.of();
     }
@@ -84,7 +77,6 @@ public class CommentServiceImpl implements CommentService {
         commentRepository.deleteById(commentId);
     }
 
-    @Override
     public Comment findCommentById(String commentId) {
         log.debug("Looking for comment with ID: {}", commentId);
         return commentRepository.findById(commentId)

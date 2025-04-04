@@ -10,8 +10,7 @@ import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
 import com.team.updevic001.model.enums.Status;
-import com.team.updevic001.services.interfaces.*;
-import com.team.updevic001.utility.AuthHelper;
+import com.team.updevic001.services.interfaces.StudentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -30,43 +29,40 @@ public class StudentServiceImpl implements StudentService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final CourseRepository courseRepository;
-    private final CourseService courseService;
-    private final CommentService commentServiceImpl;
-    private final AdminService adminServiceImpl;
-    private final LessonService lessonServiceImpl;
-    private final AuthHelper authHelper;
+    private final CourseServiceImpl courseServiceImpl;
+    private final CommentServiceImpl commentServiceImpl;
+    private final AdminServiceImpl adminServiceImpl;
+    private final LessonServiceImpl lessonServiceImpl;
 
     @Override
-    public void enrollInCourse(String courseId) {
-        User authenticatedUser = authHelper.getAuthenticatedUser();
-        log.info("Attempting to enroll user with ID: {} in course with ID: {}", authenticatedUser.getId(), courseId);
+    public void enrollInCourse(String courseId, String userId) {
+        log.info("Attempting to enroll user with ID: {} in course with ID: {}", userId, courseId);
 
-        User user = adminServiceImpl.findUserById(authenticatedUser.getId());
+        User user = adminServiceImpl.findUserById(userId);
         Student student = castToStudent(user);
 
-        Course course = courseService.findCourseById(courseId);
+        Course course = courseServiceImpl.findCourseById(courseId);
 
         if (isAlreadyEnrolledInCourse(student, course)) {
-            log.error("Student with ID: {} is already enrolled in course with ID: {}", authenticatedUser.getId(), courseId);
+            log.error("Student with ID: {} is already enrolled in course with ID: {}", userId, courseId);
             throw new IllegalStateException("Student is already enrolled in this course!");
         }
 
         enrollStudentInCourse(student, course);
-        log.info("Student with ID: {} successfully enrolled in course with ID: {}", authenticatedUser.getId(), courseId);
+        log.info("Student with ID: {} successfully enrolled in course with ID: {}", userId, courseId);
     }
 
     @Override
-    public void unenrollUserFromCourse(String courseId) {
-        User authenticatedUser = authHelper.getAuthenticatedUser();
-        log.info("Attempting to unenroll user with ID: {} from course with ID: {}", authenticatedUser.getId(), courseId);
+    public void unenrollUserFromCourse(String userId, String courseId) {
+        log.info("Attempting to unenroll user with ID: {} from course with ID: {}", userId, courseId);
 
-        User user = adminServiceImpl.findUserById(authenticatedUser.getId());
+        User user = adminServiceImpl.findUserById(userId);
         Student student = castToStudent(user);
 
-        Course course = courseService.findCourseById(courseId);
+        Course course = courseServiceImpl.findCourseById(courseId);
 
         if (!isAlreadyEnrolledInCourse(student, course)) {
-            log.error("Student with ID: {} is not enrolled in course with ID: {}", authenticatedUser.getId(), courseId);
+            log.error("Student with ID: {} is not enrolled in course with ID: {}", userId, courseId);
             throw new IllegalStateException("Only students can unenroll from courses!");
         }
 
@@ -74,15 +70,14 @@ public class StudentServiceImpl implements StudentService {
                 .orElseThrow(() -> new IllegalStateException("User is not enrolled in this course!"));
 
         studentCourseRepository.delete(studentCourse);
-        log.info("Student with ID: {} successfully unenrolled from course with ID: {}", authenticatedUser.getId(), courseId);
+        log.info("Student with ID: {} successfully unenrolled from course with ID: {}", userId, courseId);
     }
 
     @Override
-    public ResponseCourseShortInfoDto getStudentCourse(String courseId) {
-        User authenticatedUser = authHelper.getAuthenticatedUser();
-        log.info("Fetching course for student with ID: {}", authenticatedUser.getId());
+    public ResponseCourseShortInfoDto getStudentCourse(String userId, String courseId) {
+        log.info("Fetching course for student with ID: {}", userId);
 
-        User user = adminServiceImpl.findUserById(authenticatedUser.getId());
+        User user = adminServiceImpl.findUserById(userId);
         Student student = castToStudent(user);
         Course course = courseRepository
                 .findById(courseId).orElseThrow(() -> new ResourceNotFoundException("Not found course !"));
@@ -94,26 +89,24 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public List<ResponseCourseShortInfoDto> getStudentCourses() {
-        User authenticatedUser = authHelper.getAuthenticatedUser();
-        log.info("Fetching courses for student with ID: {}", authenticatedUser.getId());
+    public List<ResponseCourseShortInfoDto> getStudentCourses(String userId) {
+        log.info("Fetching courses for student with ID: {}", userId);
 
-        User user = adminServiceImpl.findUserById(authenticatedUser.getId());
+        User user = adminServiceImpl.findUserById(userId);
         Student student = castToStudent(user);
         List<Course> courseByStudent = studentCourseRepository.findCourseByStudent(student);
 
-        log.info("Found {} courses for student with ID: {}", courseByStudent.size(), authenticatedUser.getId());
+        log.info("Found {} courses for student with ID: {}", courseByStudent.size(), userId);
         return courseByStudent.stream()
                 .map(course -> modelMapper.map(course, ResponseCourseShortInfoDto.class))
                 .toList();
     }
 
     @Override
-    public List<ResponseCourseLessonDto> getStudentLessons() {
-        User authenticatedUser = authHelper.getAuthenticatedUser();
-        log.info("Fetching lessons for student with ID: {}", authenticatedUser.getId());
+    public List<ResponseCourseLessonDto> getStudentLessons(String userId) {
+        log.info("Fetching lessons for student with ID: {}", userId);
 
-        User user = adminServiceImpl.findUserById(authenticatedUser.getId());
+        User user = adminServiceImpl.findUserById(userId);
         Student student = castToStudent(user);
         List<Course> courses = studentCourseRepository.findCourseByStudent(student);
 
@@ -121,12 +114,11 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public void deleteStudentCourseComment(String courseId, String commentId) {
-        User authenticatedUser = authHelper.getAuthenticatedUser();
-        log.info("Attempting to delete comment with ID: {} from course with ID: {} for student with ID: {}", commentId, courseId, authenticatedUser.getId());
+    public void deleteStudentCourseComment(String userId, String courseId, String commentId) {
+        log.info("Attempting to delete comment with ID: {} from course with ID: {} for student with ID: {}", commentId, courseId, userId);
 
-        User user = adminServiceImpl.findUserById(authenticatedUser.getId());
-        Course course = courseService.findCourseById(courseId);
+        User user = adminServiceImpl.findUserById(userId);
+        Course course = courseServiceImpl.findCourseById(courseId);
 
         Comment comment = commentServiceImpl.findCommentById(commentId);
         Comment findComment = user.getComments().stream()
@@ -142,11 +134,10 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public void deleteStudentLessonComment(String lessonId, String commentId) {
-        User authenticatedUser = authHelper.getAuthenticatedUser();
-        log.info("Attempting to delete comment with ID: {} from lesson with ID: {} for student with ID: {}", commentId, lessonId, authenticatedUser.getId());
+    public void deleteStudentLessonComment(String userId, String lessonId, String commentId) {
+        log.info("Attempting to delete comment with ID: {} from lesson with ID: {} for student with ID: {}", commentId, lessonId, userId);
 
-        User user = adminServiceImpl.findUserById(authenticatedUser.getId());
+        User user = adminServiceImpl.findUserById(userId);
         Lesson lesson = lessonServiceImpl.findLessonById(lessonId);
         Comment comment = commentServiceImpl.findCommentById(commentId);
 

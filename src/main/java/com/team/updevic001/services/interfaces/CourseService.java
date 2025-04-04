@@ -1,8 +1,5 @@
 package com.team.updevic001.services.interfaces;
 
-import com.team.updevic001.dao.entities.Course;
-import com.team.updevic001.dao.entities.Teacher;
-import com.team.updevic001.dao.entities.TeacherCourse;
 import com.team.updevic001.model.dtos.request.CourseDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCategoryDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseDto;
@@ -16,11 +13,9 @@ public interface CourseService {
 
     ResponseCourseDto createCourse(CourseDto courseDto);
 
-    ResponseTeacherWithCourses addTeacherToCourse(String userId, String courseId);
+    ResponseTeacherWithCourses addTeacherToCourse(String courseId, String userId);
 
-    List<ResponseCourseDto> searchCourse(String keyword);
-
-    void updateTeacherCourseInfo(String courseId, CourseDto courseDto);
+    ResponseCourseDto updateCourse(String courseId, CourseDto courseDto);
 
     ResponseCourseLessonDto getCourse(String courseId);
 
@@ -28,12 +23,9 @@ public interface CourseService {
 
     List<ResponseCategoryDto> getCategory(CourseCategoryType categoryType);
 
-    TeacherCourse findTeacherCourse(Course course, Teacher teacher);
-
-    List<Course> findCourseBy(String keyword);
-
-    Course findCourseById(String courseId);
+    List<ResponseCourseDto> searchCourse(String keyword);
 
     void deleteCourse(String courseId);
+
 
 }

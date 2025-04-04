@@ -1,7 +1,6 @@
 
 package com.team.updevic001.services.interfaces;
 
-import com.team.updevic001.dao.entities.User;
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 import com.team.updevic001.model.enums.Role;
 
@@ -18,8 +17,6 @@ public interface AdminService {
     void removeRoleFromUser(String userId, Role role);  // İstifadəçidən rol silmək
 
     List<ResponseUserDto> getUsersByRole(Role role);  // Rol üzrə istifadəçiləri almaq
-
-    public User findUserById(String id);
 
     void activateUser(String id);
 

@@ -19,18 +19,20 @@ public class CommentController {
 
     private final CommentService commentServiceImpl;
 
-    @PostMapping(path = "{courseId}/course")
-    public ResponseEntity<String> addCommentToCourse(@PathVariable String courseId,
+    @PostMapping(path = "{userId}/user/{courseId}/course")
+    public ResponseEntity<String> addCommentToCourse(@PathVariable String userId,
+                                                     @PathVariable String courseId,
                                                      @RequestBody CommentDto comment) {
         URI location = URI.create("/api/comment/" + courseId + "/course");
-        commentServiceImpl.addCommentToCourse(courseId, comment);
+        commentServiceImpl.addCommentToCourse(userId, courseId, comment);
         return ResponseEntity.created(location).body("Comment added successfully.");
     }
 
-    @PostMapping(path = "{lessonId}/lesson")
-    public ResponseEntity<String> addCommentToLesson(@PathVariable String lessonId,
+    @PostMapping(path = "{userId}/{lessonId}/lesson")
+    public ResponseEntity<String> addCommentToLesson(@PathVariable String userId,
+                                                     @PathVariable String lessonId,
                                                      @RequestBody CommentDto comment) {
-        commentServiceImpl.addCommentToLesson(lessonId, comment);
+        commentServiceImpl.addCommentToLesson(userId, lessonId, comment);
         return ResponseEntity.ok("Comment added successfully.");
     }
 

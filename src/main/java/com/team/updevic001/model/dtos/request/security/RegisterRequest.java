@@ -1,6 +1,9 @@
 package com.team.updevic001.model.dtos.request.security;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,14 +31,11 @@ public class RegisterRequest {
     @Email(message = "Invalid email format.")
     String email;
 
-    @NotNull(message = "new password can not be null")
-    @Size(min = 6, max = 30)
-    @Pattern(
-            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d!@#$%^&*]{6,}$",
-            message = "Invalid Password: Must be at least 6 characters long, with at least one uppercase letter, one lowercase letter, and one digit. Special characters (!@#$%^&*) are allowed but not required."
+    @NotBlank(message = "Password is required.")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*])[A-Za-z\\d!@#$%^&*]{8,}$"
+            , message = "Invalid Password: Must be at least 8 characters long, with at least one uppercase letter, one lowercase letter, one digit, and one special character."
     )
-
-    private String password;
+    String password;
 
     @NotBlank(message = "Password confirmation is required.")
     String passwordConfirm;

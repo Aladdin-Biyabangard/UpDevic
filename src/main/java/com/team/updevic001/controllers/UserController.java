@@ -1,7 +1,7 @@
 package com.team.updevic001.controllers;
 
-import com.team.updevic001.model.dtos.request.user.ChangePasswordDto;
-import com.team.updevic001.model.dtos.request.user.UserProfileDto;
+import com.team.updevic001.model.dtos.request.ChangePasswordDto;
+import com.team.updevic001.model.dtos.request.UserProfileDto;
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 import com.team.updevic001.services.interfaces.UserService;
 import jakarta.validation.Valid;

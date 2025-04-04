@@ -9,5 +9,4 @@ public interface VideoService {
 
     String uploadVideo(MultipartFile file) throws Exception;
 
-    LessonVideoResponse getVideo(String lessonId, String videoName) throws MalformedURLException;
 }

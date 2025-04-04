@@ -1,4 +1,4 @@
-package com.team.updevic001.model.dtos.request.user;
+package com.team.updevic001.model.dtos.request.security;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;

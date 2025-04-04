@@ -8,5 +8,5 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID> {
-    Optional<RefreshToken> findByIdAndExpiresAtAfter(String id, LocalDateTime expiresAt);
+    Optional<RefreshToken> findByIdAndExpiresAtAfter(String id, LocalDateTime now);
 }
