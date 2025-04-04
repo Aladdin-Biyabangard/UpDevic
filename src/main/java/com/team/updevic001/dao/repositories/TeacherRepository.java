@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface TeacherRepository extends JpaRepository<Teacher, String> {
 
-    Optional<Teacher> findTeacherByuser.getId()(String userId);
+    Optional<Teacher> findTeacherByUserId(String userId);
 
     @Modifying
     @Transactional
