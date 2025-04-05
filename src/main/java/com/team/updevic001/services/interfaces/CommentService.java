@@ -13,11 +13,9 @@ public interface CommentService {
 
     void updateComment(String commentId, CommentDto commentDto);
 
-
     List<ResponseCommentDto> getCourseComment(String courseId);
 
     List<ResponseCommentDto> getLessonComment(String lessonId);
-
 
     void deleteComment(String commentId);
 }

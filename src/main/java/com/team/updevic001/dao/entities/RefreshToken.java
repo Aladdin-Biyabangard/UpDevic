@@ -17,26 +17,22 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RefreshToken {
-
     @Id
     @Column(unique = true, nullable = false, length = 12)
-    private String id;
-
+    private String uuid;//hele bu refresh token kimi istifade olunur
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     User user;
-
     @CreationTimestamp
     @Column(nullable = false)
     LocalDateTime createdAt;
-
     @Column(nullable = false)
     LocalDateTime expiresAt;
 
     @PrePersist
     public void generatedId() {
-        if (this.id == null) {
-            this.id = NanoIdUtils.randomNanoId().substring(0, 12);
+        if (this.uuid == null) {
+            this.uuid = NanoIdUtils.randomNanoId().substring(0, 12);
         }
     }
 }

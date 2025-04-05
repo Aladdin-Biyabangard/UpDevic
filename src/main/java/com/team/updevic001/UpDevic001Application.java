@@ -10,6 +10,7 @@ public class UpDevic001Application {
 
     public static void main(String[] args) {
         SpringApplication.run(UpDevic001Application.class, args);
+
     }
 
 }

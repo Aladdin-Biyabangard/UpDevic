@@ -30,7 +30,6 @@ public class TaskServiceImpl implements TaskService {
     private final StudentCourseRepository studentCourseRepository;
     private final CourseServiceImpl courseServiceImpl;
     private final TeacherServiceImpl teacherServiceImpl;
-    private final AdminServiceImpl adminServiceImpl;
     private final StudentServiceImpl studentServiceImpl;
     private final AuthHelper authHelper;
 

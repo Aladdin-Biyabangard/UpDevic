@@ -34,26 +34,26 @@ public class CommentController {
         return ResponseEntity.ok("Comment added successfully.");
     }
 
-    @PutMapping(path = "{commentId}/update")
+    @PutMapping(path = "/{commentId}")
     public ResponseEntity<String> updateComment(@PathVariable String commentId,
                                                 @RequestBody CommentDto commentDto) {
         commentServiceImpl.updateComment(commentId, commentDto);
         return ResponseEntity.ok("Comment updated successfully!");
     }
 
-    @GetMapping(path = "{courseId}/course")
+    @GetMapping(path = "/{courseId}/course")
     public ResponseEntity<List<ResponseCommentDto>> getCourseComment(@PathVariable String courseId) {
         List<ResponseCommentDto> comments = commentServiceImpl.getCourseComment(courseId);
         return ResponseEntity.ok(comments);
     }
 
-    @GetMapping(path = "{lessonId}/lesson")
+    @GetMapping(path = "/{lessonId}/lesson")
     public ResponseEntity<List<ResponseCommentDto>> getLessonComment(@PathVariable String lessonId) {
         List<ResponseCommentDto> comments = commentServiceImpl.getLessonComment(lessonId);
         return ResponseEntity.ok(comments);
     }
 
-    @DeleteMapping(path = "{commentId}/delete")
+    @DeleteMapping(path = "/{commentId}")
     public ResponseEntity<String> deleteComment(@PathVariable String commentId) {
         commentServiceImpl.deleteComment(commentId);
         return ResponseEntity.ok("Comment deleted successfully! ");

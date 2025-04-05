@@ -1,18 +1,18 @@
 package com.team.updevic001.services.impl;
 
 import com.team.updevic001.configuration.mappers.CourseMapper;
-import com.team.updevic001.dao.entities.Course;
-import com.team.updevic001.dao.entities.Student;
-import com.team.updevic001.dao.entities.StudentCourse;
-import com.team.updevic001.dao.entities.User;
+import com.team.updevic001.dao.entities.*;
+import com.team.updevic001.dao.repositories.CommentRepository;
 import com.team.updevic001.dao.repositories.CourseRepository;
 import com.team.updevic001.dao.repositories.StudentCourseRepository;
+import com.team.updevic001.dao.repositories.UserRepository;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
 import com.team.updevic001.model.enums.Status;
 import com.team.updevic001.services.interfaces.StudentService;
 import com.team.updevic001.utility.AuthHelper;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -28,11 +28,14 @@ public class StudentServiceImpl implements StudentService {
     private final StudentCourseRepository studentCourseRepository;
     private final ModelMapper modelMapper;
     private final CourseMapper courseMapper;
+    private final CommentRepository commentRepository;
+    private final UserRepository userRepository;
     private final CourseRepository courseRepository;
     private final CourseServiceImpl courseServiceImpl;
     private final AuthHelper authHelper;
 
     @Override
+    @Transactional
     public void enrollInCourse(String courseId) {
         User user = authHelper.getAuthenticatedUser();
         log.info("Attempting to enroll user with ID: {} in course with ID: {}", user.getId(), courseId);
@@ -51,6 +54,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
+    @Transactional
     public void unenrollUserFromCourse(String courseId) {
         User user = authHelper.getAuthenticatedUser();
         log.info("Attempting to unenroll user with ID: {} from course with ID: {}", user.getId(), courseId);
@@ -98,6 +102,22 @@ public class StudentServiceImpl implements StudentService {
                 .map(course -> modelMapper.map(course, ResponseCourseShortInfoDto.class))
                 .toList();
     }
+
+
+//    @Override
+//    @Transactional
+//    public void deleteStudentCourse(String courseId) {
+//        User authenticatedUser = authHelper.getAuthenticatedUser();
+//        log.info("Attempting to delete course enrollment for student with ID: {} in course with ID: {}", authenticatedUser.getUuid(), courseId);
+//        Student student = castToStudent(authenticatedUser);
+//        Course course = findCourseById(courseId);
+//
+//        StudentCourse studentCourse = studentCourseRepository.findByStudentAndCourse(student, course)
+//                .orElseThrow(() -> new ResourceNotFoundException("This user is not registered for any courses."));
+//
+//        studentCourseRepository.delete(studentCourse);
+//        log.info("Successfully deleted course enrollment for student with ID: {} in course with ID: {}", authenticatedUser.getUuid(), courseId);
+//    }
 
     @Override
     public List<ResponseCourseLessonDto> getStudentLessons() {
@@ -177,5 +197,31 @@ public class StudentServiceImpl implements StudentService {
          commentRepository.delete(comment);
 
          log.info("Successfully deleted comment with ID: {} from course with ID: {}", commentId, courseId);
-}
- */
+    // Helper methods
+
+
+    private Course findCourseById(String courseId) {
+        log.debug("Looking for course with ID: {}", courseId);
+        return courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException("Course not found!"));
+    }
+
+    private Student castToStudent(User user) {
+        if (!(user instanceof Student)) {
+            log.error("User with ID: {} is not a student!", user.getUuid());
+            throw new IllegalStateException("User is not a student!");
+        }
+        return (Student) user;
+    }
+
+    private boolean isAlreadyEnrolledInCourse(Student student, Course course) {
+        return studentCourseRepository.existsByCourseAndStudent(course, student);
+    }
+
+    private void enrollStudentInCourse(Student student, Course course) {
+        StudentCourse studentCourse = new StudentCourse();
+        studentCourse.setCourse(course);
+        studentCourse.setStudent(student);
+        studentCourse.setStatus(Status.ENROLLED);
+        studentCourseRepository.save(studentCourse);
+    }
+*/

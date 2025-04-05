@@ -103,7 +103,7 @@ public class AuthServiceImpl implements AuthService {
         refreshTokenRepository.save(refreshToken);
         AuthResponseDto authResponse = AuthResponseDto.builder()
                 .accessToken(jwtToken)
-                .refreshToken(refreshToken.getId().toString())
+                .refreshToken(refreshToken.getUuid())
                 .build();
         log.info("Access token and refresh token are returned");
         return authResponse;
@@ -156,13 +156,13 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponseDto refreshAccessToken(RefreshTokenRequest tokenRequest) {
-        RefreshToken refreshToken = refreshTokenRepository.findByIdAndExpiresAtAfter(tokenRequest.getId(), LocalDateTime.now())
+        RefreshToken refreshToken = refreshTokenRepository.findByUuidAndExpiresAtAfter(tokenRequest.getUuid(), LocalDateTime.now())
                 .orElseThrow(() -> new ExpiredRefreshTokenException("REFRESH_TOKEN_EXPIRED_OR_INVALID"));
         User user = refreshToken.getUser();
 
         String newAccessToken = jwtUtil.createToken(user);
 
-        return new AuthResponseDto(newAccessToken, tokenRequest.getId());
+        return new AuthResponseDto(newAccessToken, tokenRequest.getUuid());
     }
 
     private boolean isExpired(PasswordResetToken resetToken) {

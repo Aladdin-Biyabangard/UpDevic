@@ -22,40 +22,40 @@ import org.springframework.web.bind.annotation.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthController {
 
-    private final AuthService authServiceImpl;
+    private final AuthService authService;
 
     @PostMapping("/sign-up")
     public ResponseEntity<?> registerUser(@RequestBody @Valid RegisterRequest request) {
-        authServiceImpl.register(request);
+        authService.register(request);
         return ResponseEntity.ok("OTP sent to your email.");
     }
 
     @PostMapping("/verify-otp")
     public ResponseEntity<AuthResponseDto> verifyOtp(@RequestBody OtpRequest request) {
-        return ResponseEntity.ok(authServiceImpl.verifyAndGetToken(request));
+        return ResponseEntity.ok(authService.verifyAndGetToken(request));
     }
 
     @PostMapping("/sign-in")
     public ResponseEntity<AuthResponseDto> login(@Valid @RequestBody AuthRequestDto authRequest) {
-        AuthResponseDto response = authServiceImpl.login(authRequest);
+        AuthResponseDto response = authService.login(authRequest);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/forgot-password")
     public ResponseEntity<String> requestPasswordReset(@RequestParam @NotBlank String email) {
-        authServiceImpl.requestPasswordReset(email);
+        authService.requestPasswordReset(email);
         return ResponseEntity.ok("Password reset token has been sent to user's email");
     }
 
     @PatchMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@RequestParam @NotBlank String token, @Valid @RequestBody RecoveryPassword recoveryPassword) {
-        authServiceImpl.resetPassword(token, recoveryPassword);
+        authService.resetPassword(token, recoveryPassword);
         return ResponseEntity.ok("Password has been successfully reset.");
     }
 
     @PostMapping("/refresh-token")
     public ResponseEntity<AuthResponseDto> refreshToken(@RequestBody RefreshTokenRequest request) {
-        return new ResponseEntity<>(authServiceImpl.refreshAccessToken(request), HttpStatus.OK);
+        return new ResponseEntity<>(authService.refreshAccessToken(request), HttpStatus.OK);
     }
 
 }

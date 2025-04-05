@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PasswordResetToken {
-
     @Id
     @Column(unique = true, nullable = false, length = 12)
     private String id;
@@ -21,9 +20,7 @@ public class PasswordResetToken {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
-
     private String token;
-
     private LocalDateTime expirationTime;
 
     @PrePersist

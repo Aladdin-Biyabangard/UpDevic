@@ -33,11 +33,10 @@ public class LessonController {
         return new ResponseEntity<>(responseLessonDto, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{courseId}/lessons/{lessonId}")
-    public ResponseEntity<ResponseLessonDto> updateLessonInfo(@PathVariable String courseId,
-                                                              @PathVariable String lessonId,
+    @PutMapping("/{lessonId}")
+    public ResponseEntity<ResponseLessonDto> updateLessonInfo(@PathVariable String lessonId,
                                                               @Valid @RequestBody LessonDto lessonDto) {
-        return ResponseEntity.ok(lessonServiceImpl.updateLessonInfo(courseId, lessonId, lessonDto));
+        return ResponseEntity.ok(lessonServiceImpl.updateLessonInfo(lessonId, lessonDto));
     }
 
     @GetMapping(path = "/{courseId}/lessons")
@@ -65,10 +64,9 @@ public class LessonController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping(path = "/{courseId}/lesson/{lessonId}")
-    public ResponseEntity<Void> deleteLesson(@PathVariable String courseId,
-                                             @PathVariable String lessonId) {
-        lessonServiceImpl.deleteLesson(courseId, lessonId);
+    @DeleteMapping(path = "/{lessonId}")
+    public ResponseEntity<Void> deleteLesson(@PathVariable String lessonId) {
+        lessonServiceImpl.deleteLesson(lessonId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

@@ -1,11 +1,7 @@
 package com.team.updevic001.services.impl;
 
-import com.team.updevic001.dao.entities.Course;
-import com.team.updevic001.dao.entities.Teacher;
-import com.team.updevic001.dao.entities.TeacherCourse;
-import com.team.updevic001.dao.entities.User;
-import com.team.updevic001.dao.repositories.TeacherCourseRepository;
-import com.team.updevic001.dao.repositories.TeacherRepository;
+import com.team.updevic001.dao.entities.*;
+import com.team.updevic001.dao.repositories.*;
 import com.team.updevic001.exceptions.ForbiddenException;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
@@ -23,16 +19,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TeacherServiceImpl implements TeacherService {
 
+    private final TeacherRepository teacherRepository;
+    private final TeacherCourseRepository teacherCourseRepository;
     private final AuthHelper authHelper;
 
 
-    private final TeacherRepository teacherRepository;
-    private final TeacherCourseRepository teacherCourseRepository;
-
     @Override
-    public List<ResponseCourseShortInfoDto> getTeacherAndRelatedCourses() {
-        Teacher authenticatedTeacher = getAuthenticatedTeacher();
-        List<TeacherCourse> teacherCourses = teacherCourseRepository.findTeacherCourseByTeacher(authenticatedTeacher);
+    public List<ResponseCourseShortInfoDto> getTeacherAndRelatedCourses(String teacherId) {
+        log.info("Getting teacher and related courses. Teacher ID: {}", teacherId);
+
+        Teacher teacher = findTeacherById(teacherId);
+        List<TeacherCourse> teacherCourses = teacherCourseRepository.findTeacherCourseByTeacher(teacher);
 
         List<ResponseCourseShortInfoDto> courses = teacherCourses.stream()
                 .map(teacherCourse -> {
@@ -41,7 +38,7 @@ public class TeacherServiceImpl implements TeacherService {
                 })
                 .toList();
 
-        log.info("Retrieved {} courses for teacher ID: {}", courses.size(), authenticatedTeacher);
+        log.info("Retrieved {} courses for teacher ID: {}", courses.size(), teacherId);
         return courses;
     }
 
@@ -79,22 +76,13 @@ public class TeacherServiceImpl implements TeacherService {
                 .orElseThrow(() -> new ResourceNotFoundException("Teacher not found this id: " + teacherID));
     }
 
-    @Override
-    public Teacher findTeacherByUserId(String userId) {
-        log.info("Finding teacher by ID: {}", userId);
-        return teacherRepository.findTeacherByUserId(userId).orElseThrow(() -> new ResourceNotFoundException("NOT_TEACHER_FOUND"));
-
-    }
-
     public Teacher getAuthenticatedTeacher() {
         User authenticatedUser = authHelper.getAuthenticatedUser();
-        Teacher teacher = findTeacherByUserId(authenticatedUser.getId());
+        Teacher teacher = authenticatedUser.getTeacher();
         if (teacher == null) {
             log.info("User is not teacher");
             throw new ForbiddenException("NOT_ALLOWED");
         }
         return teacher;
     }
-
-
 }

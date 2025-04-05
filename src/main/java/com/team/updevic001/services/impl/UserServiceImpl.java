@@ -6,15 +6,14 @@ import com.team.updevic001.dao.entities.UserProfile;
 import com.team.updevic001.dao.repositories.UserProfileRepository;
 import com.team.updevic001.dao.repositories.UserRepository;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
-import com.team.updevic001.model.dtos.request.ChangePasswordDto;
 import com.team.updevic001.model.dtos.request.UserProfileDto;
+import com.team.updevic001.model.dtos.request.security.ChangePasswordDto;
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 import com.team.updevic001.model.enums.Status;
 import com.team.updevic001.services.interfaces.UserService;
 import com.team.updevic001.utility.AuthHelper;
-import lombok.AccessLevel;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,7 +24,6 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
@@ -35,11 +33,11 @@ public class UserServiceImpl implements UserService {
     private final AuthHelper authHelper;
     private final PasswordEncoder passwordEncoder;
 
-
+    @Override
+    @Transactional
     public void updateUserProfileInfo(UserProfileDto userProfileDto) {
         User authenticatedUser = authHelper.getAuthenticatedUser();
         log.info("Updating user profile for ID: {}", authenticatedUser.getId());
-
         UserProfile userProfile = userProfileRepository.findByUser(authenticatedUser);
         if (userProfile == null) {
             log.warn("UserProfile not found for user ID: {}, creating new profile.", authenticatedUser.getId());
@@ -53,8 +51,8 @@ public class UserServiceImpl implements UserService {
         log.info("User with ID {} updated successfully.", authenticatedUser.getId());
     }
 
-
     @Override
+    @Transactional
     public void updateUserPassword(ChangePasswordDto passwordDto) {
         User authenticatedUser = authHelper.getAuthenticatedUser();
         if (!passwordEncoder.matches(passwordDto.getCurrentPassword(), authenticatedUser.getPassword()) || !passwordDto.getNewPassword().equals(passwordDto.getRetryPassword())) {
@@ -68,10 +66,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseUserDto getUserById(String uuid) {
         log.info("Searching for a user with this ID: {}", uuid);
+
         User user = userRepository.findById(uuid).orElseThrow(() -> {
             log.error("User not found with these ID: {}", uuid);
             return new ResourceNotFoundException("User not found Exception!");
         });
+
         return userMapper.toResponse(user, ResponseUserDto.class);
     }
 
@@ -96,6 +96,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
+    @Transactional
     public void deleteUser() {
         User authenticatedUser = authHelper.getAuthenticatedUser();
         log.info("Attempting to delete user with ID: {}", authenticatedUser.getId());
@@ -104,5 +105,4 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         log.info("User successfully deleted.");
     }
-
 }

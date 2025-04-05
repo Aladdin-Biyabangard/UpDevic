@@ -21,82 +21,55 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CourseController {
 
-    private final CourseService courseServiceImpl;
-
+    private final CourseService courseService;
 
     @GetMapping(path = "/search")
     public ResponseEntity<List<ResponseCourseDto>> searchCourse(@RequestParam String keyword) {
-        List<ResponseCourseDto> course = courseServiceImpl.searchCourse(keyword);
+        List<ResponseCourseDto> course = courseService.searchCourse(keyword);
         return ResponseEntity.ok(course);
     }
 
+
     @GetMapping(path = "/{courseId}/")
     public ResponseEntity<ResponseCourseLessonDto> getCourse(@PathVariable String courseId) {
-        ResponseCourseLessonDto course = courseServiceImpl.getCourse(courseId);
+        ResponseCourseLessonDto course = courseService.getCourse(courseId);
         return ResponseEntity.ok(course);
     }
 
     @GetMapping(path = "/all")
     public ResponseEntity<List<ResponseCourseDto>> getCourses() {
-        List<ResponseCourseDto> courses = courseServiceImpl.getCourses();
+        List<ResponseCourseDto> courses = courseService.getCourses();
         return ResponseEntity.ok(courses);
     }
 
     @GetMapping(path = "/category")
     public ResponseEntity<List<ResponseCategoryDto>> getCategory(@RequestParam CourseCategoryType categoryType) {
-        List<ResponseCategoryDto> category = courseServiceImpl.getCategory(categoryType);
+        List<ResponseCategoryDto> category = courseService.getCategory(categoryType);
         return ResponseEntity.ok(category);
     }
 
-
     @PostMapping
     public ResponseEntity<ResponseCourseDto> createCourse(@RequestBody CourseDto courseDto) {
-        ResponseCourseDto teacherCourse = courseServiceImpl.createCourse(courseDto);
+        ResponseCourseDto teacherCourse = courseService.createCourse(courseDto);
         return new ResponseEntity<>(teacherCourse, HttpStatus.CREATED);
     }
 
     @PutMapping(path = "/{courseId}")
     public ResponseEntity<ResponseCourseDto> updateTeacherCourse(@PathVariable String courseId, @RequestBody CourseDto courseDto) {
-        return new ResponseEntity<>(courseServiceImpl.updateCourse(courseId, courseDto), HttpStatus.OK);
+        return new ResponseEntity<>(courseService.updateCourse(courseId, courseDto), HttpStatus.OK);
     }
 
     @DeleteMapping(path = "/{courseId}")
     public ResponseEntity<Void> deleteCourse(@PathVariable String courseId) {
-        courseServiceImpl.deleteCourse(courseId);
+        courseService.deleteCourse(courseId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PostMapping(path = "/{courseId}/teacher")
     public ResponseEntity<ResponseTeacherWithCourses> addTeacherToCourse(@PathVariable String courseId, @RequestParam String userId) {
-        ResponseTeacherWithCourses responseTeacherWithCourses = courseServiceImpl.addTeacherToCourse(courseId, userId);
+        ResponseTeacherWithCourses responseTeacherWithCourses = courseService.addTeacherToCourse(courseId, userId);
         return ResponseEntity.ok(responseTeacherWithCourses);
     }
-//
-//    @Operation(summary = "Search for courses by keyword")
-//    @GetMapping(path = "search")
-//    public ResponseEntity<List<ResponseCourseDto>> searchCourse(@RequestParam String keyword) {
-//        List<ResponseCourseDto> course = courseServiceImpl.searchCourse(keyword);
-//        return ResponseEntity.ok(course);
-//    }
-//
-//
-//    @GetMapping(path = "/{courseId}/")
-//    public ResponseEntity<ResponseCourseLessonDto> getCourse(@PathVariable String courseId) {
-//        ResponseCourseLessonDto course = courseServiceImpl.getCourse(courseId);
-//        return ResponseEntity.ok(course);
-//    }
-//
-//    @GetMapping(path = "all")
-//    public ResponseEntity<List<ResponseCourseDto>> getCourses() {
-//        List<ResponseCourseDto> courses = courseServiceImpl.getCourses();
-//        return ResponseEntity.ok(courses);
-//    }
-//
-//    @GetMapping(path = "category")
-//    public ResponseEntity<List<ResponseCategoryDto>> getCategory(@RequestParam CourseCategoryType categoryType) {
-//        List<ResponseCategoryDto> category = courseServiceImpl.getCategory(categoryType);
-//        return ResponseEntity.ok(category);
-//    }
-
 
 }
+

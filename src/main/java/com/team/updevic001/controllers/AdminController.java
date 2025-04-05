@@ -81,6 +81,7 @@ public class AdminController {
     @DeleteMapping(path = "/all")
     public ResponseEntity<Void> deleteUsers() {
         adminServiceImpl.deleteUsers();
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
 }

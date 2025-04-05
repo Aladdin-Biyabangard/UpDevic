@@ -2,9 +2,9 @@ spring:
   application:
     name: UpDevic_001
   datasource:
-    url: jdbc:mysql://localhost:3306/start-up
-    username: ${USERNAME}
-    password: ${PASSWORD}
+    username: ${DB_USERNAME}
+    url: ${DB_URL}
+    password: ${DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update
@@ -12,29 +12,25 @@ spring:
     properties:
       hibernate:
         format_sql: true
-    database-platform: org.hibernate.dialect.MySQLDialect
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 1000MB
-      max-request-size: 1000MB
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    logging:
+      level:
+        org:
+          hibernate:
+            SQL: DEBUG
+            type:
+              descriptor:
+                sql:
+                  BasicBinder: TRACE
+        org.springframework.data.jpa.repository: DEBUG
 
-  logging:
-    level:
-      org:
-        hibernate:
-          SQL: DEBUG
-          type:
-            descriptor:
-              sql:
-                BasicBinder: TRACE
-      org.springframework.data.jpa.repository: DEBUG
+
 
   mail:
     host: smtp.gmail.com
     port: 587
     username: ${EMAIL}
-    password: lgwc ajdp xxjj cyuq
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
@@ -48,8 +44,6 @@ application:
       expiration: 86400000
       key: ${SECURITY_KEY}
 
-  secret:
-    key: ${KEY}
 
 ALGORITHM: ${ALGORITHM}
 #

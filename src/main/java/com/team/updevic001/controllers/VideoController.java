@@ -19,7 +19,6 @@ public class VideoController {
 
     private final VideoService videoServiceImpl;
 
-
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadVideo(
             @RequestPart("file") final MultipartFile file) throws Exception {

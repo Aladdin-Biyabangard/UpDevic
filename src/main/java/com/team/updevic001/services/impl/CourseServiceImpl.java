@@ -5,6 +5,7 @@ import com.team.updevic001.configuration.mappers.CourseMapper;
 import com.team.updevic001.configuration.mappers.TeacherMapper;
 import com.team.updevic001.dao.entities.*;
 import com.team.updevic001.dao.repositories.*;
+import com.team.updevic001.exceptions.AlreadyExistsException;
 import com.team.updevic001.exceptions.ForbiddenException;
 import com.team.updevic001.exceptions.ResourceAlreadyExistException;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
@@ -16,11 +17,11 @@ import com.team.updevic001.model.dtos.response.teacher.ResponseTeacherWithCourse
 import com.team.updevic001.model.enums.*;
 import com.team.updevic001.services.interfaces.CourseService;
 import com.team.updevic001.services.interfaces.TeacherService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -35,8 +36,7 @@ public class CourseServiceImpl implements CourseService {
     private final CourseCategoryRepository courseCategoryRepository;
     private final CategoryMapper categoryMapper;
     private final TeacherRepository teacherRepository;
-    private final UserRoleRepository userRoleRepository;
-    private final TeacherService teacherServiceImpl;
+    private final TeacherService teacherService;
     private final ModelMapper modelMapper;
     private final TeacherCourseRepository teacherCourseRepository;
     private final TeacherMapper teacherMapper;
@@ -44,42 +44,35 @@ public class CourseServiceImpl implements CourseService {
     @Override
     @Transactional
     public ResponseCourseDto createCourse(CourseDto courseDto) {
-        Teacher teacher = teacherServiceImpl.getAuthenticatedTeacher();
-        log.info("Creating a new teacher course. Teacher ID: {}, Course Title: {}", teacher.getId(), courseDto.getTitle());
-
-        UserRole userRole = userRoleRepository.findByName(Role.HEAD_TEACHER).orElseGet(() -> {
-            UserRole role = UserRole.builder().name(Role.HEAD_TEACHER).build();
-            return userRoleRepository.save(role);
-
-        });
-        teacher.getUser().getRoles().add(userRole);
-        teacherRepository.save(teacher);
+        Teacher authenticatedTeacher = teacherService.getAuthenticatedTeacher();
+        log.info("Operation of creating new course started by user with ID {}(whose teacher ID is {}", authenticatedTeacher.getUser().getId(), authenticatedTeacher.getId());
         Course course = modelMapper.map(courseDto, Course.class);
-        CourseCategory category = CourseCategory.builder().category(courseDto.getCourseCategoryType()).build();
-        courseCategoryRepository.save(category);
-
-        course.setStatus(Status.CREATED);
-        course.setCategory(category);
+        course.setCategory(courseCategoryRepository.save(CourseCategory.builder()
+                .category(courseDto.getCourseCategoryType())
+                .build()));
         courseRepository.save(course);
         log.info("Course saved successfully. Course ID: {}", course.getId());
 
-        TeacherCourse teacherCourse = new TeacherCourse();
-        teacherCourse.setCourse(course);
-        teacherCourse.setTeacher(teacher);
+        TeacherCourse teacherCourse = TeacherCourse.builder()
+                .teacher(authenticatedTeacher)
+                .course(course)
+                .teacherPrivilege(TeacherPrivileges.HEAD_TEACHER)
+                .build();
         teacherCourseRepository.save(teacherCourse);
-
-        log.info("TeacherCourse relationship saved successfully. Teacher ID: {}, Course ID: {}", teacher.getId(), course.getId());
-        return courseMapper.courseDto(course);
+        log.info("TeacherCourse relationship saved successfully. Teacher ID: {}, Course ID: {}", authenticatedTeacher.getId(), course.getId());
+        ResponseCourseDto responseCourseDto = courseMapper.courseDto(course);
+        log.info("Operation of creating course ended successfully");
+        return responseCourseDto;
     }
 
 
     @Override
-    @Transactional
+    @jakarta.transaction.Transactional
     public ResponseTeacherWithCourses addTeacherToCourse(String courseId, String userId) {
-        Teacher authenticatedTeacher = teacherServiceImpl.getAuthenticatedTeacher();
+        Teacher authenticatedTeacher = teacherService.getAuthenticatedTeacher();
         log.info("Operation of adding new teacher with user ID {} to course with ID {} started by user with ID {}(whose teacher ID is {}", userId, courseId, authenticatedTeacher.getUser().getId(), authenticatedTeacher.getId());
-        Course course = findCourseById(courseId);
-        Teacher newTeacher = teacherRepository.findTeacherByUserId(userId).orElseThrow(() -> new ResourceNotFoundException("TEACHER_NOT_FOUND"));
+        Course course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException(Course.class));
+        Teacher newTeacher = teacherRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundException(Teacher.class));
 
         TeacherCourse teacherCourse = validateAccess(courseId, authenticatedTeacher);
 
@@ -90,7 +83,7 @@ public class CourseServiceImpl implements CourseService {
 
         if (course.getTeacherCourses().stream().anyMatch(teacherCourse1 -> teacherCourse1.getTeacher().getId().equals(newTeacher.getId()))) {
             log.info("Teacher with ID {} is already teacher in course with ID {}", newTeacher.getId(), courseId);
-            throw new ResourceAlreadyExistException("TEACHER_ALREADY_EXISTS_IN_THIS_COURSE");
+            throw new AlreadyExistsException("TEACHER_ALREADY_EXISTS_IN_THIS_COURSE");
         }
 
         TeacherCourse newTeacherCourseRelation = TeacherCourse.builder()
@@ -107,26 +100,26 @@ public class CourseServiceImpl implements CourseService {
     @Override
     @Transactional
     public ResponseCourseDto updateCourse(String courseId, CourseDto courseDto) {
-        Teacher authenticatedTeacher = teacherServiceImpl.getAuthenticatedTeacher();
+        Teacher authenticatedTeacher = teacherService.getAuthenticatedTeacher();
         log.info("Operation of updating course with ID {} started by user with ID {}(whose teacher ID is {}", courseId, authenticatedTeacher.getUser().getId(), authenticatedTeacher.getId());
-        Course course = findCourseById(courseId);
-
+        Course findCourse = courseRepository
+                .findById(courseId).orElseThrow(() -> new ResourceNotFoundException("Course not found!"));
 
         TeacherCourse teacherCourse = validateAccess(courseId, authenticatedTeacher);
-        modelMapper.map(courseDto, course);
+        modelMapper.map(courseDto, findCourse);
 
-        courseRepository.save(course);
-        teacherCourse.setCourse(course);
+        courseRepository.save(findCourse);
+        teacherCourse.setCourse(findCourse);
         teacherCourseRepository.save(teacherCourse);
 
-        log.info("Teacher course updated successfully. Course ID: {}", course.getId());
-        return courseMapper.courseDto(course);
+        log.info("Teacher course updated successfully. Course ID: {}", findCourse.getId());
+        return courseMapper.courseDto(findCourse);
     }
 
 
     @Override
     public void deleteCourse(String courseId) {
-        Teacher authenticatedTeacher = teacherServiceImpl.getAuthenticatedTeacher();
+        Teacher authenticatedTeacher = teacherService.getAuthenticatedTeacher();
         log.info("Operation of deleting course with ID {} started by teacher with ID {}(whose user ID is {}", courseId, authenticatedTeacher.getId(), authenticatedTeacher.getUser().getId());
         TeacherCourse teacherCourse = validateAccess(courseId, authenticatedTeacher);
         if (!teacherCourse.getTeacherPrivilege().hasPermission(TeacherPermission.DELETE_COURSE)) {
@@ -136,10 +129,6 @@ public class CourseServiceImpl implements CourseService {
         courseRepository.deleteById(courseId);
     }
 
-
-    public List<Course> findCourseBy(String keyword) {
-        return courseRepository.searchCoursesByKeyword(keyword);
-    }
 
     public TeacherCourse validateAccess(String courseId, Teacher authenticatedTeacher) {
         return teacherCourseRepository.findByCourseIdAndTeacher(courseId, authenticatedTeacher).orElseThrow(() -> {
@@ -184,4 +173,8 @@ public class CourseServiceImpl implements CourseService {
         return courseCategories.stream().map(categoryMapper::toDto).toList();
     }
 
+
+    public List<Course> findCourseBy(String keyword) {
+        return courseRepository.searchCoursesByKeyword(keyword);
+    }
 }

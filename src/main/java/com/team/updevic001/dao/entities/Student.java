@@ -22,9 +22,8 @@ import java.util.List;
 @Inheritance(strategy = InheritanceType.JOINED)
 public class Student extends User {
 
-    @Column(name = "student_number")
-    private String studentNumber;
-
+//    @Column(name = "student_number", nullable = false)
+//    private String studentNumber;
 
     @Column(name = "enrolled_date")
     @CreationTimestamp

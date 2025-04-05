@@ -1,7 +1,7 @@
 package com.team.updevic001.controllers;
 
-import com.team.updevic001.model.dtos.request.ChangePasswordDto;
 import com.team.updevic001.model.dtos.request.UserProfileDto;
+import com.team.updevic001.model.dtos.request.security.ChangePasswordDto;
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 import com.team.updevic001.services.interfaces.UserService;
 import jakarta.validation.Valid;
@@ -50,5 +50,6 @@ public class UserController {
         userService.deleteUser();
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
 
 }

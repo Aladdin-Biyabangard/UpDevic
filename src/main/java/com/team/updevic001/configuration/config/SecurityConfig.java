@@ -46,17 +46,10 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authorize ->
                         authorize
-                                .requestMatchers(HttpMethod.GET, "/api/comment/{courseId}/course",
-                                        "/api/comment/{lessonId}/lesson",
-                                        "/api/course/search",
-                                        "/api/course/{courseId}",
-                                        "/api/course/all",
-                                        "/api/course/category",
-                                        "/api/course/{courseId}/lessons",
-                                        "/api/course/{courseId}/lessons/{lessonId}").permitAll()
-                                .requestMatchers(AuthMapping.ADMIN.getUrls()).hasAnyRole(Role.ADMIN.name())
-                                .requestMatchers(HttpMethod.DELETE, AuthMapping.TEACHER_ADMIN.getUrls()).hasAnyRole(Role.ADMIN.name(), Role.TEACHER.name())
+                                .requestMatchers(HttpMethod.GET, AuthMapping.PERMIT_ALL_GET.getUrls()).permitAll()
                                 .requestMatchers(AuthMapping.PERMIT_ALL.getUrls()).permitAll()
+                                .requestMatchers(AuthMapping.ADMIN.getUrls()).hasAnyRole(Role.ADMIN.name())
+                                .requestMatchers(HttpMethod.DELETE, AuthMapping.TEACHER_ADMIN_DELETE.getUrls()).hasAnyRole(Role.ADMIN.name(), Role.TEACHER.name())
                                 .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex

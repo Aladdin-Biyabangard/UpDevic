@@ -56,7 +56,7 @@ public class User implements UserDetails {
     @JsonIgnore
     private List<Comment> comments = new ArrayList<>();
 
-    @ManyToMany(cascade = CascadeType.PERSIST,fetch = FetchType.EAGER)
+    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -66,6 +66,9 @@ public class User implements UserDetails {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserProfile userProfile;
+
+    @OneToOne(mappedBy = "user")
+    private Teacher teacher;
 
 
     @PrePersist
