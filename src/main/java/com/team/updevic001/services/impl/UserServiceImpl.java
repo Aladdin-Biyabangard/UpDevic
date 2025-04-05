@@ -6,23 +6,20 @@ import com.team.updevic001.dao.entities.UserProfile;
 import com.team.updevic001.dao.repositories.UserProfileRepository;
 import com.team.updevic001.dao.repositories.UserRepository;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
-import com.team.updevic001.model.dtos.request.ChangePasswordDto;
 import com.team.updevic001.model.dtos.request.UserProfileDto;
+import com.team.updevic001.model.dtos.request.security.ChangePasswordDto;
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 import com.team.updevic001.model.enums.Status;
 import com.team.updevic001.services.interfaces.UserService;
 import com.team.updevic001.utility.AuthHelper;
-import lombok.AccessLevel;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -36,6 +33,8 @@ public class UserServiceImpl implements UserService {
     private final AuthHelper authHelper;
     private final PasswordEncoder passwordEncoder;
 
+    @Override
+    @Transactional
     public void updateUserProfileInfo(UserProfileDto userProfileDto) {
         User authenticatedUser = authHelper.getAuthenticatedUser();
         log.info("Updating user profile for ID: {}", authenticatedUser.getId());
@@ -53,6 +52,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void updateUserPassword(ChangePasswordDto passwordDto) {
         User authenticatedUser = authHelper.getAuthenticatedUser();
         if (!passwordEncoder.matches(passwordDto.getCurrentPassword(), authenticatedUser.getPassword()) || !passwordDto.getNewPassword().equals(passwordDto.getRetryPassword())) {
@@ -96,6 +96,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
+    @Transactional
     public void deleteUser() {
         User authenticatedUser = authHelper.getAuthenticatedUser();
         log.info("Attempting to delete user with ID: {}", authenticatedUser.getId());
@@ -103,12 +104,5 @@ public class UserServiceImpl implements UserService {
         user.setStatus(Status.INACTIVE);
         userRepository.save(user);
         log.info("User successfully deleted.");
-    }
-
-    public User findUserById(String id) {
-        return userRepository.findById(id).orElseThrow(() -> {
-            log.error("User not found with ID: {}", id);
-            return new ResourceNotFoundException("User not found");
-        });
     }
 }

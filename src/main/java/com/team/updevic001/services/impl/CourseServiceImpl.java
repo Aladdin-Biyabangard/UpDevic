@@ -36,22 +36,22 @@ public class CourseServiceImpl implements CourseService {
     private final CourseCategoryRepository courseCategoryRepository;
     private final CategoryMapper categoryMapper;
     private final TeacherRepository teacherRepository;
-    private final TeacherService teacherServiceImpl;
+    private final TeacherService teacherService;
     private final ModelMapper modelMapper;
     private final TeacherCourseRepository teacherCourseRepository;
     private final TeacherMapper teacherMapper;
 
     @Override
-    @jakarta.transaction.Transactional
+    @Transactional
     public ResponseCourseDto createCourse(CourseDto courseDto) {
         Teacher authenticatedTeacher = teacherService.getAuthenticatedTeacher();
-        log.info("Operation of creating new course started by user with ID {}(whose teacher ID is {}", authenticatedTeacher.getUser().getUuid(), authenticatedTeacher.getUuid());
+        log.info("Operation of creating new course started by user with ID {}(whose teacher ID is {}", authenticatedTeacher.getUser().getId(), authenticatedTeacher.getId());
         Course course = modelMapper.map(courseDto, Course.class);
         course.setCategory(courseCategoryRepository.save(CourseCategory.builder()
                 .category(courseDto.getCourseCategoryType())
                 .build()));
         courseRepository.save(course);
-        log.info("Course saved successfully. Course ID: {}", course.getUuid());
+        log.info("Course saved successfully. Course ID: {}", course.getId());
 
         TeacherCourse teacherCourse = TeacherCourse.builder()
                 .teacher(authenticatedTeacher)
@@ -59,7 +59,7 @@ public class CourseServiceImpl implements CourseService {
                 .teacherPrivilege(TeacherPrivileges.HEAD_TEACHER)
                 .build();
         teacherCourseRepository.save(teacherCourse);
-        log.info("TeacherCourse relationship saved successfully. Teacher ID: {}, Course ID: {}", authenticatedTeacher.getUuid(), course.getUuid());
+        log.info("TeacherCourse relationship saved successfully. Teacher ID: {}, Course ID: {}", authenticatedTeacher.getId(), course.getId());
         ResponseCourseDto responseCourseDto = courseMapper.courseDto(course);
         log.info("Operation of creating course ended successfully");
         return responseCourseDto;
@@ -70,19 +70,19 @@ public class CourseServiceImpl implements CourseService {
     @jakarta.transaction.Transactional
     public ResponseTeacherWithCourses addTeacherToCourse(String courseId, String userId) {
         Teacher authenticatedTeacher = teacherService.getAuthenticatedTeacher();
-        log.info("Operation of adding new teacher with user ID {} to course with ID {} started by user with ID {}(whose teacher ID is {}", userId, courseId, authenticatedTeacher.getUser().getUuid(), authenticatedTeacher.getUuid());
+        log.info("Operation of adding new teacher with user ID {} to course with ID {} started by user with ID {}(whose teacher ID is {}", userId, courseId, authenticatedTeacher.getUser().getId(), authenticatedTeacher.getId());
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException(Course.class));
-        Teacher newTeacher = teacherRepository.findByUserUuid(userId).orElseThrow(() -> new ResourceNotFoundException(Teacher.class));
+        Teacher newTeacher = teacherRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundException(Teacher.class));
 
         TeacherCourse teacherCourse = validateAccess(courseId, authenticatedTeacher);
 
         if (!teacherCourse.getTeacherPrivilege().hasPermission(TeacherPermission.ADD_TEACHER)) {
-            log.error("Teacher with ID {} doesn't have permission to add new teacher", authenticatedTeacher.getUuid());
+            log.error("Teacher with ID {} doesn't have permission to add new teacher", authenticatedTeacher.getId());
             throw new ForbiddenException("NOT_ALLOWED");
         }
 
-        if (course.getTeacherCourses().stream().anyMatch(teacherCourse1 -> teacherCourse1.getTeacher().getUuid().equals(newTeacher.getUuid()))) {
-            log.info("Teacher with ID {} is already teacher in course with ID {}", newTeacher.getUuid(), courseId);
+        if (course.getTeacherCourses().stream().anyMatch(teacherCourse1 -> teacherCourse1.getTeacher().getId().equals(newTeacher.getId()))) {
+            log.info("Teacher with ID {} is already teacher in course with ID {}", newTeacher.getId(), courseId);
             throw new AlreadyExistsException("TEACHER_ALREADY_EXISTS_IN_THIS_COURSE");
         }
 
@@ -101,7 +101,7 @@ public class CourseServiceImpl implements CourseService {
     @Transactional
     public ResponseCourseDto updateCourse(String courseId, CourseDto courseDto) {
         Teacher authenticatedTeacher = teacherService.getAuthenticatedTeacher();
-        log.info("Operation of updating course with ID {} started by user with ID {}(whose teacher ID is {}", courseId, authenticatedTeacher.getUser().getUuid(), authenticatedTeacher.getUuid());
+        log.info("Operation of updating course with ID {} started by user with ID {}(whose teacher ID is {}", courseId, authenticatedTeacher.getUser().getId(), authenticatedTeacher.getId());
         Course findCourse = courseRepository
                 .findById(courseId).orElseThrow(() -> new ResourceNotFoundException("Course not found!"));
 
@@ -112,28 +112,27 @@ public class CourseServiceImpl implements CourseService {
         teacherCourse.setCourse(findCourse);
         teacherCourseRepository.save(teacherCourse);
 
-        log.info("Teacher course updated successfully. Course ID: {}", findCourse.getUuid());
+        log.info("Teacher course updated successfully. Course ID: {}", findCourse.getId());
         return courseMapper.courseDto(findCourse);
     }
-
 
 
     @Override
     public void deleteCourse(String courseId) {
         Teacher authenticatedTeacher = teacherService.getAuthenticatedTeacher();
-        log.info("Operation of deleting course with ID {} started by teacher with ID {}(whose user ID is {}", courseId, authenticatedTeacher.getUuid(), authenticatedTeacher.getUser().getUuid());
+        log.info("Operation of deleting course with ID {} started by teacher with ID {}(whose user ID is {}", courseId, authenticatedTeacher.getId(), authenticatedTeacher.getUser().getId());
         TeacherCourse teacherCourse = validateAccess(courseId, authenticatedTeacher);
         if (!teacherCourse.getTeacherPrivilege().hasPermission(TeacherPermission.DELETE_COURSE)) {
-            log.error("Authenticated teacher with ID {}(whose user ID is {}) doesn't have permission to delete course with ID {}", authenticatedTeacher.getUuid(), authenticatedTeacher.getUser().getUuid(), courseId);
+            log.error("Authenticated teacher with ID {}(whose user ID is {}) doesn't have permission to delete course with ID {}", authenticatedTeacher.getId(), authenticatedTeacher.getUser().getId(), courseId);
             throw new ForbiddenException("NOT_ALLOWED");
         }
         courseRepository.deleteById(courseId);
     }
 
 
-    private TeacherCourse validateAccess(String courseId, Teacher authenticatedTeacher) {
-        return teacherCourseRepository.findByCourseUuidAndTeacher(courseId, authenticatedTeacher).orElseThrow(() -> {
-            log.error("TeacherCourse relation is not present: That means teacher with ID {} is not teacher in course with ID {} or curse doesn't exit", authenticatedTeacher.getUuid(), courseId);
+    public TeacherCourse validateAccess(String courseId, Teacher authenticatedTeacher) {
+        return teacherCourseRepository.findByCourseIdAndTeacher(courseId, authenticatedTeacher).orElseThrow(() -> {
+            log.error("TeacherCourse relation is not present: That means teacher with ID {} is not teacher in course with ID {} or curse doesn't exit", authenticatedTeacher.getId(), courseId);
             return new ForbiddenException("NOT_ALLOWED");
         });
     }

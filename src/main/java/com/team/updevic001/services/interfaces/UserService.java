@@ -1,7 +1,7 @@
 package com.team.updevic001.services.interfaces;
 
-import com.team.updevic001.model.dtos.request.ChangePasswordDto;
 import com.team.updevic001.model.dtos.request.UserProfileDto;
+import com.team.updevic001.model.dtos.request.security.ChangePasswordDto;
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 
 import java.util.List;

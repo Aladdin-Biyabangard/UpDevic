@@ -10,6 +10,7 @@ import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
 import com.team.updevic001.model.enums.Status;
+import com.team.updevic001.services.interfaces.StudentService;
 import com.team.updevic001.utility.AuthHelper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -103,20 +104,20 @@ public class StudentServiceImpl implements StudentService {
     }
 
 
-    @Override
-    @Transactional
-    public void deleteStudentCourse(String courseId) {
-        User authenticatedUser = authHelper.getAuthenticatedUser();
-        log.info("Attempting to delete course enrollment for student with ID: {} in course with ID: {}", authenticatedUser.getUuid(), courseId);
-        Student student = castToStudent(authenticatedUser);
-        Course course = findCourseById(courseId);
-
-        StudentCourse studentCourse = studentCourseRepository.findByStudentAndCourse(student, course)
-                .orElseThrow(() -> new ResourceNotFoundException("This user is not registered for any courses."));
-
-        studentCourseRepository.delete(studentCourse);
-        log.info("Successfully deleted course enrollment for student with ID: {} in course with ID: {}", authenticatedUser.getUuid(), courseId);
-    }
+//    @Override
+//    @Transactional
+//    public void deleteStudentCourse(String courseId) {
+//        User authenticatedUser = authHelper.getAuthenticatedUser();
+//        log.info("Attempting to delete course enrollment for student with ID: {} in course with ID: {}", authenticatedUser.getUuid(), courseId);
+//        Student student = castToStudent(authenticatedUser);
+//        Course course = findCourseById(courseId);
+//
+//        StudentCourse studentCourse = studentCourseRepository.findByStudentAndCourse(student, course)
+//                .orElseThrow(() -> new ResourceNotFoundException("This user is not registered for any courses."));
+//
+//        studentCourseRepository.delete(studentCourse);
+//        log.info("Successfully deleted course enrollment for student with ID: {} in course with ID: {}", authenticatedUser.getUuid(), courseId);
+//    }
 
     @Override
     public List<ResponseCourseLessonDto> getStudentLessons() {
@@ -223,4 +224,4 @@ public class StudentServiceImpl implements StudentService {
         studentCourse.setStatus(Status.ENROLLED);
         studentCourseRepository.save(studentCourse);
     }
-}
+*/

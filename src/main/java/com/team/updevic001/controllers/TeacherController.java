@@ -21,7 +21,8 @@ public class TeacherController {
     @GetMapping(path = "/{teacherId}/courses")
     public ResponseEntity<List<ResponseCourseShortInfoDto>> getTeacherAndCourses(@PathVariable String teacherId) {
         List<ResponseCourseShortInfoDto> teacherAndCourses = teacherServiceImpl.getTeacherAndRelatedCourses(teacherId);
-   }
+        return ResponseEntity.ok(teacherAndCourses);
+    }
 
     @Operation(summary = "Delete the teacher")
     @DeleteMapping(path = "/{userId}")
@@ -30,7 +31,7 @@ public class TeacherController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @Operation(summary = "Delete all teachers" )
+    @Operation(summary = "Delete all teachers")
     @DeleteMapping(path = "/all")
     public ResponseEntity<Void> deleteAllTeachers() {
         teacherServiceImpl.deleteAllTeachers();

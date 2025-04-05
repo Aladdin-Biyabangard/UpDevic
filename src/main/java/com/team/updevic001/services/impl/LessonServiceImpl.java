@@ -14,7 +14,6 @@ import com.team.updevic001.model.dtos.response.lesson.ResponseLessonDto;
 import com.team.updevic001.model.dtos.response.video.LessonVideoResponse;
 import com.team.updevic001.model.enums.TeacherPermission;
 import com.team.updevic001.services.interfaces.LessonService;
-import com.team.updevic001.utility.AuthHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -41,7 +40,6 @@ public class LessonServiceImpl implements LessonService {
     private final CourseServiceImpl courseServiceImpl;
     private final VideoServiceImpl videoServiceImpl;
     private final LessonMapper lessonMapper;
-    private final AuthHelper authHelper;
     private final TeacherCourseRepository teacherCourseRepository;
 
     @Value("${video.directory}")
@@ -81,10 +79,9 @@ public class LessonServiceImpl implements LessonService {
 
     @Override
     @Transactional
-    public ResponseLessonDto updateLessonInfo(String courseId, String lessonId, LessonDto lessonDto) {
+    public ResponseLessonDto updateLessonInfo(String lessonId, LessonDto lessonDto) {
         Teacher authenticatedTeacher = teacherServiceImpl.getAuthenticatedTeacher();
-        log.info("Operation of updating lesson with ID {} of course with ID {} started by teacher with ID {}(whose user ID is {})", lessonId, courseId, authenticatedTeacher.getId(), authenticatedTeacher.getUser().getId());
-        courseServiceImpl.validateAccess(courseId, authenticatedTeacher);
+        log.info("Operation of updating lesson with ID {} started by teacher with ID {}(whose user ID is {})", lessonId, authenticatedTeacher.getId(), authenticatedTeacher.getUser().getId());
         Lesson lesson = findLessonById(lessonId);
         if (!lesson.getTeacher().getId().equals(authenticatedTeacher.getId())) {
             log.error("Teacher with ID {}(whose user ID is {}) is not allowed to update the lesson with ID {}", authenticatedTeacher.getId(), authenticatedTeacher.getUser().getId(), lessonId);
@@ -151,12 +148,12 @@ public class LessonServiceImpl implements LessonService {
 
     @Override
     @Transactional
-    public void deleteLesson(String courseId, String lessonId) {
+    public void deleteLesson(String lessonId) {
         Teacher authenticatedTeacher = teacherServiceImpl.getAuthenticatedTeacher();
-        log.info("Operation of deleting lesson with ID {} of course with ID {} started by teacher with ID {}(whose user ID is {})", lessonId, courseId, authenticatedTeacher.getId(), authenticatedTeacher.getUser().getId());
-        TeacherCourse teacherCourse = courseServiceImpl.validateAccess(courseId, authenticatedTeacher);
+        log.info("Operation of deleting lesson with ID {} started by teacher with ID {}(whose user ID is {})", lessonId, authenticatedTeacher.getId(), authenticatedTeacher.getUser().getId());
         Lesson lesson = findLessonById(lessonId);
-        if (!teacherCourse.getTeacherPrivilege().hasPermission(TeacherPermission.DELETE_COURSE) || !lesson.getTeacher().getId().equals(authenticatedTeacher.getId())) {
+        TeacherCourse teacherCourse = courseServiceImpl.validateAccess(lesson.getCourse().getId(), authenticatedTeacher);
+        if (!teacherCourse.getTeacherPrivilege().hasPermission(TeacherPermission.DELETE_LESSON) || !lesson.getTeacher().getId().equals(authenticatedTeacher.getId())) {
             log.error("Teacher with ID {}(whose user ID is {}) is not allowed to delete the lesson with ID {}", authenticatedTeacher.getId(), authenticatedTeacher.getUser().getId(), lessonId);
             throw new ForbiddenException("NOT_ALLOWED_DELETE_LESSON");
         }

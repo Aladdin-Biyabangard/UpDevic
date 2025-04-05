@@ -7,5 +7,6 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, String> {
-    Optional<RefreshToken> findByIdAndExpiresAtAfter(String id, LocalDateTime now);
+    Optional<RefreshToken> findByUuidAndExpiresAtAfter(String id, LocalDateTime now);
+
 }

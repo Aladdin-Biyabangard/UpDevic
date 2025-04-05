@@ -17,5 +17,5 @@ public interface TeacherRepository extends JpaRepository<Teacher, String> {
     @Query(value = "ALTER TABLE teachers AUTO_INCREMENT = 1", nativeQuery = true)
     void resetAutoIncrement();
 
-    Optional<Teacher> findByUserUuid(String userId);
+    Optional<Teacher> findByUserId(String userId);
 }

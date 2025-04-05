@@ -51,12 +51,12 @@ public class StudentController {
         List<ResponseCourseLessonDto> lessons = studentService.getStudentLessons();
         return ResponseEntity.ok(lessons);
     }
-
-    @DeleteMapping("/delete-course")
-    public ResponseEntity<String> deleteStudentCourse(@RequestParam String courseId) {
-        studentService.deleteStudentCourse(courseId);
-        return ResponseEntity.ok("Student's course enrollment successfully deleted.");
-    }
+//
+//    @DeleteMapping("/delete-course")
+//    public ResponseEntity<String> deleteStudentCourse(@RequestParam String courseId) {
+//        studentService.deleteStudentCourse(courseId);
+//        return ResponseEntity.ok("Student's course enrollment successfully deleted.");
+//    }
 
     @Operation(summary = "API request to become a teacher!")
     @GetMapping(path = "/for-teacher")

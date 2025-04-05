@@ -6,25 +6,31 @@ import lombok.Getter;
 @Getter
 public enum AuthMapping {
 
-    TEACHER_ADMIN(new String[]{Role.TEACHER.name(), Role.ADMIN.name()}, new String[]{
-            "/api/course/{courseId}",
-            "/api/course/{courseId}/lessons/{lessonId}",
-            "/api/teacher/{teacherId}"
+    TEACHER_ADMIN_DELETE(new String[]{Role.TEACHER.name(), Role.ADMIN.name()}, new String[]{
+            "/api/course/{courseId}",//delete elemek ucun
+            "/api/lessons/{lessonId}",//delete
+            "/api/lessons/lessons/delete",//delete
+            "/api/teacher/{userId}"//delete
     }),
-    //    TEACHER(new String[]{Role.TEACHER.name(), Role.ADMIN.name()}, new String[]{
-//            "/api/teacher/{teacherId}/course/assign",
-//            "/api/teacher/{teacherId}/course/{courseId}/lesson/assign",
-//            "/{teacherId}/course/{courseId}/update",
-//            "/api/teacher/delete/{teacherId}"
-//    }),
-//    AUTHENTICATED(new String[]{}, new String[]{
-//            "/api/course/comment/{courseId}"
-//    }),
 
     ADMIN(new String[]{Role.ADMIN.name()}, new String[]{
             "/api/admin/**",
             "/api/teacher/delete/all"
     }),
+
+    PERMIT_ALL_GET(null, new String[]{
+            "/api/course/search",
+            "/api/course/{courseId}",
+            "/api/course/all",
+            "/api/course/category",
+            "/api/lesson/{courseId}/lessons",
+            "/api/lessons/teacher-lessons",
+            "/api/teacher/{teacherId}/courses",
+            "/api/comment/{courseId}/course",
+            "/api/comment/{lessonId}/lesson",
+            "/api/users/search"
+    }),
+
     PERMIT_ALL(null, new String[]{
             "/api/v1/auth/**",
             "/v2/api-docs",
@@ -36,13 +42,6 @@ public enum AuthMapping {
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/api/auth/**",
-            "/api/course/search",
-            "/api/course/{courseId}",
-            "/api/course/all",
-            "/api/course/category",
-            "/api/course/{courseId}/lessons",
-            "/api/course/{courseId}/lessons/{lessonId}",
-            "/api/teacher/{teacherId}/courses",
             "/error"
     });
 

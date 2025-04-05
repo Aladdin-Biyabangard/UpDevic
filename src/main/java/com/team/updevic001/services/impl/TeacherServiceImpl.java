@@ -6,7 +6,7 @@ import com.team.updevic001.exceptions.ForbiddenException;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
 import com.team.updevic001.model.enums.Role;
-import com.team.updevic001.services.TeacherService;
+import com.team.updevic001.services.interfaces.TeacherService;
 import com.team.updevic001.utility.AuthHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,7 @@ public class TeacherServiceImpl implements TeacherService {
         List<ResponseCourseShortInfoDto> courses = teacherCourses.stream()
                 .map(teacherCourse -> {
                     Course course = teacherCourse.getCourse();
-                    return new ResponseCourseShortInfoDto(course.getUuid(), course.getTitle(), course.getLevel());
+                    return new ResponseCourseShortInfoDto(course.getId(), course.getTitle(), course.getLevel());
                 })
                 .toList();
 
@@ -59,7 +59,7 @@ public class TeacherServiceImpl implements TeacherService {
         User authenticatedUser = authHelper.getAuthenticatedUser();
         Teacher teacher = findTeacherById(teacherId);
 
-        boolean isOwner = teacher.getUser().getUuid().equals(authenticatedUser.getUuid());
+        boolean isOwner = teacher.getUser().getId().equals(authenticatedUser.getId());
         boolean isAdmin = isAllowedToAdmin && authenticatedUser.getRoles().stream()
                 .anyMatch(userRole -> userRole.getName().equals(Role.ADMIN));
 

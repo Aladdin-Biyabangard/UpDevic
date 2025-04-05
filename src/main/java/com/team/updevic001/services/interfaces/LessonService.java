@@ -13,7 +13,7 @@ public interface LessonService {
 
     ResponseLessonDto assignLessonToCourse(String courseId, LessonDto lessonDto, MultipartFile file) throws Exception;
 
-    ResponseLessonDto updateLessonInfo(String courseId, String lessonId, LessonDto lessonDto);
+    ResponseLessonDto updateLessonInfo(String lessonId, LessonDto lessonDto);
 
     List<ResponseLessonDto> getLessonsByCourse(String courseId);
 
@@ -23,7 +23,7 @@ public interface LessonService {
 
     Lesson findLessonById(String lessonId);
 
-    void deleteLesson(String courseId, String lessonId);
+    void deleteLesson(String lessonId);
 
     void deleteTeacherLessons();
 

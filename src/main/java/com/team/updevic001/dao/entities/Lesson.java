@@ -48,10 +48,6 @@ public class Lesson {
     private Teacher teacher;
 
 
-    @ManyToOne
-    @JoinColumn(name = "teacher_id")
-    private Teacher teacher;
-
     @PrePersist
     public void generatedId() {
         if (this.id == null) {

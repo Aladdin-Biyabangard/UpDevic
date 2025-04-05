@@ -8,16 +8,12 @@ import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.exceptions.UnauthorizedException;
 import com.team.updevic001.mail.ConfirmationEmailServiceImpl;
 import com.team.updevic001.mail.EmailTemplate;
-import com.team.updevic001.model.dtos.request.RecoveryPassword;
-import com.team.updevic001.model.dtos.request.security.AuthRequestDto;
-import com.team.updevic001.model.dtos.request.security.OtpRequest;
-import com.team.updevic001.model.dtos.request.security.RefreshTokenRequest;
-import com.team.updevic001.model.dtos.request.security.RegisterRequest;
+import com.team.updevic001.model.dtos.request.security.*;
 import com.team.updevic001.model.dtos.response.AuthResponseDto;
 import com.team.updevic001.model.enums.Role;
 import com.team.updevic001.model.enums.Status;
-import com.team.updevic001.services.AuthService;
-import com.team.updevic001.services.OtpService;
+import com.team.updevic001.services.interfaces.AuthService;
+import com.team.updevic001.services.interfaces.OtpService;
 import com.team.updevic001.utility.JwtUtil;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -107,7 +103,7 @@ public class AuthServiceImpl implements AuthService {
         refreshTokenRepository.save(refreshToken);
         AuthResponseDto authResponse = AuthResponseDto.builder()
                 .accessToken(jwtToken)
-                .refreshToken(refreshToken.getUuid().toString())
+                .refreshToken(refreshToken.getUuid())
                 .build();
         log.info("Access token and refresh token are returned");
         return authResponse;
@@ -129,7 +125,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public void requestPasswordReset(String email) {
         User user = userRepository.findByEmailAndStatus(email, Status.ACTIVE).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
-        log.info("Requesting password reset started by user with ID {}", user.getUuid());
+        log.info("Requesting password reset started by user with ID {}", user.getId());
         String token = generateToken();
         PasswordResetToken passwordResetToken = PasswordResetToken.builder()
                 .token(token)
@@ -166,7 +162,7 @@ public class AuthServiceImpl implements AuthService {
 
         String newAccessToken = jwtUtil.createToken(user);
 
-        return new AuthResponseDto(newAccessToken, tokenRequest.getUuid().toString());
+        return new AuthResponseDto(newAccessToken, tokenRequest.getUuid());
     }
 
     private boolean isExpired(PasswordResetToken resetToken) {

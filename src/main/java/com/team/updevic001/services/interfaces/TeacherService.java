@@ -7,9 +7,9 @@ import java.util.List;
 
 public interface TeacherService {
 
-    List<ResponseCourseShortInfoDto> getTeacherAndRelatedCourses();
+    List<ResponseCourseShortInfoDto> getTeacherAndRelatedCourses(String teacherId);
 
-    Teacher findTeacherByUserId(String userId);
+//    Teacher findTeacherByUserId(String userId);
 
     Teacher getAuthenticatedTeacher();
 

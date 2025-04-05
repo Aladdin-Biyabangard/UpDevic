@@ -31,13 +31,12 @@ public class CommentServiceImpl implements CommentService {
     private final LessonRepository lessonRepository;
     private final CommentRepository commentRepository;
     private final AuthHelper authHelper;
-    private final AuthHelper authHelper;
 
     @Override
     @Transactional
     public void addCommentToCourse(String courseId, CommentDto commentDto) {
         User authenticatedUser = authHelper.getAuthenticatedUser();
-        log.info("Operation of adding new comment to course with ID {} started by user with ID {}", courseId, authenticatedUser.getUuid());
+        log.info("Operation of adding new comment to course with ID {} started by user with ID {}", courseId, authenticatedUser.getId());
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException(Course.class));
         Comment comment = Comment.builder()
@@ -53,28 +52,26 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public void addCommentToLesson(String lessonId, CommentDto commentDto) {
         User authenticatedUser = authHelper.getAuthenticatedUser();
-        log.info("Operation of adding new comment to lesson with ID {} started by user with ID {}", lessonId, authenticatedUser.getUuid());
+        log.info("Operation of adding new comment to lesson with ID {} started by user with ID {}", lessonId, authenticatedUser.getId());
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new ResourceNotFoundException(Lesson.class));
         Comment comment = Comment.builder()
                 .content(commentDto.getContent())
-                .user(user)
+                .user(authenticatedUser)
                 .lesson(lesson)
                 .build();
         commentRepository.save(comment);
         log.info("Comment successfully created to lesson with ID {}.", lessonId);
-
     }
 
     @Override
     @Transactional
     public void updateComment(String commentId, CommentDto commentDto) {
         User authenticatedUser = authHelper.getAuthenticatedUser();
-        log.info("Operation of updating comment with ID {} started by user with ID {}", commentId, authenticatedUser.getUuid());
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new ResourceNotFoundException(Comment.class));
-        if (!comment.getUser().getUuid().equals(authenticatedUser.getUuid())) {
-            log.error("User wit ID {} not allowed to delete comment with ID {}: User is not author of comment", authenticatedUser.getUuid(), commentId);
+        log.info("Operation of updating comment with ID {} started by user with ID {}", commentId, authenticatedUser.getId());
+        Comment comment = findCommentById(commentId);
+        if (!comment.getUser().getId().equals(authenticatedUser.getId())) {
+            log.error("User wit ID {} not allowed to delete comment with ID {}: User is not author of comment", authenticatedUser.getId(), commentId);
             throw new ForbiddenException("NOT_ALLOWED_UPDATE_COMMENT");
         }
         comment.setContent(commentDto.getContent());
@@ -86,7 +83,7 @@ public class CommentServiceImpl implements CommentService {
     public List<ResponseCommentDto> getCourseComment(String courseId) {
         log.info("Operation of getting comments for course with ID {} started", courseId);
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new ResourceNotFoundException("There is no such course."));
+                .orElseThrow(() -> new ResourceNotFoundException(Course.class));
         List<Comment> comments = course.getComments();
         List<ResponseCommentDto> commentDtos = !comments.isEmpty() ? commentMapper.toDto(comments) : List.of();
         log.info("Comments for course with ID {} are returned to user", courseId);
@@ -97,7 +94,7 @@ public class CommentServiceImpl implements CommentService {
     public List<ResponseCommentDto> getLessonComment(String lessonId) {
         log.info("Operation of getting comments for lesson with ID {} started", lessonId);
         Lesson lesson = lessonRepository.findById(lessonId)
-                .orElseThrow(() -> new ResourceNotFoundException("There is no such lesson."));
+                .orElseThrow(() -> new ResourceNotFoundException(Lesson.class));
         List<Comment> comments = lesson.getComments();
         List<ResponseCommentDto> commentDtos = !comments.isEmpty() ? commentMapper.toDto(comments) : List.of();
         log.info("Comments for lesson with ID {} are returned to user", lessonId);
@@ -108,14 +105,13 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public void deleteComment(String commentId) {
         User authenticatedUser = authHelper.getAuthenticatedUser();
-        log.info("Operation of deleting comment with ID {} started by user with ID {}", commentId, authenticatedUser.getUuid());
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new ResourceNotFoundException(Comment.class));
+        log.info("Operation of deleting comment with ID {} started by user with ID {}", commentId, authenticatedUser.getId());
+        Comment comment = findCommentById(commentId);
         if (!comment.getUser().getId().equals(authenticatedUser.getId())
                 || comment.getCourse().getTeacherCourses().stream()
                 .map(tc -> tc.getTeacher().getUser().getId())
                 .noneMatch(authenticatedUser.getId()::equals)) {
-            log.error("User with ID {} not allowed to delete comment: User must be either admin of the course or author of course", authenticatedUser.getUuid());
+            log.error("User with ID {} not allowed to delete comment: User must be either admin of the course or author of course", authenticatedUser.getId());
             throw new ForbiddenException("NOT_ALLOWED_DELETE_COMMENT");
         }
         commentRepository.deleteById(commentId);
