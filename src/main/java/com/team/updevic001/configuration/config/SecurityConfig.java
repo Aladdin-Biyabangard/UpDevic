@@ -19,7 +19,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
-import java.util.Collections;
+import java.util.List;
 
 
 @EnableWebSecurity
@@ -35,13 +35,14 @@ public class SecurityConfig {
         http
                 .cors(corsConfigurer -> corsConfigurer.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(Collections.singletonList("*"));
-                    config.setAllowedMethods(Collections.singletonList("*"));
+                    config.setAllowedOrigins(List.of("http://127.0.0.1:5502", "http://localhost:5502"));
+                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    config.setAllowedHeaders(List.of("*"));
                     config.setAllowCredentials(true);
-                    config.setAllowedHeaders(Collections.singletonList("*"));
                     config.setMaxAge(3600L);
                     return config;
                 }))
+
                 .csrf(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authorize ->

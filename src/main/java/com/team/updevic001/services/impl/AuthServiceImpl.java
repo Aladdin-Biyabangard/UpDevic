@@ -1,5 +1,6 @@
 package com.team.updevic001.services.impl;
 
+import com.team.updevic001.configuration.mappers.UserMapper;
 import com.team.updevic001.dao.entities.*;
 import com.team.updevic001.dao.repositories.*;
 import com.team.updevic001.exceptions.ExpiredRefreshTokenException;
@@ -10,10 +11,12 @@ import com.team.updevic001.mail.ConfirmationEmailServiceImpl;
 import com.team.updevic001.mail.EmailTemplate;
 import com.team.updevic001.model.dtos.request.security.*;
 import com.team.updevic001.model.dtos.response.AuthResponseDto;
+import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 import com.team.updevic001.model.enums.Role;
 import com.team.updevic001.model.enums.Status;
 import com.team.updevic001.services.interfaces.AuthService;
 import com.team.updevic001.services.interfaces.OtpService;
+import com.team.updevic001.utility.AuthHelper;
 import com.team.updevic001.utility.JwtUtil;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -49,6 +52,14 @@ public class AuthServiceImpl implements AuthService {
     ConfirmationEmailServiceImpl confirmationEmailServiceImpl;
     PasswordResetTokenRepository passwordResetTokenRepository;
     RefreshTokenRepository refreshTokenRepository;
+    private final AuthHelper authHelper;
+    private final UserMapper userMapper;
+
+
+    public ResponseUserDto getLoggedInUser() {
+        User authenticatedUser = authHelper.getAuthenticatedUser();
+        return userMapper.toResponse(authenticatedUser, ResponseUserDto.class);
+    }
 
     @Override
     @Transactional
@@ -103,7 +114,7 @@ public class AuthServiceImpl implements AuthService {
         refreshTokenRepository.save(refreshToken);
         AuthResponseDto authResponse = AuthResponseDto.builder()
                 .accessToken(jwtToken)
-                .refreshToken(refreshToken.getUuid())
+                .refreshToken(refreshToken.getId())
                 .build();
         log.info("Access token and refresh token are returned");
         return authResponse;
@@ -156,13 +167,13 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponseDto refreshAccessToken(RefreshTokenRequest tokenRequest) {
-        RefreshToken refreshToken = refreshTokenRepository.findByUuidAndExpiresAtAfter(tokenRequest.getUuid(), LocalDateTime.now())
+        RefreshToken refreshToken = refreshTokenRepository.findByIdAndExpiresAtAfter(tokenRequest.getId(), LocalDateTime.now())
                 .orElseThrow(() -> new ExpiredRefreshTokenException("REFRESH_TOKEN_EXPIRED_OR_INVALID"));
         User user = refreshToken.getUser();
 
         String newAccessToken = jwtUtil.createToken(user);
 
-        return new AuthResponseDto(newAccessToken, tokenRequest.getUuid());
+        return new AuthResponseDto(newAccessToken, tokenRequest.getId());
     }
 
     private boolean isExpired(PasswordResetToken resetToken) {
@@ -172,7 +183,7 @@ public class AuthServiceImpl implements AuthService {
 
     private void validateUserRequest(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            log.error("User with email {} already exist.", request.getEmail());
+            log.error("User with email   {} already exist.", request.getEmail());
             throw new ResourceAlreadyExistException("USER_ALREADY_EXISTS");
         }
 

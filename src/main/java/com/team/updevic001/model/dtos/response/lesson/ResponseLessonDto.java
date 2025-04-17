@@ -12,6 +12,8 @@ import java.util.List;
 @NoArgsConstructor
 public class ResponseLessonDto {
 
+    private String lessonId;
+
     private String title;
 
     private String description;

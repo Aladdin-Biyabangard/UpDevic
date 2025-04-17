@@ -13,7 +13,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 @Data
-public class CategoryMapper {
+public class    CategoryMapper {
 
     private final CourseMapper courseMapper;
     private final ModelMapper modelMapper;

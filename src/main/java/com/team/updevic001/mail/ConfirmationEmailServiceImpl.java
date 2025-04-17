@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -18,6 +19,7 @@ public class ConfirmationEmailServiceImpl {
 
     private final JavaMailSender mailSender;
 
+    @Async("asyncTaskExecutor")
     public void sendEmail(String receiver, EmailTemplate template, Map<String, String> placeholders) {
         try {
             log.info("Operation of sending email started to {}", receiver);

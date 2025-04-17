@@ -15,6 +15,7 @@ public class LessonMapper {
 
     public ResponseLessonDto toDto(Lesson lesson) {
         return new ResponseLessonDto(
+                lesson.getId(),
                 lesson.getTitle(),
                 lesson.getDescription(),
                 lesson.getVideoUrl(),

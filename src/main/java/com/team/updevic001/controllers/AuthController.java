@@ -1,11 +1,8 @@
 package com.team.updevic001.controllers;
 
-import com.team.updevic001.model.dtos.request.security.RecoveryPassword;
-import com.team.updevic001.model.dtos.request.security.AuthRequestDto;
-import com.team.updevic001.model.dtos.request.security.OtpRequest;
-import com.team.updevic001.model.dtos.request.security.RefreshTokenRequest;
-import com.team.updevic001.model.dtos.request.security.RegisterRequest;
+import com.team.updevic001.model.dtos.request.security.*;
 import com.team.updevic001.model.dtos.response.AuthResponseDto;
+import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 import com.team.updevic001.services.interfaces.AuthService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -22,7 +19,12 @@ import org.springframework.web.bind.annotation.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthController {
 
-    private final AuthService authService;
+    AuthService authService;
+
+    @GetMapping(path = "")
+    public ResponseUserDto getLoggedInUser() {
+        return authService.getLoggedInUser();
+    }
 
     @PostMapping("/sign-up")
     public ResponseEntity<?> registerUser(@RequestBody @Valid RegisterRequest request) {

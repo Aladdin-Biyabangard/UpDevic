@@ -32,10 +32,10 @@ public class User implements UserDetails {
     @Column(unique = true, nullable = false, length = 12)
     private String id;
 
-    @Column(name = "first_name", nullable = false)
+    @Column(name = "first_name", nullable = false,length = 17)
     private String firstName;
 
-    @Column(name = "last_name")
+    @Column(name = "last_name",length = 17)
     private String lastName;
 
     @Column(name = "password", nullable = false)
@@ -52,7 +52,7 @@ public class User implements UserDetails {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Comment> comments = new ArrayList<>();
 
@@ -64,10 +64,10 @@ public class User implements UserDetails {
     )
     private List<UserRole> roles = new ArrayList<>();
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
     private UserProfile userProfile;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user",fetch = FetchType.LAZY)
     private Teacher teacher;
 
 

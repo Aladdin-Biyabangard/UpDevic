@@ -1,5 +1,6 @@
 package com.team.updevic001.controllers;
 
+import com.team.updevic001.configuration.config.syncrn.RateLimit;
 import com.team.updevic001.model.dtos.request.CourseDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCategoryDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseDto;
@@ -23,6 +24,7 @@ public class CourseController {
 
     private final CourseService courseService;
 
+    @RateLimit
     @GetMapping(path = "/search")
     public ResponseEntity<List<ResponseCourseDto>> searchCourse(@RequestParam String keyword) {
         List<ResponseCourseDto> course = courseService.searchCourse(keyword);

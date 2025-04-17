@@ -2,9 +2,13 @@ package com.team.updevic001.services.interfaces;
 
 import com.team.updevic001.model.dtos.request.security.*;
 import com.team.updevic001.model.dtos.response.AuthResponseDto;
+import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 
 
 public interface AuthService {
+
+    ResponseUserDto getLoggedInUser();
+
     void register(RegisterRequest request);
 
     AuthResponseDto login(AuthRequestDto authRequestDto);
