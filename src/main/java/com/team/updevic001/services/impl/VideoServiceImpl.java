@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -22,6 +23,7 @@ public class VideoServiceImpl implements VideoService {
     private String VIDEO_DIRECTORY;
 
     @Override
+    @Transactional
     public String uploadVideo(MultipartFile file) throws Exception {
         if (file == null || file.isEmpty()) {
             log.warn("An empty file was attempted to be uploaded!");

@@ -14,6 +14,7 @@ public class CommentMapper {
 
     public ResponseCommentDto toDto(Comment comment) {
         return new ResponseCommentDto(
+                comment.getId(),
                 comment.getUser().getFirstName(),
                 comment.getContent(),
                 comment.getUpdatedAt()

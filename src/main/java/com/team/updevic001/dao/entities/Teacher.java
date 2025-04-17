@@ -1,6 +1,7 @@
 package com.team.updevic001.dao.entities;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.team.updevic001.model.enums.Specialty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -38,6 +39,7 @@ public class Teacher {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "student_id", referencedColumnName = "id")
+    @JsonIgnore
     private User user;
 
     @PrePersist

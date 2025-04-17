@@ -31,6 +31,7 @@ public class StudentCourse {
 
     @Enumerated(EnumType.STRING)
     private Status status = Status.PENDING;
+    
 
     @CreationTimestamp
     private LocalDateTime enrolledAt;

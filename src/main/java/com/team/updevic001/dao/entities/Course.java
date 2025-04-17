@@ -19,7 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "courses")
-public class Course {
+public class  Course {
 
     @Id
     @Column(unique = true, nullable = false, length = 12)

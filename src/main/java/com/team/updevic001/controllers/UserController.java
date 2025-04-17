@@ -1,5 +1,6 @@
 package com.team.updevic001.controllers;
 
+import com.team.updevic001.configuration.config.syncrn.RateLimit;
 import com.team.updevic001.model.dtos.request.UserProfileDto;
 import com.team.updevic001.model.dtos.request.security.ChangePasswordDto;
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
@@ -39,6 +40,7 @@ public class UserController {
         return new ResponseEntity<>(userById, HttpStatus.OK);
     }
 
+    @RateLimit
     @GetMapping("/search")
     public ResponseEntity<List<ResponseUserDto>> searchUsers(@RequestParam String query) {
         List<ResponseUserDto> user = userService.getUser(query);

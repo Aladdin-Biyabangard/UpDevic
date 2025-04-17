@@ -33,6 +33,7 @@ public class CourseMapper {
 
     public ResponseCourseDto courseDto(Course course) {
         return new ResponseCourseDto(
+                course.getId(),
                 course.getTitle(),
                 course.getDescription(),
                 course.getLevel(),

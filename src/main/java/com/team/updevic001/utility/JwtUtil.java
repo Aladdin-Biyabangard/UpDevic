@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.security.Key;
 import java.util.Date;
@@ -44,7 +45,7 @@ public class JwtUtil {
 
     public String createToken(User user) {
         key = initializeKey();
-        user = userRepository.findByEmail(user.getEmail()).orElseThrow();
+        user = userRepository.findByEmail(user.getEmail()).orElseThrow(()-> new UsernameNotFoundException("USER_NOT_FOUND"));
 
         List<String> roles = user.getAuthorities()
                 .stream()

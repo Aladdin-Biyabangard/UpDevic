@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 public class RefreshToken {
     @Id
     @Column(unique = true, nullable = false, length = 12)
-    private String uuid;//hele bu refresh token kimi istifade olunur
+    private String id;//hele bu refresh token kimi istifade olunur
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     User user;
@@ -31,8 +31,8 @@ public class RefreshToken {
 
     @PrePersist
     public void generatedId() {
-        if (this.uuid == null) {
-            this.uuid = NanoIdUtils.randomNanoId().substring(0, 12);
+        if (this.id == null) {
+            this.id = NanoIdUtils.randomNanoId().substring(0, 12);
         }
     }
 }

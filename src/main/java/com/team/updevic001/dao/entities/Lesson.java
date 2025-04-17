@@ -2,7 +2,9 @@ package com.team.updevic001.dao.entities;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.team.updevic001.model.enums.Status;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,6 +35,9 @@ public class Lesson {
     @Column(name = "video_url", nullable = false)
     private String videoUrl;
 
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
     @JsonBackReference
@@ -45,6 +50,7 @@ public class Lesson {
 
     @ManyToOne
     @JoinColumn(name = "teacher_id")
+    @JsonIgnore
     private Teacher teacher;
 
 

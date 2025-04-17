@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class ResponseCommentDto {
 
+    private String commentId;
+
     private String firstName;
 
     private String content;

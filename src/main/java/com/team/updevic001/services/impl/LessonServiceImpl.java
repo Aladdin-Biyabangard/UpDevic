@@ -46,7 +46,6 @@ public class LessonServiceImpl implements LessonService {
     private String VIDEO_DIRECTORY;
 
     @Override
-    @Transactional
     public ResponseLessonDto assignLessonToCourse(String courseId, LessonDto lessonDto, MultipartFile file) throws Exception {
         Teacher authenticatedTeacher = teacherServiceImpl.getAuthenticatedTeacher();
         log.info("Assigning lesson to course. Teacher ID: {},User ID {}, Course ID: {}", authenticatedTeacher.getId(), authenticatedTeacher.getUser().getId(), courseId);
@@ -67,7 +66,6 @@ public class LessonServiceImpl implements LessonService {
             String uploadedFileName = videoServiceImpl.uploadVideo(file);
             lesson.setVideoUrl(VIDEO_DIRECTORY + uploadedFileName);
         }
-
 
         lesson.setCourse(course);
         course.getLessons().add(lesson);

@@ -3,24 +3,34 @@ package com.team.updevic001.services.impl;
 import com.team.updevic001.configuration.mappers.CategoryMapper;
 import com.team.updevic001.configuration.mappers.CourseMapper;
 import com.team.updevic001.configuration.mappers.TeacherMapper;
-import com.team.updevic001.dao.entities.*;
-import com.team.updevic001.dao.repositories.*;
+import com.team.updevic001.dao.entities.Course;
+import com.team.updevic001.dao.entities.CourseCategory;
+import com.team.updevic001.dao.entities.Teacher;
+import com.team.updevic001.dao.entities.TeacherCourse;
+import com.team.updevic001.dao.repositories.CourseCategoryRepository;
+import com.team.updevic001.dao.repositories.CourseRepository;
+import com.team.updevic001.dao.repositories.TeacherCourseRepository;
+import com.team.updevic001.dao.repositories.TeacherRepository;
 import com.team.updevic001.exceptions.AlreadyExistsException;
 import com.team.updevic001.exceptions.ForbiddenException;
-import com.team.updevic001.exceptions.ResourceAlreadyExistException;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.request.CourseDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCategoryDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
 import com.team.updevic001.model.dtos.response.teacher.ResponseTeacherWithCourses;
-import com.team.updevic001.model.enums.*;
+import com.team.updevic001.model.enums.CourseCategoryType;
+import com.team.updevic001.model.enums.TeacherPermission;
+import com.team.updevic001.model.enums.TeacherPrivileges;
 import com.team.updevic001.services.interfaces.CourseService;
 import com.team.updevic001.services.interfaces.TeacherService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -67,7 +77,7 @@ public class CourseServiceImpl implements CourseService {
 
 
     @Override
-    @jakarta.transaction.Transactional
+    @Transactional
     public ResponseTeacherWithCourses addTeacherToCourse(String courseId, String userId) {
         Teacher authenticatedTeacher = teacherService.getAuthenticatedTeacher();
         log.info("Operation of adding new teacher with user ID {} to course with ID {} started by user with ID {}(whose teacher ID is {}", userId, courseId, authenticatedTeacher.getUser().getId(), authenticatedTeacher.getId());
@@ -148,12 +158,14 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Cacheable(value = "courseSearchCache", key = "#keyword", unless = "#result == null", cacheManager = "cacheManager")
     public List<ResponseCourseDto> searchCourse(String keyword) {
         List<Course> courses = findCourseBy(keyword);
         return !courses.isEmpty() ? courseMapper.courseDto(courses) : List.of();
     }
 
     @Override
+    @Cacheable(value = "courseSearchCache", key = "#courseId")
     public ResponseCourseLessonDto getCourse(String courseId) {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException("Course not found"));
         return courseMapper.toDto(course);
@@ -173,8 +185,14 @@ public class CourseServiceImpl implements CourseService {
         return courseCategories.stream().map(categoryMapper::toDto).toList();
     }
 
-
     public List<Course> findCourseBy(String keyword) {
         return courseRepository.searchCoursesByKeyword(keyword);
     }
+
+    @Scheduled(fixedRate = 300000) // 5 dəqiqə (300000 ms)
+    @CacheEvict(value = "courseSearchCache", allEntries = true)
+    public void clearCache() {
+        System.out.println("Cache təmizləndi.");
+    }
+
 }
