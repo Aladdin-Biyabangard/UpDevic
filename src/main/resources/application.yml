@@ -5,6 +5,10 @@ spring:
     url: jdbc:mysql://localhost:3306/start-up
     username: ${USERNAME}
     password: ${PASSWORD}
+
+  cache:
+    type: simple
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -42,6 +46,15 @@ spring:
           starttls:
             enable: true
 
+cloud:
+  aws:
+    region: eu-north-1
+    credentials:
+      access-key: ${ACCESS_KEY}
+      secret-key: ${SECRET_KEY}
+    s3:
+      bucket: updevic
+
 application:
   security:
     jwt:
@@ -51,15 +64,9 @@ application:
   secret:
     key: ${KEY}
 
+
 ALGORITHM: ${ALGORITHM}
-#
-##java:
-##  io:
-##    tmpdir=C:/TEMP:
-#server:
-#  tomcat:
-#    basedir: C:/Users/Asus/AppData/Local/Temp
-#
+
 springdoc:
   api-docs:
     enabled: true
@@ -71,5 +78,7 @@ server:
   tomcat:
     uri-encoding: utf-8
 
-video:
-  directory: D://Videos/
+frontend:
+  url1: ${FRONTEND_URL1}
+  url2: ${FRONTEND_URL2}
+

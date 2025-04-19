@@ -11,6 +11,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import java.security.SecureRandom;
+import java.util.Base64;
+
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -34,5 +37,13 @@ public class AuthHelper {
                     return new ResourceNotFoundException("USER_NOT_FOUND");
                 });
     }
+
+    public String generateToken() {
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] randomBytes = new byte[32];
+        secureRandom.nextBytes(randomBytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+    }
+
 }
 

@@ -1,11 +1,12 @@
 package com.team.updevic001.services.impl;
 
 import com.team.updevic001.configuration.mappers.CourseMapper;
-import com.team.updevic001.dao.entities.*;
-import com.team.updevic001.dao.repositories.CommentRepository;
+import com.team.updevic001.dao.entities.Course;
+import com.team.updevic001.dao.entities.Student;
+import com.team.updevic001.dao.entities.StudentCourse;
+import com.team.updevic001.dao.entities.User;
 import com.team.updevic001.dao.repositories.CourseRepository;
 import com.team.updevic001.dao.repositories.StudentCourseRepository;
-import com.team.updevic001.dao.repositories.UserRepository;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
@@ -15,7 +16,6 @@ import com.team.updevic001.utility.AuthHelper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,10 +26,7 @@ import java.util.List;
 public class StudentServiceImpl implements StudentService {
 
     private final StudentCourseRepository studentCourseRepository;
-    private final ModelMapper modelMapper;
     private final CourseMapper courseMapper;
-    private final CommentRepository commentRepository;
-    private final UserRepository userRepository;
     private final CourseRepository courseRepository;
     private final CourseServiceImpl courseServiceImpl;
     private final AuthHelper authHelper;
@@ -86,7 +83,7 @@ public class StudentServiceImpl implements StudentService {
                 .findByStudentAndCourse(student, course)
                 .orElseThrow(() -> new IllegalArgumentException("This student does not have such a course"));
 
-        return courseMapper.courseShortInfoDto(course);
+        return courseMapper.toCourseResponse(course);
     }
 
     @Override
@@ -99,25 +96,8 @@ public class StudentServiceImpl implements StudentService {
 
         log.info("Found {} courses for student with ID: {}", courseByStudent.size(), user.getId());
         return courseByStudent.stream()
-                .map(course -> modelMapper.map(course, ResponseCourseShortInfoDto.class))
-                .toList();
+                .map(courseMapper::toCourseResponse).toList();
     }
-
-
-//    @Override
-//    @Transactional
-//    public void deleteStudentCourse(String courseId) {
-//        User authenticatedUser = authHelper.getAuthenticatedUser();
-//        log.info("Attempting to delete course enrollment for student with ID: {} in course with ID: {}", authenticatedUser.getUuid(), courseId);
-//        Student student = castToStudent(authenticatedUser);
-//        Course course = findCourseById(courseId);
-//
-//        StudentCourse studentCourse = studentCourseRepository.findByStudentAndCourse(student, course)
-//                .orElseThrow(() -> new ResourceNotFoundException("This user is not registered for any courses."));
-//
-//        studentCourseRepository.delete(studentCourse);
-//        log.info("Successfully deleted course enrollment for student with ID: {} in course with ID: {}", authenticatedUser.getUuid(), courseId);
-//    }
 
     @Override
     public List<ResponseCourseLessonDto> getStudentLessons() {
@@ -127,16 +107,13 @@ public class StudentServiceImpl implements StudentService {
         Student student = castToStudent(user);
         List<Course> courses = studentCourseRepository.findCourseByStudent(student);
 
-        return courseMapper.toDto(courses);
+        return courseMapper.toFullResponse(courses);
     }
 
 
     private boolean isAlreadyEnrolledInCourse(Student student, Course course) {
         return studentCourseRepository.existsByCourseAndStudent(course, student);
     }
-
-
-    // Helper methods
 
 
     private void enrollStudentInCourse(Student student, Course course) {

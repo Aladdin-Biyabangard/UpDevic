@@ -1,5 +1,7 @@
 package com.team.updevic001.controllers;
 
+import com.team.updevic001.dao.repositories.CourseRepository;
+import com.team.updevic001.dao.repositories.TeacherCourseRepository;
 import com.team.updevic001.model.dtos.request.security.*;
 import com.team.updevic001.model.dtos.response.AuthResponseDto;
 import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
@@ -19,7 +21,15 @@ import org.springframework.web.bind.annotation.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthController {
 
+
     AuthService authService;
+    CourseRepository courseRepository;
+    private final TeacherCourseRepository teacherCourseRepository;
+
+    @PutMapping(path = "create-admin")
+    AuthResponseDto createUserWithAdminRole(AuthRequestDto authRequest) {
+        return authService.createUserWithAdminRole(authRequest);
+    }
 
     @GetMapping(path = "")
     public ResponseUserDto getLoggedInUser() {
@@ -58,6 +68,13 @@ public class AuthController {
     @PostMapping("/refresh-token")
     public ResponseEntity<AuthResponseDto> refreshToken(@RequestBody RefreshTokenRequest request) {
         return new ResponseEntity<>(authService.refreshAccessToken(request), HttpStatus.OK);
+    }
+
+    @DeleteMapping(path = "all-course-delete")
+    public ResponseEntity<String> deleteAll() {
+        teacherCourseRepository.deleteAll();
+        courseRepository.deleteAll();
+        return ResponseEntity.ok("Delete all");
     }
 
 }

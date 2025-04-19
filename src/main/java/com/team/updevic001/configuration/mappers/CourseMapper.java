@@ -1,11 +1,12 @@
 package com.team.updevic001.configuration.mappers;
 
 import com.team.updevic001.dao.entities.Course;
+import com.team.updevic001.dao.entities.TeacherCourse;
+import com.team.updevic001.dao.repositories.TeacherCourseRepository;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -15,25 +16,14 @@ import java.util.List;
 public class CourseMapper {
 
     private final LessonMapper lessonMapper;
-    private final ModelMapper modelMapper;
     private final CommentMapper commentMapper;
+    private final TeacherCourseRepository teacherCourseRepository;
 
 
-    public ResponseCourseLessonDto toDto(Course course) {
+    public ResponseCourseLessonDto toFullResponse(Course course) {
         return new ResponseCourseLessonDto(
-                course.getTitle(),
-                course.getDescription(),
-                course.getLevel(),
-                course.getCreatedAt(),
-                lessonMapper.toDto(course.getLessons()),
-                commentMapper.toDto(course.getComments())
-        );
-    }
-
-
-    public ResponseCourseDto courseDto(Course course) {
-        return new ResponseCourseDto(
-                course.getId(),
+                course.getHeadTeacher(),
+                getTeacherNames(course),
                 course.getTitle(),
                 course.getDescription(),
                 course.getLevel(),
@@ -41,25 +31,58 @@ public class CourseMapper {
                 lessonCount(course),
                 studentCount(course),
                 teacherCount(course),
-                course.getStatus(),
+                course.getRating(),
+                lessonMapper.toShortLesson(course.getLessons()),
                 commentMapper.toDto(course.getComments())
         );
     }
 
-    public ResponseCourseShortInfoDto courseShortInfoDto(Course course) {
-        return modelMapper.map(course, ResponseCourseShortInfoDto.class);
+    public ResponseCourseShortInfoDto toCourseResponse(Course course) {
+        return new ResponseCourseShortInfoDto(
+                course.getId(),
+                course.getCourseCategoryType(),
+                course.getHeadTeacher(),
+                course.getTitle(),
+                course.getDescription(),
+                course.getRating()
+        );
     }
 
-    public List<ResponseCourseLessonDto> toDto(List<Course> courses) {
-        return courses.stream().map(this::toDto).toList();
+    public List<ResponseCourseShortInfoDto> toCourseResponse(List<Course> courses) {
+        return courses.stream().map(this::toCourseResponse).toList();
+    }
+
+    public ResponseCourseDto courseDto(Course course) {
+        return new ResponseCourseDto(
+                course.getId(),
+                course.getCourseCategoryType(),
+                course.getHeadTeacher(),
+                getTeacherNames(course),
+                course.getTitle(),
+                course.getDescription(),
+                course.getLevel(),
+                course.getCreatedAt(),
+                lessonCount(course),
+                studentCount(course),
+                teacherCount(course),
+                commentMapper.toDto(course.getComments())
+        );
+    }
+
+    public List<ResponseCourseLessonDto> toFullResponse(List<Course> courses) {
+        return courses.stream().map(this::toFullResponse).toList();
     }
 
     public List<ResponseCourseDto> courseDto(List<Course> courses) {
         return courses.stream().map(this::courseDto).toList();
     }
 
-    public List<ResponseCourseShortInfoDto> courseShortInfoDto(List<Course> courses) {
-        return courses.stream().map(this::courseShortInfoDto).toList();
+    public List<String> getTeacherNames(Course course) {
+        List<TeacherCourse> teacherCourseByCourse = teacherCourseRepository.findTeacherCourseByCourse(course);
+        return teacherCourseByCourse.stream().map(TeacherCourse::getTeacher)
+                .map(teacher -> teacher.getUser().getFirstName() + " " + teacher.getUser().getLastName())
+                .filter(name -> !name.equals(course.getHeadTeacher()))
+                .toList();
     }
 
     private int lessonCount(Course course) {

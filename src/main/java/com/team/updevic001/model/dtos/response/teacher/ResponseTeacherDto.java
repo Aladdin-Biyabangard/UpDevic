@@ -1,25 +1,29 @@
 package com.team.updevic001.model.dtos.response.teacher;
 
-import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 import com.team.updevic001.model.enums.Specialty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResponseTeacherDto extends ResponseUserDto {
+public class ResponseTeacherDto {
+
+    private String firstName;
+
+    private String lastName;
+
+    private String email;
 
     private Specialty speciality;
 
     private Integer experienceYears;
 
-    private String socialLink;
+    private List<String> socialLink;
 
     private LocalDateTime hireDate;
 

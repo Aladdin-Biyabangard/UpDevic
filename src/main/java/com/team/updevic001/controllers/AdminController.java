@@ -29,24 +29,24 @@ public class AdminController {
 
     @Operation(summary = "Activates the user")
     @PutMapping("/{id}/activate")
-    public ResponseEntity<Void> activateUser(@PathVariable String id) {
+    public ResponseEntity<String> activateUser(@PathVariable String id) {
         adminServiceImpl.activateUser(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok("User activated.");
     }
 
     @Operation(summary = "Deactivates the user")
     @PutMapping("/{id}/deactivate")
-    public ResponseEntity<Void> deactivateUser(@PathVariable String id) {
+    public ResponseEntity<String> deactivateUser(@PathVariable String id) {
         adminServiceImpl.deactivateUser(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok("User deactivated.");
     }
 
     @Operation(summary = "Adds a role to a user")
     @PutMapping("/{id}/role")
-    public ResponseEntity<Void> assignRoleToUser(@PathVariable String id,
-                                                 @RequestParam Role role) {
+    public ResponseEntity<String> assignRoleToUser(@PathVariable String id,
+                                                   @RequestParam Role role) {
         adminServiceImpl.assignRoleToUser(id, role);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok("User has been assigned a role.");
     }
 
     @Operation(summary = "Shows all users")
@@ -71,17 +71,23 @@ public class AdminController {
 
     @Operation(summary = "Removes a user's role!")
     @DeleteMapping(path = "/{id}/role")
-    public ResponseEntity<Void> removeRoleFromUser(@PathVariable String id,
-                                                   @RequestParam Role role) {
+    public ResponseEntity<String> removeRoleFromUser(@PathVariable String id,
+                                                     @RequestParam Role role) {
         adminServiceImpl.removeRoleFromUser(id, role);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok("Role removed!");
+    }
+
+    @DeleteMapping(path = "")
+    public ResponseEntity<String> permanentlyDeleteUser(@RequestParam String userId) {
+        adminServiceImpl.permanentlyDeleteUser(userId);
+        return ResponseEntity.ok("User deleted!");
     }
 
     @Operation(summary = "All User Deletes.")
     @DeleteMapping(path = "/all")
-    public ResponseEntity<Void> deleteUsers() {
+    public ResponseEntity<String> deleteUsers() {
         adminServiceImpl.deleteUsers();
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.ok("Users deleted!");
     }
 
 }

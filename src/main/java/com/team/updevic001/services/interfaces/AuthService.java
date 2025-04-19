@@ -7,6 +7,8 @@ import com.team.updevic001.model.dtos.response.user.ResponseUserDto;
 
 public interface AuthService {
 
+    AuthResponseDto createUserWithAdminRole(AuthRequestDto authRequest);
+
     ResponseUserDto getLoggedInUser();
 
     void register(RegisterRequest request);

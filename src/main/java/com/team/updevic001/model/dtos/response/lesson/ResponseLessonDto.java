@@ -20,6 +20,8 @@ public class ResponseLessonDto {
 
     private String videoUrl;
 
+    private String duration;
+
     private List<ResponseCommentDto> comments;
 
 }

@@ -5,7 +5,7 @@ import com.team.updevic001.model.dtos.request.CourseDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCategoryDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
-import com.team.updevic001.model.dtos.response.teacher.ResponseTeacherWithCourses;
+import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
 import com.team.updevic001.model.enums.CourseCategoryType;
 import com.team.updevic001.services.interfaces.CourseService;
 import lombok.RequiredArgsConstructor;
@@ -26,13 +26,13 @@ public class CourseController {
 
     @RateLimit
     @GetMapping(path = "/search")
-    public ResponseEntity<List<ResponseCourseDto>> searchCourse(@RequestParam String keyword) {
-        List<ResponseCourseDto> course = courseService.searchCourse(keyword);
-        return ResponseEntity.ok(course);
+    public ResponseEntity<List<ResponseCourseShortInfoDto>> searchCourse(@RequestParam String keyword) {
+        List<ResponseCourseShortInfoDto> courses = courseService.searchCourse(keyword);
+        return ResponseEntity.ok(courses);
     }
 
 
-    @GetMapping(path = "/{courseId}/")
+    @GetMapping(path = "/{courseId}/full")
     public ResponseEntity<ResponseCourseLessonDto> getCourse(@PathVariable String courseId) {
         ResponseCourseLessonDto course = courseService.getCourse(courseId);
         return ResponseEntity.ok(course);
@@ -44,9 +44,15 @@ public class CourseController {
         return ResponseEntity.ok(courses);
     }
 
-    @GetMapping(path = "/category")
-    public ResponseEntity<List<ResponseCategoryDto>> getCategory(@RequestParam CourseCategoryType categoryType) {
-        List<ResponseCategoryDto> category = courseService.getCategory(categoryType);
+    @GetMapping(path = "categories")
+    public ResponseEntity<List<ResponseCategoryDto>> getCategories() {
+        List<ResponseCategoryDto> categories = courseService.getCategories();
+        return ResponseEntity.ok(categories);
+    }
+
+    @GetMapping(path = "/short")
+    public ResponseEntity<List<ResponseCourseShortInfoDto>> findCoursesByCategory(@RequestParam CourseCategoryType categoryType) {
+        List<ResponseCourseShortInfoDto> category = courseService.findCoursesByCategory(categoryType);
         return ResponseEntity.ok(category);
     }
 
@@ -61,16 +67,16 @@ public class CourseController {
         return new ResponseEntity<>(courseService.updateCourse(courseId, courseDto), HttpStatus.OK);
     }
 
+    @PostMapping(path = "/{courseId}/teacher")
+    public ResponseEntity<ResponseCourseDto> addTeacherToCourse(@PathVariable String courseId, @RequestParam String userId) {
+        ResponseCourseDto responseTeacherWithCourses = courseService.addTeacherToCourse(courseId, userId);
+        return ResponseEntity.ok(responseTeacherWithCourses);
+    }
+
     @DeleteMapping(path = "/{courseId}")
     public ResponseEntity<Void> deleteCourse(@PathVariable String courseId) {
         courseService.deleteCourse(courseId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    @PostMapping(path = "/{courseId}/teacher")
-    public ResponseEntity<ResponseTeacherWithCourses> addTeacherToCourse(@PathVariable String courseId, @RequestParam String userId) {
-        ResponseTeacherWithCourses responseTeacherWithCourses = courseService.addTeacherToCourse(courseId, userId);
-        return ResponseEntity.ok(responseTeacherWithCourses);
     }
 
 }

@@ -1,8 +1,8 @@
 package com.team.updevic001.model.dtos.response.course;
 
 import com.team.updevic001.model.dtos.response.comment.ResponseCommentDto;
+import com.team.updevic001.model.enums.CourseCategoryType;
 import com.team.updevic001.model.enums.CourseLevel;
-import com.team.updevic001.model.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,6 +17,12 @@ public class ResponseCourseDto {
 
     private String courseId;
 
+    private CourseCategoryType category;
+
+    private String headTeacher;
+
+    private List<String> teachers;
+
     private String title;
 
     private String description;
@@ -30,8 +36,6 @@ public class ResponseCourseDto {
     private long studentCount;
 
     private long teacherCount;
-
-    private Status status;
 
     private List<ResponseCommentDto> commentDtoS;
 

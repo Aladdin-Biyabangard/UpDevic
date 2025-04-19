@@ -66,7 +66,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseUserDto getUserById(String uuid) {
         log.info("Searching for a user with this ID: {}", uuid);
-
         User user = userRepository.findById(uuid).orElseThrow(() -> {
             log.error("User not found with these ID: {}", uuid);
             return new ResourceNotFoundException("User not found Exception!");
