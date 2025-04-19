@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +35,7 @@ public class Task {
     @ManyToOne
     @JoinColumn(name = "course_id")
     @JsonIgnore
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Course course;
 
     @PrePersist

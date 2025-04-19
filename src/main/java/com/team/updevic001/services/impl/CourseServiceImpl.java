@@ -1,13 +1,9 @@
 package com.team.updevic001.services.impl;
 
-import com.team.updevic001.configuration.mappers.CategoryMapper;
 import com.team.updevic001.configuration.mappers.CourseMapper;
-import com.team.updevic001.configuration.mappers.TeacherMapper;
 import com.team.updevic001.dao.entities.Course;
-import com.team.updevic001.dao.entities.CourseCategory;
 import com.team.updevic001.dao.entities.Teacher;
 import com.team.updevic001.dao.entities.TeacherCourse;
-import com.team.updevic001.dao.repositories.CourseCategoryRepository;
 import com.team.updevic001.dao.repositories.CourseRepository;
 import com.team.updevic001.dao.repositories.TeacherCourseRepository;
 import com.team.updevic001.dao.repositories.TeacherRepository;
@@ -18,7 +14,7 @@ import com.team.updevic001.model.dtos.request.CourseDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCategoryDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseDto;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseLessonDto;
-import com.team.updevic001.model.dtos.response.teacher.ResponseTeacherWithCourses;
+import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
 import com.team.updevic001.model.enums.CourseCategoryType;
 import com.team.updevic001.model.enums.TeacherPermission;
 import com.team.updevic001.model.enums.TeacherPrivileges;
@@ -33,6 +29,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -43,13 +41,10 @@ public class CourseServiceImpl implements CourseService {
 
     private final CourseRepository courseRepository;
     private final CourseMapper courseMapper;
-    private final CourseCategoryRepository courseCategoryRepository;
-    private final CategoryMapper categoryMapper;
     private final TeacherRepository teacherRepository;
     private final TeacherService teacherService;
     private final ModelMapper modelMapper;
     private final TeacherCourseRepository teacherCourseRepository;
-    private final TeacherMapper teacherMapper;
 
     @Override
     @Transactional
@@ -57,10 +52,9 @@ public class CourseServiceImpl implements CourseService {
         Teacher authenticatedTeacher = teacherService.getAuthenticatedTeacher();
         log.info("Operation of creating new course started by user with ID {}(whose teacher ID is {}", authenticatedTeacher.getUser().getId(), authenticatedTeacher.getId());
         Course course = modelMapper.map(courseDto, Course.class);
-        course.setCategory(courseCategoryRepository.save(CourseCategory.builder()
-                .category(courseDto.getCourseCategoryType())
-                .build()));
+        course.setHeadTeacher(authenticatedTeacher.getUser().getFirstName() + " " + authenticatedTeacher.getUser().getLastName());
         courseRepository.save(course);
+
         log.info("Course saved successfully. Course ID: {}", course.getId());
 
         TeacherCourse teacherCourse = TeacherCourse.builder()
@@ -78,10 +72,10 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     @Transactional
-    public ResponseTeacherWithCourses addTeacherToCourse(String courseId, String userId) {
+    public ResponseCourseDto addTeacherToCourse(String courseId, String userId) {
         Teacher authenticatedTeacher = teacherService.getAuthenticatedTeacher();
         log.info("Operation of adding new teacher with user ID {} to course with ID {} started by user with ID {}(whose teacher ID is {}", userId, courseId, authenticatedTeacher.getUser().getId(), authenticatedTeacher.getId());
-        Course course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException(Course.class));
+        Course course = findCourseById(courseId);
         Teacher newTeacher = teacherRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundException(Teacher.class));
 
         TeacherCourse teacherCourse = validateAccess(courseId, authenticatedTeacher);
@@ -103,7 +97,7 @@ public class CourseServiceImpl implements CourseService {
                 .build();
         teacherCourseRepository.save(newTeacherCourseRelation);
         log.info("New teacher successfully added to course");
-        return teacherMapper.toDto(newTeacher);
+        return courseMapper.courseDto(course);
     }
 
 
@@ -148,27 +142,18 @@ public class CourseServiceImpl implements CourseService {
     }
 
 
-    public Course findCourseById(String courseId) {
-        log.debug("Fetching course with ID: {}", courseId);
-        return courseRepository.findById(courseId)
-                .orElseThrow(() -> {
-                    log.error("Course not found with ID: {}", courseId);
-                    return new ResourceNotFoundException("COURSE_NOT_FOUND");
-                });
-    }
-
     @Override
     @Cacheable(value = "courseSearchCache", key = "#keyword", unless = "#result == null", cacheManager = "cacheManager")
-    public List<ResponseCourseDto> searchCourse(String keyword) {
-        List<Course> courses = findCourseBy(keyword);
-        return !courses.isEmpty() ? courseMapper.courseDto(courses) : List.of();
+    public List<ResponseCourseShortInfoDto> searchCourse(String keyword) {
+        List<Course> courses = courseRepository.findCourseByTitle(keyword);
+        return !courses.isEmpty() ? courseMapper.toCourseResponse(courses) : List.of();
     }
 
     @Override
-    @Cacheable(value = "courseSearchCache", key = "#courseId")
+    @Cacheable(value = "courseSearchCache", key = "#courseId", unless = "#result==null", cacheManager = "cacheManager")
     public ResponseCourseLessonDto getCourse(String courseId) {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException("Course not found"));
-        return courseMapper.toDto(course);
+        return courseMapper.toFullResponse(course);
     }
 
     @Override
@@ -179,14 +164,35 @@ public class CourseServiceImpl implements CourseService {
 
 
     @Override
-    public List<ResponseCategoryDto> getCategory(CourseCategoryType categoryType) {
-        String category = categoryType.name();
-        List<CourseCategory> courseCategories = courseCategoryRepository.searchCategoryByKeyword(category);
-        return courseCategories.stream().map(categoryMapper::toDto).toList();
+    public List<ResponseCategoryDto> getCategories() {
+        return Arrays.stream(CourseCategoryType.values())
+                .map(type -> {
+                    List<Course> courses = courseRepository.findCourseByCourseCategoryType(type);
+                    return new ResponseCategoryDto(type, courses.size());
+                })
+                .toList();
     }
 
-    public List<Course> findCourseBy(String keyword) {
-        return courseRepository.searchCoursesByKeyword(keyword);
+    // TODO birinci getCategories işə düşərək categoriyal gətirir.
+    //  Sonra ise findcursesByCategory metodu ile ordaki categoriyalara uygun qisa kurs melumatlari gelir.
+    //  Sonra ise lesson service kecirik. Gələn kiçik kurs məlumatlarına baxdıqdan sonra hər hansınınsa üzərinə vurduqda
+    //  lesson servicde olan findLessonBYCourse id metodu ise dusur ve cursun butun derslerinin qisa melumatlarini verir.
+    //  Ondan sonra ise istenilen ders uzerine vurduqda istifadeciye lazimi butun melumatlar gedir .
+
+    @Override
+    public List<ResponseCourseShortInfoDto> findCoursesByCategory(CourseCategoryType categoryType) {
+        List<Course> courseByCourseCategoryType = courseRepository.findCourseByCourseCategoryType(categoryType);
+        return !courseByCourseCategoryType.isEmpty() ? courseMapper.toCourseResponse(courseByCourseCategoryType) : new ArrayList<>();
+    }
+
+
+    public Course findCourseById(String courseId) {
+        log.debug("Fetching course with ID: {}", courseId);
+        return courseRepository.findById(courseId)
+                .orElseThrow(() -> {
+                    log.error("Course not found with ID: {}", courseId);
+                    return new ResourceNotFoundException("COURSE_NOT_FOUND");
+                });
     }
 
     @Scheduled(fixedRate = 300000) // 5 dəqiqə (300000 ms)

@@ -11,23 +11,18 @@ import com.team.updevic001.exceptions.ForbiddenException;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.request.LessonDto;
 import com.team.updevic001.model.dtos.response.lesson.ResponseLessonDto;
+import com.team.updevic001.model.dtos.response.lesson.ResponseLessonShortInfoDto;
 import com.team.updevic001.model.dtos.response.video.LessonVideoResponse;
 import com.team.updevic001.model.enums.TeacherPermission;
 import com.team.updevic001.services.interfaces.LessonService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 @Service
@@ -42,11 +37,10 @@ public class LessonServiceImpl implements LessonService {
     private final LessonMapper lessonMapper;
     private final TeacherCourseRepository teacherCourseRepository;
 
-    @Value("${video.directory}")
-    private String VIDEO_DIRECTORY;
 
     @Override
-    public ResponseLessonDto assignLessonToCourse(String courseId, LessonDto lessonDto, MultipartFile file) throws Exception {
+    @Transactional
+    public ResponseLessonDto assignLessonToCourse(String courseId, LessonDto lessonDto, MultipartFile multipartFile) throws Exception {
         Teacher authenticatedTeacher = teacherServiceImpl.getAuthenticatedTeacher();
         log.info("Assigning lesson to course. Teacher ID: {},User ID {}, Course ID: {}", authenticatedTeacher.getId(), authenticatedTeacher.getUser().getId(), courseId);
 
@@ -62,14 +56,19 @@ public class LessonServiceImpl implements LessonService {
         }
 
 
-        if (file != null && !file.isEmpty()) {
-            String uploadedFileName = videoServiceImpl.uploadVideo(file);
-            lesson.setVideoUrl(VIDEO_DIRECTORY + uploadedFileName);
+        if (multipartFile != null && !multipartFile.isEmpty()) {
+            lesson.setCourse(course);
+            course.getLessons().add(lesson);
+            lessonRepository.save(lesson);
+            String videoUrl = videoServiceImpl.uploadVideo(multipartFile, lesson.getId());
+            File file = videoServiceImpl.convertToFile(multipartFile);
+            String videoDurationInSeconds = videoServiceImpl.getVideoDurationInSeconds(file);
+            lesson.setDuration(videoDurationInSeconds);
+            lesson.setVideoUrl(videoUrl);
+            lesson.setTeacher(authenticatedTeacher);
+            lessonRepository.save(lesson);
         }
 
-        lesson.setCourse(course);
-        course.getLessons().add(lesson);
-        lessonRepository.save(lesson);
 
         log.info("Lesson assigned successfully. Lesson ID: {}", lesson.getId());
         return modelMapper.map(lesson, ResponseLessonDto.class);
@@ -92,10 +91,15 @@ public class LessonServiceImpl implements LessonService {
     }
 
     @Override
-    public List<ResponseLessonDto> getLessonsByCourse(String courseId) {
+    public List<ResponseLessonShortInfoDto> getShortLessonsByCourse(String courseId) {
         log.info("Getting lessons of course.Course ID: {}", courseId);
         List<Lesson> lessons = lessonRepository.findLessonByCourseId(courseId);
-        return lessons.isEmpty() ? List.of() : lessonMapper.toDto(lessons);
+        return lessons.isEmpty() ? List.of() : lessonMapper.toShortLesson(lessons);
+    }
+
+    public ResponseLessonDto getFullLessonByLessonId(String lessonId) {
+        Lesson lesson = findLessonById(lessonId);
+        return lessonMapper.toDto(lesson);
     }
 
     @Override
@@ -111,32 +115,19 @@ public class LessonServiceImpl implements LessonService {
         return lessons;
     }
 
+    //TODO burda response iki ferqli clasdir. Buna nezerat e
+
     @Override
-    public LessonVideoResponse getVideo(String lessonId, String videoName) throws MalformedURLException {
-        String filePath = VIDEO_DIRECTORY + videoName;
-        File videoFile = new File(filePath);
-
+    public LessonVideoResponse getVideo(String lessonId) {
         Lesson lesson = findLessonById(lessonId);
-
-        if (!lesson.getVideoUrl().equalsIgnoreCase(filePath)) {
-            throw new IllegalArgumentException("There is no video in the lesson.");
-        }
-        if (!videoFile.exists()) {
-            log.warn("Requested a non-existing video: {}", videoName);
-            throw new ResourceNotFoundException("VIDEO_NOT_FOUND");
-        }
-
-        Path path = Paths.get(videoFile.getAbsolutePath());
-        log.info("Video loaded successfully: {}", path);
-
-        Resource videoResource = new UrlResource(path.toUri());
-
         return new LessonVideoResponse(
                 lesson.getTitle(),
                 lesson.getDescription(),
-                videoResource
+                lesson.getVideoUrl(),
+                lesson.getDuration()
         );
     }
+
 
     @Override
     public Lesson findLessonById(String lessonId) {
@@ -155,19 +146,50 @@ public class LessonServiceImpl implements LessonService {
             log.error("Teacher with ID {}(whose user ID is {}) is not allowed to delete the lesson with ID {}", authenticatedTeacher.getId(), authenticatedTeacher.getUser().getId(), lessonId);
             throw new ForbiddenException("NOT_ALLOWED_DELETE_LESSON");
         }
+        videoServiceImpl.deleteVideoFromS3(lesson.getId());
         lessonRepository.delete(lesson);
         log.info("Lesson successfully deleted");
     }
 
     @Override
+    @Transactional
     public void deleteTeacherLessons() {
         Teacher authenticatedTeacher = teacherServiceImpl.getAuthenticatedTeacher();
         log.info("Deleting all teacher lessons. Teacher ID: {}", authenticatedTeacher.getId());
 
         List<TeacherCourse> teacherCourses = teacherCourseRepository.findTeacherCourseByTeacher(authenticatedTeacher);
-        List<Lesson> list = teacherCourses.stream().flatMap(teacherCourse -> teacherCourse.getCourse().getLessons().stream()).toList();
-        lessonRepository.deleteAll(list);
+        List<Lesson> lessons = teacherCourses.stream().flatMap(teacherCourse -> teacherCourse.getCourse().getLessons().stream()).toList();
+        videoServiceImpl.deleteVideosFromS3(lessons);
+        lessonRepository.deleteAll(lessons);
 
         log.info("All teacher lessons deleted successfully. Teacher ID: {}", authenticatedTeacher.getId());
     }
 }
+
+
+//    @Override
+//    public LessonVideoResponse getVideo(String lessonId, String videoName) throws MalformedURLException {
+//        String filePath = VIDEO_DIRECTORY + videoName;
+//        File videoFile = new File(filePath);
+//
+//        Lesson lesson = findLessonById(lessonId);
+//
+//        if (!lesson.getVideoUrl().equalsIgnoreCase(filePath)) {
+//            throw new IllegalArgumentException("There is no video in the lesson.");
+//        }
+//        if (!videoFile.exists()) {
+//            log.warn("Requested a non-existing video: {}", videoName);
+//            throw new ResourceNotFoundException("VIDEO_NOT_FOUND");
+//        }
+//
+//        Path path = Paths.get(videoFile.getAbsolutePath());
+//        log.info("Video loaded successfully: {}", path);
+//
+//        Resource videoResource = new UrlResource(path.toUri());
+//
+//        return new LessonVideoResponse(
+//                lesson.getTitle(),
+//                lesson.getDescription(),
+//                videoResource
+//        );
+//    }

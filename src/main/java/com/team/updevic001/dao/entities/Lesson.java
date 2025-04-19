@@ -29,11 +29,14 @@ public class Lesson {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "description", nullable = false)
+    @Column(name = "description", nullable = false,length = 500)
     private String description;
 
-    @Column(name = "video_url", nullable = false)
+    @Column(name = "video_url", length = 500)
     private String videoUrl;
+
+    @Column(name = "duration_formatted")
+    private String duration;
 
     @Enumerated(EnumType.STRING)
     private Status status;
@@ -46,7 +49,6 @@ public class Lesson {
     @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Comment> comments = new ArrayList<>();
-
 
     @ManyToOne
     @JoinColumn(name = "teacher_id")

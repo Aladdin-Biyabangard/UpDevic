@@ -27,10 +27,10 @@ public class Student extends User {
     @CreationTimestamp
     private LocalDateTime enrolledDate;
 
-    @OneToMany(mappedBy = "student")
+    @OneToMany(mappedBy = "student",fetch = FetchType.LAZY)
     private List<TestResult> testResults = new ArrayList<>();
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "certificate_id", referencedColumnName = "id")
     private Certificate certificate;
 

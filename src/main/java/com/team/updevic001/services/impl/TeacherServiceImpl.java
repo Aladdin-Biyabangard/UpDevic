@@ -1,10 +1,17 @@
 package com.team.updevic001.services.impl;
 
-import com.team.updevic001.dao.entities.*;
-import com.team.updevic001.dao.repositories.*;
+import com.team.updevic001.configuration.mappers.CourseMapper;
+import com.team.updevic001.configuration.mappers.TeacherMapper;
+import com.team.updevic001.dao.entities.Course;
+import com.team.updevic001.dao.entities.Teacher;
+import com.team.updevic001.dao.entities.TeacherCourse;
+import com.team.updevic001.dao.entities.User;
+import com.team.updevic001.dao.repositories.TeacherCourseRepository;
+import com.team.updevic001.dao.repositories.TeacherRepository;
 import com.team.updevic001.exceptions.ForbiddenException;
 import com.team.updevic001.exceptions.ResourceNotFoundException;
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
+import com.team.updevic001.model.dtos.response.teacher.ResponseTeacherDto;
 import com.team.updevic001.model.enums.Role;
 import com.team.updevic001.services.interfaces.TeacherService;
 import com.team.updevic001.utility.AuthHelper;
@@ -22,6 +29,8 @@ public class TeacherServiceImpl implements TeacherService {
     private final TeacherRepository teacherRepository;
     private final TeacherCourseRepository teacherCourseRepository;
     private final AuthHelper authHelper;
+    private final TeacherMapper teacherMapper;
+    private final CourseMapper courseMapper;
 
 
     @Override
@@ -34,7 +43,7 @@ public class TeacherServiceImpl implements TeacherService {
         List<ResponseCourseShortInfoDto> courses = teacherCourses.stream()
                 .map(teacherCourse -> {
                     Course course = teacherCourse.getCourse();
-                    return new ResponseCourseShortInfoDto(course.getId(), course.getTitle(), course.getLevel());
+                    return courseMapper.toCourseResponse(course);
                 })
                 .toList();
 
@@ -70,10 +79,9 @@ public class TeacherServiceImpl implements TeacherService {
         return teacher;
     }
 
-    private Teacher findTeacherById(String teacherID) {
-        log.info("Finding teacher by ID: {}", teacherID);
-        return teacherRepository.findById(teacherID)
-                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found this id: " + teacherID));
+    public List<ResponseTeacherDto> searchTeacher(String keyword) {
+        List<Teacher> teachers = teacherRepository.searchTeacher(keyword);
+        return !teachers.isEmpty() ? teacherMapper.toTeacherDto(teachers) : List.of();
     }
 
     public Teacher getAuthenticatedTeacher() {
@@ -84,5 +92,11 @@ public class TeacherServiceImpl implements TeacherService {
             throw new ForbiddenException("NOT_ALLOWED");
         }
         return teacher;
+    }
+
+    private Teacher findTeacherById(String teacherID) {
+        log.info("Finding teacher by ID: {}", teacherID);
+        return teacherRepository.findById(teacherID)
+                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found this id: " + teacherID));
     }
 }

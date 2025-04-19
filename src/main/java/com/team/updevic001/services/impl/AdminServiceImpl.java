@@ -42,11 +42,13 @@ public class AdminServiceImpl implements AdminService {
             return userRoleRepository.save(role);
 
         });
-        user.getRoles().add(userRole);
-        Teacher teacher = new Teacher();
-        teacher.setUser(user);
-        userRepository.save(user);
-        teacherRepository.save(teacher);
+        if (!user.getRoles().contains(userRole)) {
+            user.getRoles().add(userRole);
+            Teacher teacher = new Teacher();
+            teacher.setUser(user);
+            userRepository.save(user);
+            teacherRepository.save(teacher);
+        }
     }
 
 
@@ -86,8 +88,12 @@ public class AdminServiceImpl implements AdminService {
     public void assignRoleToUser(String id, Role role) {
         log.info("Assigning role {} to user with ID: {}", role, id);
         User user = userServiceImpl.findUserById(id);
-        UserRole userRole = UserRole.builder()
-                .name(role).build();
+        UserRole userRole = userRoleRepository.findByName(role).orElseGet(() -> {
+            UserRole newRole = UserRole.builder()
+                    .name(role)
+                    .build();
+            return userRoleRepository.save(newRole);
+        });
         saveUserRole(userRole);
         user.getRoles().add(userRole);
         saveUser(user);

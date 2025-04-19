@@ -8,9 +8,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ResponseLessonShortInfoDto {
+
+    private String lessonId;
+
     private String title;
 
     private String description;
 
-    private String videoUrl;
 }

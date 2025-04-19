@@ -23,15 +23,15 @@ public class UserController {
     private final UserService userService;
 
     @PutMapping("/profile")
-    public ResponseEntity<Void> updateUserProfileInfo(@RequestBody UserProfileDto userProfileDto) {
+    public ResponseEntity<String> updateUserProfileInfo(@RequestBody UserProfileDto userProfileDto) {
         userService.updateUserProfileInfo(userProfileDto);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok("User profile updated!");
     }
 
     @PatchMapping("/password")
-    public ResponseEntity<Void> updateUserPassword(@Valid @RequestBody ChangePasswordDto passwordDto) {
+    public ResponseEntity<String> updateUserPassword(@Valid @RequestBody ChangePasswordDto passwordDto) {
         userService.updateUserPassword(passwordDto);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok("User password updated");
     }
 
     @GetMapping("/{uuid}")
@@ -48,9 +48,9 @@ public class UserController {
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteUser() {
+    public ResponseEntity<String> deleteUser() {
         userService.deleteUser();
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.ok("Delete all users!");
     }
 
 

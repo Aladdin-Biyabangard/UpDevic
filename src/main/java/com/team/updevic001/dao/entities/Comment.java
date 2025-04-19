@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
@@ -41,6 +43,7 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name = "course_id")
     @JsonBackReference
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Course course;
 
     @ManyToOne

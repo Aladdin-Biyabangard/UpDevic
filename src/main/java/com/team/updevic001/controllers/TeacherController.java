@@ -1,10 +1,10 @@
 package com.team.updevic001.controllers;
 
 import com.team.updevic001.model.dtos.response.course.ResponseCourseShortInfoDto;
+import com.team.updevic001.model.dtos.response.teacher.ResponseTeacherDto;
 import com.team.updevic001.services.interfaces.TeacherService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,15 +26,21 @@ public class TeacherController {
 
     @Operation(summary = "Delete the teacher")
     @DeleteMapping(path = "/{userId}")
-    public ResponseEntity<Void> deleteTeacher(@PathVariable String userId) {
+    public ResponseEntity<String> deleteTeacher(@PathVariable String userId) {
         teacherServiceImpl.deleteTeacher(userId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok("Teacher deleted!");
     }
 
     @Operation(summary = "Delete all teachers")
     @DeleteMapping(path = "/all")
-    public ResponseEntity<Void> deleteAllTeachers() {
+    public ResponseEntity<String> deleteAllTeachers() {
         teacherServiceImpl.deleteAllTeachers();
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok("All teacher deleted!");
+    }
+
+    @GetMapping(path = "/search")
+    public ResponseEntity<List<ResponseTeacherDto>> searchTeacher(@RequestParam String keyword) {
+        List<ResponseTeacherDto> responseTeachers = teacherServiceImpl.searchTeacher(keyword);
+        return ResponseEntity.ok(responseTeachers);
     }
 }

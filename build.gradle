@@ -38,6 +38,15 @@ dependencies {
     implementation 'com.itextpdf:itext7-core:7.2.3'
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'com.github.ben-manes.caffeine:caffeine:2.9.1'
+  //  implementation 'org.liquibase:liquibase-core:4.16.0'
+
+//    implementation 'org.liquibase:liquibase-core'
+//    runtimeOnly 'mysql:mysql-connector-j'
+
+
+    implementation platform('software.amazon.awssdk:bom:2.25.16')
+    implementation 'software.amazon.awssdk:s3'
+    implementation 'org.mp4parser:isoparser:1.9.41'
 
 
     implementation 'org.modelmapper:modelmapper:2.4.4'

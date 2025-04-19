@@ -29,9 +29,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -52,17 +50,34 @@ public class AuthServiceImpl implements AuthService {
     ConfirmationEmailServiceImpl confirmationEmailServiceImpl;
     PasswordResetTokenRepository passwordResetTokenRepository;
     RefreshTokenRepository refreshTokenRepository;
-    private final AuthHelper authHelper;
-    private final UserMapper userMapper;
+    AuthHelper authHelper;
+    UserMapper userMapper;
 
 
+    @Transactional
+    public AuthResponseDto createUserWithAdminRole(AuthRequestDto authRequest) {
+        User user = authenticateUser(authRequest);
+        UserRole userRole = userRoleRepository.findByName(Role.ADMIN).orElseGet(() -> {
+            UserRole role = UserRole.builder()
+                    .name(Role.ADMIN)
+                    .build();
+            return userRoleRepository.save(role);
+
+        });
+        if (!user.getRoles().contains(userRole)) {
+            user.getRoles().add(userRole);
+            userRepository.save(user);
+        }
+        return getAccessTokenAndRefreshToken(user);
+    }
+
+    @Override
     public ResponseUserDto getLoggedInUser() {
         User authenticatedUser = authHelper.getAuthenticatedUser();
         return userMapper.toResponse(authenticatedUser, ResponseUserDto.class);
     }
 
     @Override
-    @Transactional
     public AuthResponseDto login(AuthRequestDto authRequest) {
         log.info("Attempting to authenticate user with email: {}", authRequest.getEmail());
 
@@ -78,7 +93,10 @@ public class AuthServiceImpl implements AuthService {
 
             log.info("Authentication successful for user with email: {}", authRequest.getEmail());
 
-            return getAccessTokenAndRefreshToken(user);
+            List<String> roles = extractRoleNames(user);
+            AuthResponseDto accessTokenAndRefreshToken = getAccessTokenAndRefreshToken(user);
+            accessTokenAndRefreshToken.setRole(roles);
+            return accessTokenAndRefreshToken;
 
         } catch (BadCredentialsException ex) {
             log.warn("Invalid login attempt for email: {}", authRequest.getEmail());
@@ -104,7 +122,6 @@ public class AuthServiceImpl implements AuthService {
         otpService.sendOtp(student);
     }
 
-    @Transactional
     public AuthResponseDto getAccessTokenAndRefreshToken(User user) {
         var jwtToken = jwtUtil.createToken(user);
         RefreshToken refreshToken = RefreshToken.builder()
@@ -112,13 +129,17 @@ public class AuthServiceImpl implements AuthService {
                 .expiresAt(LocalDateTime.now().plusDays(7))
                 .build();
         refreshTokenRepository.save(refreshToken);
+
         AuthResponseDto authResponse = AuthResponseDto.builder()
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken.getId())
                 .build();
         log.info("Access token and refresh token are returned");
         return authResponse;
     }
+
 
     @Override
     @Transactional
@@ -129,7 +150,10 @@ public class AuthServiceImpl implements AuthService {
         otpService.verifyOtp(request);
         user.setStatus(Status.ACTIVE);
         userRepository.save(user);
-        return getAccessTokenAndRefreshToken(user);
+        List<String> roles = extractRoleNames(user);
+        AuthResponseDto accessTokenAndRefreshToken = getAccessTokenAndRefreshToken(user);
+        accessTokenAndRefreshToken.setRole(roles);
+        return accessTokenAndRefreshToken;
     }
 
     @Override
@@ -137,7 +161,7 @@ public class AuthServiceImpl implements AuthService {
     public void requestPasswordReset(String email) {
         User user = userRepository.findByEmailAndStatus(email, Status.ACTIVE).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
         log.info("Requesting password reset started by user with ID {}", user.getId());
-        String token = generateToken();
+        String token = authHelper.generateToken();
         PasswordResetToken passwordResetToken = PasswordResetToken.builder()
                 .token(token)
                 .user(user)
@@ -151,16 +175,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void resetPassword(String token, RecoveryPassword recoveryPassword) {
-        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token).orElseThrow(() -> new ResourceNotFoundException("SUCH_TOKEN_NOT_FOUND"));
-        User user = resetToken.getUser();
-        if (isExpired(resetToken)) {
-            throw new IllegalArgumentException("TOKEN_EXPIRED");
-        }
-        if (!recoveryPassword.getNewPassword().equals(recoveryPassword.getRetryPassword())) {
-            throw new IllegalArgumentException("PASSWORDS_MISMATCHING");
-        }
-        user.setPassword(passwordEncoder.encode(recoveryPassword.getNewPassword()));
-        userRepository.save(user);
+        PasswordResetToken resetToken = getValidResetToken(token);
+        validatePasswords(recoveryPassword);
+
+        updateUserPassword(resetToken.getUser(), recoveryPassword.getNewPassword());
         passwordResetTokenRepository.delete(resetToken);
         log.info("Password was successfully recovered");
     }
@@ -173,13 +191,35 @@ public class AuthServiceImpl implements AuthService {
 
         String newAccessToken = jwtUtil.createToken(user);
 
-        return new AuthResponseDto(newAccessToken, tokenRequest.getId());
+        List<String> roles = user.getRoles().stream()
+                .map(role -> role.getName().toString())
+                .toList();
+        return new AuthResponseDto(user.getFirstName(), user.getLastName(), roles, newAccessToken, tokenRequest.getId());
+    }
+
+    private PasswordResetToken getValidResetToken(String token) {
+        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
+                .orElseThrow(() -> new ResourceNotFoundException("SUCH_TOKEN_NOT_FOUND"));
+        if (isExpired(resetToken)) {
+            throw new IllegalArgumentException("TOKEN_EXPIRED");
+        }
+        return resetToken;
+    }
+
+    private void validatePasswords(RecoveryPassword recoveryPassword) {
+        if (!recoveryPassword.getNewPassword().equals(recoveryPassword.getRetryPassword())) {
+            throw new IllegalArgumentException("PASSWORDS_MISMATCHING");
+        }
+    }
+
+    private void updateUserPassword(User user, String newPassword) {
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 
     private boolean isExpired(PasswordResetToken resetToken) {
         return resetToken.getExpirationTime().isBefore(LocalDateTime.now());
     }
-
 
     private void validateUserRequest(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -217,11 +257,10 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND_OR_INACTIVE"));
     }
 
-    private static String generateToken() {
-        SecureRandom secureRandom = new SecureRandom();
-        byte[] randomBytes = new byte[32];
-        secureRandom.nextBytes(randomBytes);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+    private List<String> extractRoleNames(User user) {
+        return user.getRoles().stream()
+                .map(role -> role.getName().toString())
+                .toList();
     }
 
 }

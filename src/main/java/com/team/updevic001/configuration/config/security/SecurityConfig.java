@@ -1,9 +1,10 @@
-package com.team.updevic001.configuration.config;
+package com.team.updevic001.configuration.config.security;
 
 import com.team.updevic001.configuration.enums.AuthMapping;
 import com.team.updevic001.model.enums.Role;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -30,12 +31,18 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomUserDetailsService userDetailsService;
 
+    @Value("${frontend.url1}")
+    String FRONTEND_URL1;
+
+    @Value("${frontend.url2}")
+    String FRONTEND_URL2;
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(corsConfigurer -> corsConfigurer.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of("http://127.0.0.1:5502", "http://localhost:5502"));
+                    config.setAllowedOrigins(List.of(FRONTEND_URL1, FRONTEND_URL2));
                     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     config.setAllowedHeaders(List.of("*"));
                     config.setAllowCredentials(true);

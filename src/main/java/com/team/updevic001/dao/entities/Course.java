@@ -2,6 +2,7 @@ package com.team.updevic001.dao.entities;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.team.updevic001.model.enums.CourseCategoryType;
 import com.team.updevic001.model.enums.CourseLevel;
 import com.team.updevic001.model.enums.Status;
 import jakarta.persistence.*;
@@ -19,11 +20,16 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "courses")
-public class  Course {
+public class Course {
 
     @Id
     @Column(unique = true, nullable = false, length = 12)
     private String id;
+
+    @Enumerated(EnumType.STRING)
+    private CourseCategoryType courseCategoryType;
+
+    private String headTeacher;
 
     @Column(name = "title", nullable = false)
     private String title;
@@ -34,6 +40,9 @@ public class  Course {
     @Column(name = "course_level")
     @Enumerated(EnumType.STRING)
     private CourseLevel level;
+
+    @Column(name = "rating")
+    private double rating = 0;
 
     @Enumerated(EnumType.STRING)
     private Status status;
@@ -61,17 +70,17 @@ public class  Course {
     // Bir çox TeacherCourse ilə əlaqə
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<TeacherCourse> teacherCourses = new ArrayList<>();
-
-    @ManyToOne
-    @JoinColumn(name = "course_category_id")
-    private CourseCategory category;
+//
+//    @ManyToOne(cascade = CascadeType.ALL)
+//    @JoinColumn(name = "course_category_id")
+//    private CourseCategory category;
 
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks = new ArrayList<>();
 
 
-    @OneToMany(mappedBy = "course")
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<TestResult> testResults = new ArrayList<>();
 
     @PrePersist
